@@ -92,8 +92,9 @@ public class Scanner {
 
 		// returns the text of this Token
 		public String getText() {
-			// TODO IMPLEMENT THIS: return actual text. Repeation in non-identifier or non-digit cases
+//			 TODO IMPLEMENT THIS: return actual text or just the Kind's text? Repeation in non-identifier or non-digit cases
 			return kind.getText();
+//			return null;
 		}
 
 		// returns a LinePos object representing the line and column of this
@@ -156,7 +157,7 @@ public class Scanner {
 		int pos = 0;
 		int length = chars.length();
 		State state = State.START;
-		int startPos = 0;
+		int startPos = 0; //both lines and pos start from 0
 		int ch;
 		while (pos <= length) {
 			ch = pos < length ? chars.charAt(pos) : -1; // -1 will be handled by EOF

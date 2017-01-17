@@ -92,15 +92,15 @@ public class Scanner {
 
 		// returns the text of this Token
 		public String getText() {
-//			 TODO IMPLEMENT THIS: return actual text or just the Kind's text? Repeation in non-identifier or non-digit cases
-			return kind.getText();
-//			return null;
+			// TODO IMPLEMENT THIS: return actual text
+			return chars.substring(pos, pos + length);
 		}
 
 		// returns a LinePos object representing the line and column of this
 		// Token
 		LinePos getLinePos() {
 			// TODO IMPLEMENT THIS
+			
 			return null;
 		}
 
@@ -111,8 +111,7 @@ public class Scanner {
 		}
 
 		/**
-		 * Precondition: kind = Kind.INT_LIT, the text can be represented with a Java int. Note that the validity of the input should 
-		 * have been checked when the Token was created. So the exception should never be thrown.
+		 * Precondition: kind = Kind.INT_LIT, the text can be represented with a Java int. Note that the validity of the input should have been checked when the Token was created. So the exception should never be thrown.
 		 * 
 		 * @return int value of this token, which should represent an INT_LIT
 		 * @throws NumberFormatException
@@ -127,20 +126,19 @@ public class Scanner {
 	final String chars;
 	int tokenNum;
 	// TODO: Make private
-	ArrayList<Integer> lineStartsList;
+	ArrayList<Integer> newLines; //record the positions of newline characters
 
 	Scanner(String chars) {
 		this.chars = chars;
 		tokenNum = 0;
 		tokens = new ArrayList<Token>();
-		lineStartsList = new ArrayList<>();   // first line starts at 0
-		lineStartsList.add(0);
+		newLines = new ArrayList<>();
 	}
 
 	private int skipWhiteSpaces(int pos) {
-		while ( pos < chars.length()  && Character.isWhitespace(chars.charAt(pos))) {
+		while (pos < chars.length() && Character.isWhitespace(chars.charAt(pos))) {
 			if (chars.charAt(pos) == '\n')
-				lineStartsList.add(pos + 1); // newline starts in the next position
+				newLines.add(pos);
 			++pos;
 		}
 		return pos;
@@ -154,23 +152,25 @@ public class Scanner {
 	 * @throws IllegalNumberException
 	 */
 	public Scanner scan() throws IllegalCharException, IllegalNumberException {
+		// TODO IMPLEMENT THIS!!!!
+		
 		int pos = 0;
 		int length = chars.length();
 		State state = State.START;
-		int startPos = 0; //both lines and pos start from 0
+		int startPos = 0; // both lines and pos start from 0
 		int ch;
 		while (pos <= length) {
 			ch = pos < length ? chars.charAt(pos) : -1; // -1 will be handled by EOF
 			switch (state) {
-				
+
 				case START : {
 					pos = skipWhiteSpaces(pos);
-					ch = pos < length ? chars.charAt(pos) : -1; //checking again as skipWhiteSpaces mgiht have changed the pos again
+					ch = pos < length ? chars.charAt(pos) : -1; // checking again as skipWhiteSpaces mgiht have changed the pos again
 					startPos = pos;
 					switch (ch) {
 						case -1 : {
 							tokens.add(new Token(Kind.EOF, pos, 0));
-							pos++; //is probably not reqd as EOF will be last char. But still now harm as the while will catch
+							pos++; // is probably not reqd as EOF will be last char. But still now harm as the while will catch
 						}
 							break;
 						case '&' : {
@@ -208,10 +208,10 @@ public class Scanner {
 						// "illegal char " +ch+" at pos "+pos);
 						// }
 						// }
-							default: { //TODO: get rid off this
-								System.out.println();
-								pos++;
-							}
+						default : { // TODO: get rid off this
+							System.out.println();
+							pos++;
+						}
 					} // switch (ch)
 
 				}
@@ -254,11 +254,6 @@ public class Scanner {
 			}// switch(state)
 		} // while
 		return this;
-
-		// TODO IMPLEMENT THIS!!!!
-		// tokens.add(new Token(Kind.EOF,pos,0));
-		// tokens.add(new Token(Kind.SEMI,pos,1));
-		// return this;
 	}
 
 	/*

@@ -13,13 +13,11 @@ import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
 
-	private static void isValidSimpleToken(Token t, Kind k, int pos) { // Simple meaning: kind text = token text
-		assertEquals(k, t.kind);
-		assertEquals(pos, t.pos);
-		String text = k.getText();
-		// TODO: will this be valid for identifiers etc as well?
-		assertEquals(text.length(), t.length);
-		assertEquals(text, t.getText());
+	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
+		assertEquals(expKind, t.kind);
+		assertEquals(expPos, t.pos);
+		assertEquals(expLen, t.length);
+		assertEquals(expText, t.getText());
 	}
 
 	@Rule
@@ -88,7 +86,7 @@ public class ScannerTest {
 		assertEquals(EOF, token.kind);
 		assertEquals(0, token.pos);
 		assertEquals(0, token.length);
-		assertEquals(EOF.getText(), token.getText());
+		assertEquals("", token.getText());
 	}
 	
 	@Test
@@ -103,7 +101,7 @@ public class ScannerTest {
 		assertEquals(EOF, token.kind);
 		assertEquals(19, token.pos);
 		assertEquals(0, token.length);
-		assertEquals(EOF.getText(), token.getText());
+		assertEquals("", token.getText());
 	}
 
 	@Test
@@ -114,10 +112,9 @@ public class ScannerTest {
 		// create and initialize the scanner
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
-		assertEquals(0, scanner.lineStartsList.get(0).intValue()); // 1st line
-		assertEquals(4, scanner.lineStartsList.get(1).intValue());
-		assertEquals(7, scanner.lineStartsList.get(2).intValue());
-		assertEquals(11, scanner.lineStartsList.get(3).intValue());
+		assertEquals(3, scanner.newLines.get(0).intValue());
+		assertEquals(6, scanner.newLines.get(1).intValue());
+		assertEquals(10, scanner.newLines.get(2).intValue());
 	}
 
 	@Test
@@ -131,15 +128,15 @@ public class ScannerTest {
 		assertEquals(6, scanner.tokens.size());
 		// get the first token and check its kind, position, and contents (length and text)
 		Scanner.Token token = scanner.nextToken();
-		isValidSimpleToken(token, TIMES, 6);
+		isValidToken(token, TIMES, 6,"*", 1);
 		Scanner.Token token1 = scanner.nextToken();
-		isValidSimpleToken(token1, PLUS, 8);
+		isValidToken(token1, PLUS, 8, "+", 1);
 		Scanner.Token token2 = scanner.nextToken();
-		isValidSimpleToken(token2, AND, 10);
+		isValidToken(token2, AND, 10, "&", 1);
 		Scanner.Token token3 = scanner.nextToken();
-		isValidSimpleToken(token3, MOD, 12);
+		isValidToken(token3, MOD, 12, "%", 1);
 		Scanner.Token token4 = scanner.nextToken();
-		isValidSimpleToken(token4, PLUS, 14);
+		isValidToken(token4, PLUS, 14, "+", 1);
 	}
 
 	// TODO more tests

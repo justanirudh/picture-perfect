@@ -8,29 +8,11 @@ public class Scanner {
 	 * Kind enum
 	 */
 	public static enum Kind {
-		IDENT(""), INT_LIT(""), KW_INTEGER("integer"), KW_BOOLEAN(
-				"boolean"), KW_IMAGE("image"), KW_URL("url"), KW_FILE("file"), KW_FRAME(
-						"frame"), KW_WHILE("while"), KW_IF("if"), KW_TRUE("true"), KW_FALSE(
-								"false"), SEMI(";"), COMMA(","), LPAREN("("), RPAREN(
-										")"), LBRACE("{"), RBRACE("}"), ARROW("->"), BARARROW(
-												"|->"), OR("|"), AND("&"), EQUAL("=="), NOTEQUAL(
-														"!="), LT("<"), GT(">"), LE("<="), GE(">="), PLUS(
-																"+"), MINUS("-"), TIMES("*"), DIV("/"), MOD(
-																		"%"), NOT("!"), ASSIGN("<-"), OP_BLUR(
-																				"blur"), OP_GRAY("gray"), OP_CONVOLVE(
-																						"convolve"), KW_SCREENHEIGHT(
-																								"screenheight"), KW_SCREENWIDTH(
-																										"screenwidth"), OP_WIDTH(
-																												"width"), OP_HEIGHT(
-																														"height"), KW_XLOC(
-																																"xloc"), KW_YLOC(
-																																		"yloc"), KW_HIDE(
-																																				"hide"), KW_SHOW(
-																																						"show"), KW_MOVE(
-																																								"move"), OP_SLEEP(
-																																										"sleep"), KW_SCALE(
-																																												"scale"), EOF(
-																																														"eof");
+		IDENT(""), INT_LIT(""), KW_INTEGER("integer"), KW_BOOLEAN("boolean"), KW_IMAGE("image"), KW_URL("url"), KW_FILE("file"), KW_FRAME("frame"), KW_WHILE("while"), KW_IF("if"), KW_TRUE(
+				"true"), KW_FALSE("false"), SEMI(";"), COMMA(","), LPAREN("("), RPAREN(")"), LBRACE("{"), RBRACE("}"), ARROW("->"), BARARROW("|->"), OR("|"), AND("&"), EQUAL("=="), NOTEQUAL("!="), LT(
+						"<"), GT(">"), LE("<="), GE(">="), PLUS("+"), MINUS("-"), TIMES("*"), DIV("/"), MOD("%"), NOT("!"), ASSIGN("<-"), OP_BLUR("blur"), OP_GRAY("gray"), OP_CONVOLVE(
+								"convolve"), KW_SCREENHEIGHT("screenheight"), KW_SCREENWIDTH("screenwidth"), OP_WIDTH("width"), OP_HEIGHT("height"), KW_XLOC("xloc"), KW_YLOC("yloc"), KW_HIDE("hide"), KW_SHOW(
+										"show"), KW_MOVE("move"), OP_SLEEP("sleep"), KW_SCALE("scale"), EOF("eof");
 
 		Kind(String text) {
 			this.text = text;
@@ -100,13 +82,16 @@ public class Scanner {
 		// returns a LinePos object representing the line and column of this
 		// Token
 		/*
-		 * To Search an element of Java ArrayList using binary search algorithm use, static int binarySearch(List list, Object element) method of 
-		 * Collections class. This method returns the index of the value to be searched, if found in the ArrayList. Otherwise it returns (- (X) - 1)
-		 * where X is the index where the the search value would be inserted. i.e. index of first element that is grater than the search value or ArrayList.size()
+		 * To Search an element of Java ArrayList using binary search algorithm use, static int binarySearch(List list, Object element) method of
+		 * Collections class. This method returns the index of the value to be searched, if found in the ArrayList. Otherwise it returns (- (X) - 1) where
+		 * X is the index where the the search value would be inserted. i.e. index of first element that is grater than the search value or
+		 * ArrayList.size()
 		 */
 		LinePos getLinePos() {
 			// TODO IMPLEMENT THIS
-			int ret = Collections.binarySearch(newLines, pos); // ret should never be positive as a token cant have the same position as a newline
+			int ret = Collections.binarySearch(newLines, pos); // ret should never be positive as a token
+																													// cant have the same position as a
+																													// newline
 			int line = -1 * (ret + 1);
 			int posInLine;
 			if (line == 0)
@@ -117,15 +102,15 @@ public class Scanner {
 		}
 
 		/**
-		 * Precondition: kind = Kind.INT_LIT, the text can be represented with a Java int. Note that the validity of the input 
-		 * should have been checked when the Token was created. So the exception should never be thrown.
+		 * Precondition: kind = Kind.INT_LIT, the text can be represented with a Java int. Note that the validity of the input should have been checked
+		 * when the Token was created. So the exception should never be thrown.
 		 * 
 		 * @return int value of this token, which should represent an INT_LIT
 		 * @throws NumberFormatException
 		 */
 		public int intVal() throws NumberFormatException {
 			// TODO IMPLEMENT THIS
-			return 0;
+			return Integer.parseInt(getText());
 		}
 
 		Token(Kind kind, int pos, int length) {
@@ -173,18 +158,18 @@ public class Scanner {
 		State state = State.START;
 		int startPos = 0; // both lines and pos start from 0
 		int ch;
-		while (pos <= length) {
+		while (pos <= length) { // == also because catching the EOF
 			ch = pos < length ? chars.charAt(pos) : -1; // -1 will be handled by EOF
 			switch (state) {
 
-				case START : {
+				case START : { // IMP: All states except start will need to change there state to START after getting done with their business
 					pos = skipWhiteSpaces(pos);
-					ch = pos < length ? chars.charAt(pos) : -1; // checking again as skipWhiteSpaces mgiht have changed the pos again
+					ch = pos < length ? chars.charAt(pos) : -1; // checking again as skipWhiteSpaces might have changed the pos again
 					startPos = pos;
 					switch (ch) {
 						case -1 : {
 							tokens.add(new Token(Kind.EOF, pos, 0));
-							pos++; // is probably not reqd as EOF will be last char. But still now harm as the while will catch
+							pos++; // is probably not required as EOF will be last char. But still no harm as the while will catch
 						}
 							break;
 						case '&' : {
@@ -237,33 +222,54 @@ public class Scanner {
 							pos++;
 						}
 							break;
-						// case '*': {tokens.add(new Token(Kind.TIMES, startPos,
-						// 1));pos++;} break;
-						// case '=': {state = State.AFTER_EQ;pos++;}break;
-						// case '0': {tokens.add(new Token(Kind.INT_LIT,startPos,
-						// 1));pos++;}break;
-						// default: {
-						// if (Character.isDigit(ch)) {state = State.IN_DIGIT;pos++;}
-						// else if (Character.isJavaIdentifierStart(ch)) {
-						// state = State.IN_IDENT;pos++;
-						// }
-						// else {
-						// throw new IllegalCharException(
-						// "illegal char " +ch+" at pos "+pos);
-						// }
-						// }
-						default : { // TODO: get rid off this
-							System.out.println();
+						case '0' : {
+							tokens.add(new Token(Kind.INT_LIT, startPos, 1));
 							pos++;
 						}
+							break;
+						// case '=': {state = State.AFTER_EQ;pos++;}break;
+						default : { // this should come after the '0' state else isDigit would catch that
+							if (Character.isDigit(ch)) {
+								state = State.IN_DIGIT;
+								pos++;
+							} else if (Character.isJavaIdentifierStart(ch)) {
+								state = State.IN_IDENT;
+								pos++;
+							} else {
+								throw new IllegalCharException("Illegal char " + ch + " at pos " + pos);
+							}
+						}
+						// default : { // TODO: get rid off this
+						// System.out.println();
+						// pos++;
+						// }
 					} // switch (ch)
 
 				}
 					break;
 				case IN_DIGIT : {
+					if (Character.isDigit(ch)) { // keep incrementing pos until we get a non-digit
+						pos++;
+					} else {
+						// TODO: better way to do this?
+						Token potentialToken = new Token(Kind.INT_LIT, startPos, pos - startPos);
+						try {
+							Integer.parseInt(potentialToken.getText()); //at this point, test is definitely a number. Hence, numformatExp will only be thrown if it is to big
+						} catch (NumberFormatException n) {
+							throw new IllegalNumberException("Number is too big. Cannot be represented as a Java Integer: " + potentialToken.getText());
+						}
+						tokens.add(potentialToken);
+						state = State.START;
+					}
 				}
 					break;
 				case IN_IDENT : {
+					if (Character.isJavaIdentifierPart(ch)) { // keep incrementing pos until we get a non-javaidentifierpart
+						pos++;
+					} else {
+						tokens.add(new Token(Kind.IDENT, startPos, pos - startPos));
+						state = State.START;
+					}
 				}
 					break;
 				case AFTER_EQ : {

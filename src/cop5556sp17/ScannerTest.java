@@ -12,6 +12,7 @@ import cop5556sp17.Scanner.IllegalNumberException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
+	// TODO: Also write 'exception' based tests
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -45,11 +46,14 @@ public class ScannerTest {
 		// get the first token and check its kind, position, and contents (length and text)
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, SEMI, 0, SEMI.getText(), SEMI.getText().length());
+
 		// get the next token and check its kind, position, and contents
 		Scanner.Token token1 = scanner.nextToken();
 		isValidToken(token1, SEMI, 1, SEMI.getText(), SEMI.getText().length());
+
 		Scanner.Token token2 = scanner.nextToken();
 		isValidToken(token2, SEMI, 2, SEMI.getText(), SEMI.getText().length());
+
 		// check that the scanner has inserted an EOF token at the end
 		Scanner.Token token3 = scanner.nextToken();
 		isValidToken(token3, EOF, 3, "", 0);
@@ -65,34 +69,37 @@ public class ScannerTest {
 		// get the first token and check its kind, position, and contents (length and text)
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, RPAREN, 0, RPAREN.getText(), RPAREN.getText().length());
+
 		Scanner.Token token1 = scanner.nextToken();
 		isValidToken(token1, RBRACE, 1, RBRACE.getText(), RBRACE.getText().length());
+
 		Scanner.Token token2 = scanner.nextToken();
 		isValidToken(token2, LPAREN, 2, LPAREN.getText(), LPAREN.getText().length());
+
 		Scanner.Token token3 = scanner.nextToken();
 		isValidToken(token3, COMMA, 3, COMMA.getText(), COMMA.getText().length());
+
 		Scanner.Token token4 = scanner.nextToken();
 		isValidToken(token4, LBRACE, 4, LBRACE.getText(), LBRACE.getText().length());
+
 		Scanner.Token token5 = scanner.nextToken();
 		isValidToken(token5, EOF, 5, "", 0);
 	}
 
 	/**
-	 * This test illustrates how to check that the Scanner detects errors properly. In this test, the
-	 * input contains an int literal with a value that exceeds the range of an int. The scanner should
-	 * detect this and throw and IllegalNumberException.
+	 * This test illustrates how to check that the Scanner detects errors properly. In this test, the input contains an int literal with a value that
+	 * exceeds the range of an int. The scanner should detect this and throw and IllegalNumberException.
 	 * 
 	 * @throws IllegalCharException
 	 * @throws IllegalNumberException
 	 */
-	// @Test
-	// public void testIntOverflowError() throws IllegalCharException,
-	// IllegalNumberException {
-	// String input = "99999999999999999";
-	// Scanner scanner = new Scanner(input);
-	// thrown.expect(IllegalNumberException.class);
-	// scanner.scan();
-	// }
+	@Test
+	public void testIntOverflowError() throws IllegalCharException, IllegalNumberException {
+		String input = "99999999999999999";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalNumberException.class);
+		scanner.scan();
+	}
 
 	@Test
 	public void testEOF() throws IllegalCharException, IllegalNumberException {
@@ -144,12 +151,16 @@ public class ScannerTest {
 		// get the first token and check its kind, position, and contents (length and text)
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, TIMES, 6, "*", 1);
+
 		Scanner.Token token1 = scanner.nextToken();
 		isValidToken(token1, PLUS, 8, "+", 1);
+
 		Scanner.Token token2 = scanner.nextToken();
 		isValidToken(token2, AND, 10, "&", 1);
+
 		Scanner.Token token3 = scanner.nextToken();
 		isValidToken(token3, MOD, 12, "%", 1);
+
 		Scanner.Token token4 = scanner.nextToken();
 		isValidToken(token4, PLUS, 14, "+", 1);
 	}

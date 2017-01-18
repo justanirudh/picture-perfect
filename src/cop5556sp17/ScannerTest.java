@@ -85,8 +85,8 @@ public class ScannerTest {
 	}
 
 	/**
-	 * This test illustrates how to check that the Scanner detects errors properly. In this test, the input contains an int literal with a value that
-	 * exceeds the range of an int. The scanner should detect this and throw and IllegalNumberException.
+	 * This test illustrates how to check that the Scanner detects errors properly. In this test, the input contains an int literal with a value that exceeds the range of an int. The scanner should
+	 * detect this and throw and IllegalNumberException.
 	 * 
 	 * @throws IllegalCharException
 	 * @throws IllegalNumberException
@@ -94,6 +94,14 @@ public class ScannerTest {
 	@Test
 	public void testIntOverflowError() throws IllegalCharException, IllegalNumberException {
 		String input = "99999999999999999";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalNumberException.class);
+		scanner.scan();
+	}
+
+	@Test
+	public void testIntOverflowError2() throws IllegalCharException, IllegalNumberException {
+		String input = "87 80 09 abc ;_$ 9999999999999999999999999999999999999999999999999999 87 22";
 		Scanner scanner = new Scanner(input);
 		thrown.expect(IllegalNumberException.class);
 		scanner.scan();
@@ -197,7 +205,7 @@ public class ScannerTest {
 		// create and initialize the scanner
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
-		
+
 		assertEquals(25, scanner.tokens.size());
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, IDENT, 0, "K", 1);
@@ -213,7 +221,7 @@ public class ScannerTest {
 
 		Scanner.Token token4 = scanner.nextToken();
 		isValidToken(token4, IDENT, 11, "D_", 2);
-		
+
 		Scanner.Token token5 = scanner.nextToken();
 		isValidToken(token5, IDENT, 14, "E0", 2);
 
@@ -227,8 +235,8 @@ public class ScannerTest {
 		isValidToken(token8, IDENT, 22, "bb", 2);
 
 		Scanner.Token token9 = scanner.nextToken();
-		isValidToken(token9, IDENT, 25, "c$", 2); 
-		
+		isValidToken(token9, IDENT, 25, "c$", 2);
+
 		Scanner.Token token10 = scanner.nextToken();
 		isValidToken(token10, IDENT, 28, "d_", 2);
 
@@ -243,7 +251,7 @@ public class ScannerTest {
 
 		Scanner.Token token14 = scanner.nextToken();
 		isValidToken(token14, IDENT, 39, "$f", 2);
-		
+
 		Scanner.Token token15 = scanner.nextToken();
 		isValidToken(token15, IDENT, 42, "$$", 2);
 
@@ -258,7 +266,7 @@ public class ScannerTest {
 
 		Scanner.Token token19 = scanner.nextToken();
 		isValidToken(token19, IDENT, 53, "_D", 2);
-		
+
 		Scanner.Token token20 = scanner.nextToken();
 		isValidToken(token20, IDENT, 56, "_s", 2);
 
@@ -271,7 +279,7 @@ public class ScannerTest {
 		Scanner.Token token23 = scanner.nextToken();
 		isValidToken(token23, IDENT, 67, "_65", 3);
 	}
-	
+
 	@Test
 	public void testZero() throws IllegalCharException, IllegalNumberException {
 		String input = "0 0";
@@ -301,23 +309,23 @@ public class ScannerTest {
 
 		Scanner.Token token12 = scanner2.nextToken();
 		isValidToken(token12, EOF, 2, "", 0);
-		
+
 	}
 
 	@Test
 	public void testIdentiferWithZero() throws IllegalCharException, IllegalNumberException {
-		String input = "0 0af 0 af 0"; //0af would be 2 tokens as an ident cannot start with 0
+		String input = "0 0af 0 af 0"; // 0af would be 2 tokens as an ident cannot start with 0
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
-		
+
 		assertEquals(7, scanner.tokens.size());
-		
+
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, INT_LIT, 0, "0", 1);
-		
+
 		Scanner.Token token0 = scanner.nextToken();
 		isValidToken(token0, INT_LIT, 2, "0", 1);
-		
+
 		Scanner.Token token1 = scanner.nextToken();
 		isValidToken(token1, IDENT, 3, "af", 2);
 
@@ -333,19 +341,19 @@ public class ScannerTest {
 
 	@Test
 	public void testDigits() throws IllegalCharException, IllegalNumberException {
-		
-		String input = "31 40 5 6 09 0 6 0"; //09 would be 2 tokens as an ident cannot start with 0
+
+		String input = "31 40 5 6 09 0 6 0"; // 09 would be 2 tokens as an ident cannot start with 0
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
-		
+
 		assertEquals(10, scanner.tokens.size());
-		
+
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, INT_LIT, 0, "31", 2);
-		
+
 		Scanner.Token token0 = scanner.nextToken();
 		isValidToken(token0, INT_LIT, 3, "40", 2);
-		
+
 		Scanner.Token token1 = scanner.nextToken();
 		isValidToken(token1, INT_LIT, 6, "5", 1);
 
@@ -357,69 +365,100 @@ public class ScannerTest {
 
 		Scanner.Token token4 = scanner.nextToken();
 		isValidToken(token4, INT_LIT, 11, "9", 1);
-		
+
 		Scanner.Token token5 = scanner.nextToken();
 		isValidToken(token5, INT_LIT, 13, "0", 1);
-		
+
 		Scanner.Token token6 = scanner.nextToken();
 		isValidToken(token6, INT_LIT, 15, "6", 1);
-		
+
 		Scanner.Token token7 = scanner.nextToken();
 		isValidToken(token7, INT_LIT, 17, "0", 1);
 
 		Scanner.Token token8 = scanner.nextToken();
 		isValidToken(token8, EOF, 18, "", 0);
 	}
-	
+
 	@Test
 	public void testIdentifierDigitZeroSepOpLinePos() throws IllegalCharException, IllegalNumberException {
-		
-		String input = "_b$c 80 \n 0 ; \n , "; //09 would be 2 tokens as an ident cannot start with 0
+
+		String input = "_b$c 80 \n 0 ; \n , "; // 09 would be 2 tokens as an ident cannot start with 0
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
-		
+
 		assertEquals(6, scanner.tokens.size());
-		
+
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, IDENT, 0, "_b$c", 4);
 		isValidLinePos(token.getLinePos(), 0, 0);
-		
+
 		Scanner.Token token0 = scanner.nextToken();
 		isValidToken(token0, INT_LIT, 5, "80", 2);
 		isValidLinePos(token0.getLinePos(), 0, 5);
-		
+
 		Scanner.Token token1 = scanner.nextToken();
 		isValidToken(token1, INT_LIT, 10, "0", 1);
 		isValidLinePos(token1.getLinePos(), 1, 1);
-		
+
 		Scanner.Token token2 = scanner.nextToken();
 		isValidToken(token2, SEMI, 12, ";", 1);
 		isValidLinePos(token2.getLinePos(), 1, 3);
-		
+
 		Scanner.Token token3 = scanner.nextToken();
 		isValidToken(token3, COMMA, 16, ",", 1);
 		isValidLinePos(token3.getLinePos(), 2, 1);
-		
+
 		Scanner.Token token4 = scanner.nextToken();
 		isValidToken(token4, EOF, 18, "", 0);
 		isValidLinePos(token4.getLinePos(), 2, 3);
 	}
-	
+
+	@Test
+	public void testTokenGetIntValNumberFormatError() throws IllegalCharException, IllegalNumberException {
+
+		String input = "87 80 09 abc _$";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+
+		assertEquals(7, scanner.tokens.size());
+
+		Scanner.Token token0 = scanner.nextToken();
+		isValidToken(token0, INT_LIT, 0, "87", 2);
+		assertEquals(87,token0.intVal());
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, INT_LIT, 3, "80", 2);
+		assertEquals(80,token1.intVal());
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, INT_LIT, 6, "0", 1);
+		assertEquals(0,token2.intVal());
+
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, INT_LIT, 7, "9", 1);
+		assertEquals(9,token3.intVal());
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, IDENT, 9, "abc", 3);
+		thrown.expect(NumberFormatException.class);
+		assertEquals(9,token4.intVal());
+	}
+
 	@Test
 	public void testReservedWords() throws IllegalCharException, IllegalNumberException {
-		
+
 		String input = "if abc true falsely xloc de blur gray fileframe amoveg abif";
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
-		
+
 		assertEquals(12, scanner.tokens.size());
-		
+
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, KW_IF, 0, token.kind.getText(), token.kind.getText().length());
-		
+
 		Scanner.Token token0 = scanner.nextToken();
 		isValidToken(token0, IDENT, 3, "abc", 3);
-		
+
 		Scanner.Token token1 = scanner.nextToken();
 		isValidToken(token1, KW_TRUE, 7, token1.kind.getText(), token1.kind.getText().length());
 
@@ -431,19 +470,19 @@ public class ScannerTest {
 
 		Scanner.Token token4 = scanner.nextToken();
 		isValidToken(token4, IDENT, 25, "de", 2);
-		
+
 		Scanner.Token token5 = scanner.nextToken();
 		isValidToken(token5, OP_BLUR, 28, token5.kind.getText(), token5.kind.getText().length());
-		
+
 		Scanner.Token token6 = scanner.nextToken();
 		isValidToken(token6, OP_GRAY, 33, token6.kind.getText(), token6.kind.getText().length());
-		
+
 		Scanner.Token token7 = scanner.nextToken();
 		isValidToken(token7, IDENT, 38, "fileframe", 9);
-		
+
 		Scanner.Token token17 = scanner.nextToken();
 		isValidToken(token17, IDENT, 48, "amoveg", 6);
-		
+
 		Scanner.Token token27 = scanner.nextToken();
 		isValidToken(token27, IDENT, 55, "abif", 4);
 
@@ -451,7 +490,6 @@ public class ScannerTest {
 		isValidToken(token8, EOF, 59, "", 0);
 	}
 
-	
 	// TODO more tests
 
 }

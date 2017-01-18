@@ -19,6 +19,11 @@ public class ScannerTest {
 		assertEquals(expLen, t.length);
 		assertEquals(expText, t.getText());
 	}
+	
+	private static void isValidLinePos(LinePos lp, int expLine, int expPosInLine) {
+		assertEquals(expLine, lp.line);
+		assertEquals(expPosInLine, lp.posInLine);
+	}
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -137,6 +142,35 @@ public class ScannerTest {
 		isValidToken(token3, MOD, 12, "%", 1);
 		Scanner.Token token4 = scanner.nextToken();
 		isValidToken(token4, PLUS, 14, "+", 1);
+	}
+	
+	@Test
+	public void testTokenGetLinePos() throws IllegalCharException,
+			IllegalNumberException {
+		// test: tokens array is empty, lineStarts has 2 entries
+		String input = "+ % \n*   &\n +\r\n %";
+		// create and initialize the scanner
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		assertEquals(7, scanner.tokens.size());
+		// get the first token and check its kind, position, and contents (length and text)
+		Scanner.Token token0 = scanner.nextToken();
+		isValidLinePos(token0.getLinePos(), 0, 0);
+		
+		Scanner.Token token1 = scanner.nextToken();
+		isValidLinePos(token1.getLinePos(), 0, 2);
+		
+		Scanner.Token token2 = scanner.nextToken();
+		isValidLinePos(token2.getLinePos(), 1, 0);
+		
+		Scanner.Token token3 = scanner.nextToken();
+		isValidLinePos(token3.getLinePos(), 1, 4);
+		
+		Scanner.Token token4 = scanner.nextToken();
+		isValidLinePos(token4.getLinePos(), 2, 1);
+		
+		Scanner.Token token5 = scanner.nextToken();
+		isValidLinePos(token5.getLinePos(), 3, 1);
 	}
 
 	// TODO more tests

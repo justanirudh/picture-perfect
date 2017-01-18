@@ -1,6 +1,7 @@
 package cop5556sp17;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Scanner {
 	/**
@@ -98,20 +99,26 @@ public class Scanner {
 
 		// returns a LinePos object representing the line and column of this
 		// Token
+		/*
+		 * To Search an element of Java ArrayList using binary search algorithm use, static int binarySearch(List list, Object element) method of 
+		 * Collections class. This method returns the index of the value to be searched, if found in the ArrayList. Otherwise it returns (- (X) - 1)
+		 * where X is the index where the the search value would be inserted. i.e. index of first element that is grater than the search value or ArrayList.size()
+		 */
 		LinePos getLinePos() {
 			// TODO IMPLEMENT THIS
-			
-			return null;
-		}
-
-		Token(Kind kind, int pos, int length) {
-			this.kind = kind;
-			this.pos = pos;
-			this.length = length;
+			int ret = Collections.binarySearch(newLines, pos); // ret should never be positive as a token cant have the same position as a newline
+			int line = -1 * (ret + 1);
+			int posInLine;
+			if (line == 0)
+				posInLine = pos;
+			else
+				posInLine = pos - newLines.get(line - 1) - 1;
+			return new LinePos(line, posInLine);
 		}
 
 		/**
-		 * Precondition: kind = Kind.INT_LIT, the text can be represented with a Java int. Note that the validity of the input should have been checked when the Token was created. So the exception should never be thrown.
+		 * Precondition: kind = Kind.INT_LIT, the text can be represented with a Java int. Note that the validity of the input 
+		 * should have been checked when the Token was created. So the exception should never be thrown.
 		 * 
 		 * @return int value of this token, which should represent an INT_LIT
 		 * @throws NumberFormatException
@@ -120,13 +127,20 @@ public class Scanner {
 			// TODO IMPLEMENT THIS
 			return 0;
 		}
+
+		Token(Kind kind, int pos, int length) {
+			this.kind = kind;
+			this.pos = pos;
+			this.length = length;
+		}
+
 	}
 
 	final ArrayList<Token> tokens;
 	final String chars;
 	int tokenNum;
 	// TODO: Make private
-	ArrayList<Integer> newLines; //record the positions of newline characters
+	ArrayList<Integer> newLines; // record the positions of newline characters
 
 	Scanner(String chars) {
 		this.chars = chars;
@@ -153,7 +167,7 @@ public class Scanner {
 	 */
 	public Scanner scan() throws IllegalCharException, IllegalNumberException {
 		// TODO IMPLEMENT THIS!!!!
-		
+
 		int pos = 0;
 		int length = chars.length();
 		State state = State.START;

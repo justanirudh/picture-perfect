@@ -7,12 +7,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import cop5556sp17.Scanner.IllegalCharException;
-import cop5556sp17.Scanner.IllegalNumberException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
-	// TODO: Also write 'exception' based tests
+	// TODO: Also write 'exception' based tests: Token.IntValue
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -44,7 +42,7 @@ public class ScannerTest {
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 		// get the first token and check its kind, position, and contents (length and text)
-		Scanner.Token token = scanner.nextToken();
+		Token token = scanner.nextToken();
 		isValidToken(token, SEMI, 0, SEMI.getText(), SEMI.getText().length());
 
 		// get the next token and check its kind, position, and contents
@@ -406,6 +404,53 @@ public class ScannerTest {
 		isValidToken(token4, EOF, 18, "", 0);
 		isValidLinePos(token4.getLinePos(), 2, 3);
 	}
+	
+	@Test
+	public void testReservedWords() throws IllegalCharException, IllegalNumberException {
+		
+		String input = "if abc true falsely xloc de blur gray fileframe amoveg abif";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		
+		assertEquals(12, scanner.tokens.size());
+		
+		Scanner.Token token = scanner.nextToken();
+		isValidToken(token, KW_IF, 0, token.kind.getText(), token.kind.getText().length());
+		
+		Scanner.Token token0 = scanner.nextToken();
+		isValidToken(token0, IDENT, 3, "abc", 3);
+		
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, KW_TRUE, 7, token1.kind.getText(), token1.kind.getText().length());
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, IDENT, 12, "falsely", 7);
+
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, KW_XLOC, 20, token3.kind.getText(), token3.kind.getText().length());
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, IDENT, 25, "de", 2);
+		
+		Scanner.Token token5 = scanner.nextToken();
+		isValidToken(token5, OP_BLUR, 28, token5.kind.getText(), token5.kind.getText().length());
+		
+		Scanner.Token token6 = scanner.nextToken();
+		isValidToken(token6, OP_GRAY, 33, token6.kind.getText(), token6.kind.getText().length());
+		
+		Scanner.Token token7 = scanner.nextToken();
+		isValidToken(token7, IDENT, 38, "fileframe", 9);
+		
+		Scanner.Token token17 = scanner.nextToken();
+		isValidToken(token17, IDENT, 48, "amoveg", 6);
+		
+		Scanner.Token token27 = scanner.nextToken();
+		isValidToken(token27, IDENT, 55, "abif", 4);
+
+		Scanner.Token token8 = scanner.nextToken();
+		isValidToken(token8, EOF, 59, "", 0);
+	}
+
 	
 	// TODO more tests
 

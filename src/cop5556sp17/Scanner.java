@@ -2,6 +2,7 @@ package cop5556sp17;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class Scanner {
 	/**
@@ -82,10 +83,9 @@ public class Scanner {
 		// returns a LinePos object representing the line and column of this
 		// Token
 		/*
-		 * To Search an element of Java ArrayList using binary search algorithm use, static int binarySearch(List list, Object element) method of
-		 * Collections class. This method returns the index of the value to be searched, if found in the ArrayList. Otherwise it returns (- (X) - 1) where
-		 * X is the index where the the search value would be inserted. i.e. index of first element that is grater than the search value or
-		 * ArrayList.size()
+		 * To Search an element of Java ArrayList using binary search algorithm use, static int binarySearch(List list, Object element) method of Collections class. This method returns the index of the
+		 * value to be searched, if found in the ArrayList. Otherwise it returns (- (X) - 1) where X is the index where the the search value would be inserted. i.e. index of first element that is grater
+		 * than the search value or ArrayList.size()
 		 */
 		LinePos getLinePos() {
 			// TODO IMPLEMENT THIS
@@ -100,8 +100,8 @@ public class Scanner {
 		}
 
 		/**
-		 * Precondition: kind = Kind.INT_LIT, the text can be represented with a Java int. Note that the validity of the input should have been checked
-		 * when the Token was created. So the exception should never be thrown.
+		 * Precondition: kind = Kind.INT_LIT, the text can be represented with a Java int. Note that the validity of the input should have been checked when the Token was created. So the exception should
+		 * never be thrown.
 		 * 
 		 * @return int value of this token, which should represent an INT_LIT
 		 * @throws NumberFormatException
@@ -122,14 +122,15 @@ public class Scanner {
 	final ArrayList<Token> tokens;
 	final String chars;
 	int tokenNum;
-	// TODO: Make private
 	ArrayList<Integer> newLines; // record the positions of newline characters
+	final HashMap<String, Kind> reservedWords;
 
-	Scanner(String chars) {
+	Scanner(String chars) { // PRIMARY Constructor
 		this.chars = chars;
 		tokenNum = 0;
 		tokens = new ArrayList<Token>();
 		newLines = new ArrayList<>();
+		reservedWords = populateReservedWords();
 	}
 
 	private int skipWhiteSpaces(int pos) {
@@ -139,6 +140,39 @@ public class Scanner {
 			++pos;
 		}
 		return pos;
+	}
+
+	private HashMap<String, Kind> populateReservedWords() {
+		HashMap<String, Kind> map = new HashMap<>();
+		map.put("integer", Kind.KW_INTEGER);
+		map.put("boolean", Kind.KW_BOOLEAN);
+		map.put("image", Kind.KW_IMAGE);
+		map.put("url", Kind.KW_URL);
+		map.put("file", Kind.KW_FILE);
+		map.put("frame", Kind.KW_FRAME);
+		map.put("while", Kind.KW_WHILE);
+		map.put("if", Kind.KW_IF);
+		map.put("true", Kind.KW_TRUE);
+		map.put("false", Kind.KW_FALSE);
+		map.put("blur", Kind.OP_BLUR);
+		map.put("gray", Kind.OP_GRAY);
+		map.put("convolve", Kind.OP_CONVOLVE);
+		map.put("screenheight", Kind.KW_SCREENHEIGHT);
+		map.put("screenwidth", Kind.KW_SCREENWIDTH);
+		map.put("width", Kind.OP_WIDTH);
+		map.put("height", Kind.OP_HEIGHT);
+		map.put("xloc", Kind.KW_XLOC);
+		map.put("yloc", Kind.KW_YLOC);
+		map.put("hide", Kind.KW_HIDE);
+		map.put("show", Kind.KW_SHOW);
+		map.put("move", Kind.KW_MOVE);
+		map.put("sleep", Kind.OP_SLEEP);
+		map.put("scale", Kind.KW_SCALE);
+		return map;
+	}
+
+	private boolean isReservedWord(String text) {
+		return reservedWords.containsKey(text);
 	}
 
 	/**
@@ -234,7 +268,7 @@ public class Scanner {
 								state = State.IN_IDENT;
 								pos++;
 							} else {
-								throw new IllegalCharException("Illegal char " + ch + " at pos " + pos);
+								throw new IllegalCharException("Illegal character " + ch + " at position " + pos);
 							}
 						}
 						// default : { // TODO: get rid off this
@@ -249,11 +283,9 @@ public class Scanner {
 					if (Character.isDigit(ch)) { // keep incrementing pos until we get a non-digit
 						pos++;
 					} else {
-						// TODO: better way to do this?
 						Token potentialToken = new Token(Kind.INT_LIT, startPos, pos - startPos);
 						try {
-							Integer.parseInt(potentialToken.getText()); // at this point, test is definitely a number. Hence, numformatExp will only be thrown if it
-																													// is to big
+							Integer.parseInt(potentialToken.getText()); // at this point, test is definitely a number. Hence, numformatExp will only be thrown if it is to big
 						} catch (NumberFormatException n) {
 							throw new IllegalNumberException(potentialToken.getText() + " at position " + startPos + " is too big. Cannot be represented as a Java Integer.");
 						}
@@ -266,8 +298,11 @@ public class Scanner {
 					if (Character.isJavaIdentifierPart(ch)) { // keep incrementing pos until we get a non-javaidentifierpart
 						pos++;
 					} else {
-						//TODO: add support for reserved words!!
-						tokens.add(new Token(Kind.IDENT, startPos, pos - startPos));
+						Token t = new Token(Kind.IDENT, startPos, pos - startPos);
+						if (isReservedWord(t.getText()))
+							tokens.add(new Token(reservedWords.get(t.getText()), startPos, pos - startPos));
+						else
+							tokens.add(t);
 						state = State.START;
 					}
 				}

@@ -207,6 +207,36 @@ public class Scanner {
 							pos++;
 						}
 							break;
+						case ';' : {
+							tokens.add(new Token(Kind.SEMI, startPos, 1));
+							pos++;
+						}
+							break;
+						case ',' : {
+							tokens.add(new Token(Kind.COMMA, startPos, 1));
+							pos++;
+						}
+							break;
+						case '(' : {
+							tokens.add(new Token(Kind.LPAREN, startPos, 1));
+							pos++;
+						}
+							break;
+						case ')' : {
+							tokens.add(new Token(Kind.RPAREN, startPos, 1));
+							pos++;
+						}
+							break;
+						case '{' : {
+							tokens.add(new Token(Kind.LBRACE, startPos, 1));
+							pos++;
+						}
+							break;
+						case '}' : {
+							tokens.add(new Token(Kind.RBRACE, startPos, 1));
+							pos++;
+						}
+							break;
 						// case '*': {tokens.add(new Token(Kind.TIMES, startPos,
 						// 1));pos++;} break;
 						// case '=': {state = State.AFTER_EQ;pos++;}break;

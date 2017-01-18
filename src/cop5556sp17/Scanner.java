@@ -89,9 +89,7 @@ public class Scanner {
 		 */
 		LinePos getLinePos() {
 			// TODO IMPLEMENT THIS
-			int ret = Collections.binarySearch(newLines, pos); // ret should never be positive as a token
-																													// cant have the same position as a
-																													// newline
+			int ret = Collections.binarySearch(newLines, pos); // ret should never be positive as a token can't have the same position as a newline
 			int line = -1 * (ret + 1);
 			int posInLine;
 			if (line == 0)
@@ -254,9 +252,10 @@ public class Scanner {
 						// TODO: better way to do this?
 						Token potentialToken = new Token(Kind.INT_LIT, startPos, pos - startPos);
 						try {
-							Integer.parseInt(potentialToken.getText()); //at this point, test is definitely a number. Hence, numformatExp will only be thrown if it is to big
+							Integer.parseInt(potentialToken.getText()); // at this point, test is definitely a number. Hence, numformatExp will only be thrown if it
+																													// is to big
 						} catch (NumberFormatException n) {
-							throw new IllegalNumberException("Number is too big. Cannot be represented as a Java Integer: " + potentialToken.getText());
+							throw new IllegalNumberException(potentialToken.getText() + " at position " + startPos + " is too big. Cannot be represented as a Java Integer.");
 						}
 						tokens.add(potentialToken);
 						state = State.START;
@@ -267,6 +266,7 @@ public class Scanner {
 					if (Character.isJavaIdentifierPart(ch)) { // keep incrementing pos until we get a non-javaidentifierpart
 						pos++;
 					} else {
+						//TODO: add support for reserved words!!
 						tokens.add(new Token(Kind.IDENT, startPos, pos - startPos));
 						state = State.START;
 					}

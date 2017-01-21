@@ -11,7 +11,8 @@ import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
 	//TODO: after implementing tests for individual automatas of !=, <= or -, >= , == and ->; implement one containing all 
-	//TODO: implement illegal char exception tests for above ops
+	//TODO: implement illegal char exception tests for above ops and in general
+	//TODO: test of operator * with comment
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -598,6 +599,80 @@ public class ScannerTest {
 		Scanner.Token token14 = scanner.nextToken();
 		isValidToken(token14, LT, 28, "<", 1);
 		
+	}
+	
+	@Test
+	public void testGTGE() throws IllegalCharException, IllegalNumberException {
+
+		String input = "> >= >>= >=>=>>=>";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+
+		assertEquals(10, scanner.tokens.size());
+
+		Scanner.Token token00 = scanner.nextToken();
+		isValidToken(token00, GT, 0, ">", 1);
+
+		Scanner.Token token0 = scanner.nextToken();
+		isValidToken(token0, GE, 2, ">=", 2);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, GT, 5, ">", 1);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, GE, 6, ">=", 2);
+		
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, GE, 9, ">=", 2);
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, GE, 11, ">=", 2);
+
+		Scanner.Token token5 = scanner.nextToken();
+		isValidToken(token5, GT, 13, ">", 1);
+
+		Scanner.Token token6 = scanner.nextToken();
+		isValidToken(token6, GE, 14, ">=", 2);
+		
+		Scanner.Token token7 = scanner.nextToken();
+		isValidToken(token7, GT, 16, ">", 1);
+	}
+	
+	@Test
+	public void testMinusArrow() throws IllegalCharException, IllegalNumberException {
+
+		String input = "- -> --> ->->-->-";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+
+		assertEquals(10, scanner.tokens.size());
+
+		Scanner.Token token00 = scanner.nextToken();
+		isValidToken(token00, MINUS, 0, "-", 1);
+
+		Scanner.Token token0 = scanner.nextToken();
+		isValidToken(token0, ARROW, 2, "->", 2);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, MINUS, 5, "-", 1);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, ARROW, 6, "->", 2);
+		
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, ARROW, 9, "->", 2);
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, ARROW, 11, "->", 2);
+
+		Scanner.Token token5 = scanner.nextToken();
+		isValidToken(token5, MINUS, 13, "-", 1);
+
+		Scanner.Token token6 = scanner.nextToken();
+		isValidToken(token6, ARROW, 14, "->", 2);
+		
+		Scanner.Token token7 = scanner.nextToken();
+		isValidToken(token7, MINUS, 16, "-", 1);
 	}
 	// TODO more tests
 

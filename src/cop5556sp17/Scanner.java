@@ -269,6 +269,16 @@ public class Scanner {
 							state = State.AFTER_LT;
 						}
 							break;
+						case '>' : {
+							pos++;
+							state = State.AFTER_GT;
+						}
+							break;
+						case '-' : {
+							pos++;
+							state = State.AFTER_MINUS;
+						}
+							break;
 						// case '=': {state = State.AFTER_EQ;pos++;}break;
 						default : { // this should come after the '0' state else isDigit would catch that
 							if (Character.isDigit(ch)) {
@@ -338,24 +348,36 @@ public class Scanner {
 				}
 					break;
 				case AFTER_LT : {
-					if(ch == '='){
+					if (ch == '=') {
 						pos++;
 						tokens.add(new Token(Kind.LE, startPos, pos - startPos));
-					}
-					else if(ch == '-'){
+					} else if (ch == '-') {
 						pos++;
 						tokens.add(new Token(Kind.ASSIGN, startPos, pos - startPos));
-					}
-					else{
+					} else {
 						tokens.add(new Token(Kind.LT, startPos, pos - startPos));
 					}
 					state = State.START;
 				}
 					break;
 				case AFTER_GT : {
+					if (ch == '=') {
+						pos++;
+						tokens.add(new Token(Kind.GE, startPos, pos - startPos));
+					} else {
+						tokens.add(new Token(Kind.GT, startPos, pos - startPos));
+					}
+					state = State.START;
 				}
 					break;
 				case AFTER_MINUS : {
+					if (ch == '>') {
+						pos++;
+						tokens.add(new Token(Kind.ARROW, startPos, pos - startPos));
+					} else {
+						tokens.add(new Token(Kind.MINUS, startPos, pos - startPos));
+					}
+					state = State.START;
 				}
 					break;
 				default :

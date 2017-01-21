@@ -10,9 +10,9 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
-	//TODO: after implementing tests for individual automatas of !=, <= or -, >= , == and ->; implement one containing all 
-	//TODO: implement illegal char exception tests for above ops and in general
-	//TODO: test of operator * with comment
+	// TODO: after implementing tests for individual automatas of !->, !=, <= or -, >= , == and ->; implement one containing all strategically / else 2^64 cases!
+	// TODO: implement illegal char exception tests for above ops and in general
+	// TODO: test of operator * with comment
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -426,24 +426,24 @@ public class ScannerTest {
 
 		Scanner.Token token0 = scanner.nextToken();
 		isValidToken(token0, INT_LIT, 0, "87", 2);
-		assertEquals(87,token0.intVal());
+		assertEquals(87, token0.intVal());
 
 		Scanner.Token token1 = scanner.nextToken();
 		isValidToken(token1, INT_LIT, 3, "80", 2);
-		assertEquals(80,token1.intVal());
+		assertEquals(80, token1.intVal());
 
 		Scanner.Token token2 = scanner.nextToken();
 		isValidToken(token2, INT_LIT, 6, "0", 1);
-		assertEquals(0,token2.intVal());
+		assertEquals(0, token2.intVal());
 
 		Scanner.Token token3 = scanner.nextToken();
 		isValidToken(token3, INT_LIT, 7, "9", 1);
-		assertEquals(9,token3.intVal());
+		assertEquals(9, token3.intVal());
 
 		Scanner.Token token4 = scanner.nextToken();
 		isValidToken(token4, IDENT, 9, "abc", 3);
 		thrown.expect(NumberFormatException.class);
-		assertEquals(9,token4.intVal());
+		assertEquals(9, token4.intVal());
 	}
 
 	@Test
@@ -491,7 +491,7 @@ public class ScannerTest {
 		Scanner.Token token8 = scanner.nextToken();
 		isValidToken(token8, EOF, 59, "", 0);
 	}
-	
+
 	@Test
 	public void testNotAndNotEqual() throws IllegalCharException, IllegalNumberException {
 
@@ -512,7 +512,7 @@ public class ScannerTest {
 
 		Scanner.Token token2 = scanner.nextToken();
 		isValidToken(token2, NOT, 6, "!", 1);
-		
+
 		Scanner.Token token3 = scanner.nextToken();
 		isValidToken(token3, NOTEQUAL, 7, "!=", 2);
 
@@ -524,24 +524,24 @@ public class ScannerTest {
 
 		Scanner.Token token6 = scanner.nextToken();
 		isValidToken(token6, NOT, 17, "!", 1);
-		
+
 		Scanner.Token token7 = scanner.nextToken();
 		isValidToken(token7, NOTEQUAL, 18, "!=", 2);
-		
+
 		Scanner.Token token8 = scanner.nextToken();
 		isValidToken(token8, INT_LIT, 20, "123", 3);
-		
+
 		Scanner.Token token9 = scanner.nextToken();
 		isValidToken(token9, NOTEQUAL, 23, "!=", 2);
-		
+
 		Scanner.Token token10 = scanner.nextToken();
 		isValidToken(token10, NOTEQUAL, 25, "!=", 2);
-		
+
 		Scanner.Token token11 = scanner.nextToken();
 		isValidToken(token11, NOT, 27, "!", 1);
 
 	}
-	
+
 	@Test
 	public void testLTLEASSIGN() throws IllegalCharException, IllegalNumberException {
 
@@ -562,7 +562,7 @@ public class ScannerTest {
 
 		Scanner.Token token2 = scanner.nextToken();
 		isValidToken(token2, LT, 8, "<", 1);
-		
+
 		Scanner.Token token3 = scanner.nextToken();
 		isValidToken(token3, LT, 9, "<", 1);
 
@@ -574,33 +574,33 @@ public class ScannerTest {
 
 		Scanner.Token token6 = scanner.nextToken();
 		isValidToken(token6, LT, 14, "<", 1);
-		
+
 		Scanner.Token token7 = scanner.nextToken();
 		isValidToken(token7, ASSIGN, 15, "<-", 2);
-		
+
 		Scanner.Token token8 = scanner.nextToken();
 		isValidToken(token8, LT, 18, "<", 1);
-		
+
 		Scanner.Token token9 = scanner.nextToken();
 		isValidToken(token9, LE, 19, "<=", 2);
-		
+
 		Scanner.Token token10 = scanner.nextToken();
 		isValidToken(token10, LT, 21, "<", 1);
-		
+
 		Scanner.Token token11 = scanner.nextToken();
 		isValidToken(token11, ASSIGN, 22, "<-", 2);
-		
+
 		Scanner.Token token12 = scanner.nextToken();
 		isValidToken(token12, LE, 24, "<=", 2);
-		
+
 		Scanner.Token token13 = scanner.nextToken();
 		isValidToken(token13, ASSIGN, 26, "<-", 2);
-		
+
 		Scanner.Token token14 = scanner.nextToken();
 		isValidToken(token14, LT, 28, "<", 1);
-		
+
 	}
-	
+
 	@Test
 	public void testGTGE() throws IllegalCharException, IllegalNumberException {
 
@@ -621,7 +621,7 @@ public class ScannerTest {
 
 		Scanner.Token token2 = scanner.nextToken();
 		isValidToken(token2, GE, 6, ">=", 2);
-		
+
 		Scanner.Token token3 = scanner.nextToken();
 		isValidToken(token3, GE, 9, ">=", 2);
 
@@ -633,11 +633,11 @@ public class ScannerTest {
 
 		Scanner.Token token6 = scanner.nextToken();
 		isValidToken(token6, GE, 14, ">=", 2);
-		
+
 		Scanner.Token token7 = scanner.nextToken();
 		isValidToken(token7, GT, 16, ">", 1);
 	}
-	
+
 	@Test
 	public void testMinusArrow() throws IllegalCharException, IllegalNumberException {
 
@@ -658,7 +658,7 @@ public class ScannerTest {
 
 		Scanner.Token token2 = scanner.nextToken();
 		isValidToken(token2, ARROW, 6, "->", 2);
-		
+
 		Scanner.Token token3 = scanner.nextToken();
 		isValidToken(token3, ARROW, 9, "->", 2);
 
@@ -670,10 +670,94 @@ public class ScannerTest {
 
 		Scanner.Token token6 = scanner.nextToken();
 		isValidToken(token6, ARROW, 14, "->", 2);
-		
+
 		Scanner.Token token7 = scanner.nextToken();
 		isValidToken(token7, MINUS, 16, "-", 1);
 	}
+
+	@Test
+	public void testEqual() throws IllegalCharException, IllegalNumberException {
+
+		String input = "== ======";
+		Scanner scanner = new Scanner(input);
+
+		scanner.scan();
+
+		assertEquals(5, scanner.tokens.size());
+
+		Scanner.Token token00 = scanner.nextToken();
+		isValidToken(token00, EQUAL, 0, "==", 2);
+
+		Scanner.Token token0 = scanner.nextToken();
+		isValidToken(token0, EQUAL, 3, "==", 2);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, EQUAL, 5, "==", 2);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, EQUAL, 7, "==", 2);
+
+	}
+
+	@Test
+	public void testEqualIllegalCharError() throws IllegalCharException, IllegalNumberException {
+		String input = "=======";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+	}
+	
+	@Test
+	public void testBarBararrow() throws IllegalCharException, IllegalNumberException {
+
+		String input = "| || |-> |->|-> ||->||->|";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+
+		assertEquals(12, scanner.tokens.size());
+
+		Scanner.Token token00 = scanner.nextToken();
+		isValidToken(token00, OR, 0, "|", 1);
+
+		Scanner.Token token0 = scanner.nextToken();
+		isValidToken(token0, OR, 2, "|", 1);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, OR, 3, "|", 1);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, BARARROW, 5, "|->", 3);
+
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, BARARROW, 9, "|->", 3);
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, BARARROW, 12, "|->", 3);
+
+		Scanner.Token token5 = scanner.nextToken();
+		isValidToken(token5, OR, 16, "|", 1);
+
+		Scanner.Token token6 = scanner.nextToken();
+		isValidToken(token6, BARARROW, 17, "|->", 3);
+
+		Scanner.Token token7 = scanner.nextToken();
+		isValidToken(token7, OR, 20, "|", 1);
+		
+		Scanner.Token token8 = scanner.nextToken();
+		isValidToken(token8, BARARROW, 21, "|->", 3);
+		
+		Scanner.Token token9 = scanner.nextToken();
+		isValidToken(token9, OR, 24, "|", 1);
+	}
+
+	@Test
+	public void testBarArrowIllegalCharError() throws IllegalCharException, IllegalNumberException {
+		String input = "|-";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+	}
+
 	// TODO more tests
 
 }

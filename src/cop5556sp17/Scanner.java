@@ -279,7 +279,16 @@ public class Scanner {
 							state = State.AFTER_MINUS;
 						}
 							break;
-						// case '=': {state = State.AFTER_EQ;pos++;}break;
+						case '=' : {
+							pos++;
+							state = State.AFTER_EQ;
+						}
+							break;
+						case '|' : {
+							pos++;
+							state = State.AFTER_BAR;
+						}
+							break;
 						default : { // this should come after the '0' state else isDigit would catch that
 							if (Character.isDigit(ch)) {
 								state = State.IN_DIGIT;
@@ -323,6 +332,13 @@ public class Scanner {
 				}
 					break;
 				case AFTER_EQ : {
+					if (ch == '=') {
+						pos++;
+						tokens.add(new Token(Kind.EQUAL, startPos, pos - startPos));
+						state = State.START;
+					} else {
+						throw new IllegalCharException("Illegal character '=' at position " + (pos - 1));
+					}
 				}
 					break;
 				case AFTER_DIV : {
@@ -332,9 +348,23 @@ public class Scanner {
 				}
 					break;
 				case AFTER_BAR : {
+					if (ch == '-') {
+						pos++;
+						state = State.AFTER_BAR_MINUS;
+					} else {
+						tokens.add(new Token(Kind.OR, startPos, pos - startPos));
+						state = State.START;
+					}
 				}
 					break;
 				case AFTER_BAR_MINUS : {
+					if (ch == '>') {
+						pos++;
+						tokens.add(new Token(Kind.BARARROW, startPos, pos - startPos));
+						state = State.START;
+					} else {
+						throw new IllegalCharException("Illegal character '|-' at " + (pos - 2));
+					}
 				}
 					break;
 				case AFTER_BANG : {

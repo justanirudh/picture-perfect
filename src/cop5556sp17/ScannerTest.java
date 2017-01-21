@@ -11,6 +11,7 @@ import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
 	//TODO: after implementing tests for individual automatas of !=, <= or -, >= , == and ->; implement one containing all 
+	//TODO: implement illegal char exception tests for above ops
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -538,6 +539,65 @@ public class ScannerTest {
 		Scanner.Token token11 = scanner.nextToken();
 		isValidToken(token11, NOT, 27, "!", 1);
 
+	}
+	
+	@Test
+	public void testLTLEASSIGN() throws IllegalCharException, IllegalNumberException {
+
+		String input = "< <= <- <<<= <<<- <<=<<-<=<-<";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+
+		assertEquals(17, scanner.tokens.size());
+
+		Scanner.Token token00 = scanner.nextToken();
+		isValidToken(token00, LT, 0, "<", 1);
+
+		Scanner.Token token0 = scanner.nextToken();
+		isValidToken(token0, LE, 2, "<=", 2);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, ASSIGN, 5, "<-", 2);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, LT, 8, "<", 1);
+		
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, LT, 9, "<", 1);
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, LE, 10, "<=", 2);
+
+		Scanner.Token token5 = scanner.nextToken();
+		isValidToken(token5, LT, 13, "<", 1);
+
+		Scanner.Token token6 = scanner.nextToken();
+		isValidToken(token6, LT, 14, "<", 1);
+		
+		Scanner.Token token7 = scanner.nextToken();
+		isValidToken(token7, ASSIGN, 15, "<-", 2);
+		
+		Scanner.Token token8 = scanner.nextToken();
+		isValidToken(token8, LT, 18, "<", 1);
+		
+		Scanner.Token token9 = scanner.nextToken();
+		isValidToken(token9, LE, 19, "<=", 2);
+		
+		Scanner.Token token10 = scanner.nextToken();
+		isValidToken(token10, LT, 21, "<", 1);
+		
+		Scanner.Token token11 = scanner.nextToken();
+		isValidToken(token11, ASSIGN, 22, "<-", 2);
+		
+		Scanner.Token token12 = scanner.nextToken();
+		isValidToken(token12, LE, 24, "<=", 2);
+		
+		Scanner.Token token13 = scanner.nextToken();
+		isValidToken(token13, ASSIGN, 26, "<-", 2);
+		
+		Scanner.Token token14 = scanner.nextToken();
+		isValidToken(token14, LT, 28, "<", 1);
+		
 	}
 	// TODO more tests
 

@@ -10,7 +10,7 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
-	// TODO: Also write 'exception' based tests: Token.IntValue
+	//TODO: after implementing tests for individual automatas of !=, <= or -, >= , == and ->; implement one containing all 
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -489,7 +489,56 @@ public class ScannerTest {
 		Scanner.Token token8 = scanner.nextToken();
 		isValidToken(token8, EOF, 59, "", 0);
 	}
+	
+	@Test
+	public void testNotAndNotEqual() throws IllegalCharException, IllegalNumberException {
 
+		String input = "! != !!!= \r \n!abc!!=123!=!=! ";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+
+		assertEquals(14, scanner.tokens.size());
+
+		Scanner.Token token00 = scanner.nextToken();
+		isValidToken(token00, NOT, 0, "!", 1);
+
+		Scanner.Token token0 = scanner.nextToken();
+		isValidToken(token0, NOTEQUAL, 2, "!=", 2);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, NOT, 5, "!", 1);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, NOT, 6, "!", 1);
+		
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, NOTEQUAL, 7, "!=", 2);
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, NOT, 13, "!", 1);
+
+		Scanner.Token token5 = scanner.nextToken();
+		isValidToken(token5, IDENT, 14, "abc", 3);
+
+		Scanner.Token token6 = scanner.nextToken();
+		isValidToken(token6, NOT, 17, "!", 1);
+		
+		Scanner.Token token7 = scanner.nextToken();
+		isValidToken(token7, NOTEQUAL, 18, "!=", 2);
+		
+		Scanner.Token token8 = scanner.nextToken();
+		isValidToken(token8, INT_LIT, 20, "123", 3);
+		
+		Scanner.Token token9 = scanner.nextToken();
+		isValidToken(token9, NOTEQUAL, 23, "!=", 2);
+		
+		Scanner.Token token10 = scanner.nextToken();
+		isValidToken(token10, NOTEQUAL, 25, "!=", 2);
+		
+		Scanner.Token token11 = scanner.nextToken();
+		isValidToken(token11, NOT, 27, "!", 1);
+
+	}
 	// TODO more tests
 
 }

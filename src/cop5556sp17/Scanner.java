@@ -259,6 +259,11 @@ public class Scanner {
 							pos++;
 						}
 							break;
+						case '!' : {
+							pos++;
+							state = State.AFTER_BANG;
+						}
+							break;
 						// case '=': {state = State.AFTER_EQ;pos++;}break;
 						default : { // this should come after the '0' state else isDigit would catch that
 							if (Character.isDigit(ch)) {
@@ -271,12 +276,7 @@ public class Scanner {
 								throw new IllegalCharException("Illegal character " + ch + " at position " + pos);
 							}
 						}
-						// default : { // TODO: get rid off this
-						// System.out.println();
-						// pos++;
-						// }
 					} // switch (ch)
-
 				}
 					break;
 				case IN_DIGIT : {
@@ -323,6 +323,14 @@ public class Scanner {
 				}
 					break;
 				case AFTER_BANG : {
+					if(ch == '='){ //increment pos, accept != and reset State to START
+						pos++;
+						tokens.add(new Token(Kind.NOTEQUAL, startPos, pos - startPos));
+					}
+					else{ //dont increment pos, accept ! and reset state to Start
+						tokens.add(new Token(Kind.NOT, startPos, pos - startPos));
+					}
+					state = State.START;
 				}
 					break;
 				case AFTER_LT : {

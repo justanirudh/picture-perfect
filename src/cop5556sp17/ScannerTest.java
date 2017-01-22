@@ -10,8 +10,6 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
-	// TODO: after implementing tests for individual automatas of !->, !=, <= or -, >= , == and ->; implement one containing all strategically / else 2^64 cases!
-	// TODO: implement illegal char exception tests for above ops
 	// TODO: test of operator * with comment
 	//TODO: add error test for illegal chrachter like ^ or # or \
 
@@ -776,6 +774,77 @@ public class ScannerTest {
 
 	}
 
+	
+	@Test
+	public void testAllOverlappingOps() throws IllegalCharException, IllegalNumberException {
+		String input = "->== <->= |->== !=== <===<->";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+
+		assertEquals(13, scanner.tokens.size());
+		
+		Scanner.Token token = scanner.nextToken();
+		isValidToken(token, ARROW, 0, "->", 2);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, EQUAL, 2, "==", 2);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, ASSIGN, 5, "<-", 2);
+
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, GE, 7, ">=", 2);
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, BARARROW, 10, "|->", 3);
+
+		Scanner.Token token5 = scanner.nextToken();
+		isValidToken(token5, EQUAL, 13, "==", 2);
+
+		Scanner.Token token6 = scanner.nextToken();
+		isValidToken(token6, NOTEQUAL, 16, "!=", 2);
+
+		Scanner.Token token7 = scanner.nextToken();
+		isValidToken(token7, EQUAL, 18, "==", 2);
+
+		Scanner.Token token8 = scanner.nextToken();
+		isValidToken(token8, LE, 21, "<=", 2);
+
+		Scanner.Token token9 = scanner.nextToken();
+		isValidToken(token9, EQUAL, 23, "==", 2);
+
+		Scanner.Token token10 = scanner.nextToken();
+		isValidToken(token10, ASSIGN, 25, "<-", 2);
+
+		Scanner.Token token11 = scanner.nextToken();
+		isValidToken(token11, GT, 27, ">", 1);
+
+	}
+	@Test
+	public void testNotEqEqIllegalCharError() throws IllegalCharException, IllegalNumberException {
+		String input = "!==";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+	}
+	
+	@Test
+	public void testBarArrowEqualIllegalCharError() throws IllegalCharException, IllegalNumberException {
+		String input = "|->=";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+	}
+	
+	@Test
+	public void testLTEqEqIllegalCharError() throws IllegalCharException, IllegalNumberException {
+		String input = "<==";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+	}
+	
+	
 	// TODO more tests
 
 }

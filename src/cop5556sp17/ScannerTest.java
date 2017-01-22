@@ -11,7 +11,6 @@ import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
 	// TODO: test of operator * with comment
-	//TODO: add error test for illegal chrachter like ^ or # or \
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -844,6 +843,21 @@ public class ScannerTest {
 		scanner.scan();
 	}
 	
+	@Test
+	public void testNonLanguageIllegalCharError() throws IllegalCharException, IllegalNumberException {
+		String input = "<= ^";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+	}
+	
+	@Test
+	public void testNonLanguageIllegalCharError2() throws IllegalCharException, IllegalNumberException {
+		String input = "<= ###";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+	}
 	
 	// TODO more tests
 

@@ -297,7 +297,7 @@ public class Scanner {
 								state = State.IN_IDENT;
 								pos++;
 							} else {
-								throw new IllegalCharException("Illegal character " + ch + " at position " + pos);
+								throw new IllegalCharException("Illegal character " + (char)ch + " at position " + pos);
 							}
 						}
 					} // switch (ch)
@@ -309,7 +309,7 @@ public class Scanner {
 					} else {
 						Token potentialToken = new Token(Kind.INT_LIT, startPos, pos - startPos);
 						try {
-							Integer.parseInt(potentialToken.getText()); // at this point, test is definitely a number. Hence, numformatExp will only be thrown if it is to big
+							Integer.parseInt(potentialToken.getText()); // at this point, text is definitely a number. Hence, numformatExp will only be thrown if it is to big
 						} catch (NumberFormatException n) {
 							throw new IllegalNumberException(potentialToken.getText() + " at position " + startPos + " is too big. Cannot be represented as a Java Integer.");
 						}

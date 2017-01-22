@@ -11,8 +11,9 @@ import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
 	// TODO: after implementing tests for individual automatas of !->, !=, <= or -, >= , == and ->; implement one containing all strategically / else 2^64 cases!
-	// TODO: implement illegal char exception tests for above ops and in general
+	// TODO: implement illegal char exception tests for above ops
 	// TODO: test of operator * with comment
+	//TODO: add error test for illegal chrachter like ^ or # or \
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -751,11 +752,28 @@ public class ScannerTest {
 	}
 
 	@Test
-	public void testBarArrowIllegalCharError() throws IllegalCharException, IllegalNumberException {
-		String input = "|-";
+	public void testBarArrowMalformed() throws IllegalCharException, IllegalNumberException {
+		String input = "|- |-|->";
 		Scanner scanner = new Scanner(input);
-		thrown.expect(IllegalCharException.class);
 		scanner.scan();
+
+		assertEquals(6, scanner.tokens.size());
+
+		Scanner.Token token0 = scanner.nextToken();
+		isValidToken(token0, OR, 0, "|", 1);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, MINUS, 1, "-", 1);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, OR, 3, "|", 1);
+
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, MINUS, 4, "-", 1);
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, BARARROW, 5, "|->", 3);
+
 	}
 
 	// TODO more tests

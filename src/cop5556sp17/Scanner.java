@@ -361,10 +361,11 @@ public class Scanner {
 					if (ch == '>') {
 						pos++;
 						tokens.add(new Token(Kind.BARARROW, startPos, pos - startPos));
-						state = State.START;
-					} else {
-						throw new IllegalCharException("Illegal character '|-' at " + (pos - 2));
+					} else { //Eg. |-a, if only bar and minus, then they are two tokens and add them to the token list
+						tokens.add(new Token(Kind.OR, startPos, (pos - 1) - startPos));
+						tokens.add(new Token(Kind.MINUS, startPos + 1, pos - (startPos + 1)));
 					}
+					state = State.START;
 				}
 					break;
 				case AFTER_BANG : {

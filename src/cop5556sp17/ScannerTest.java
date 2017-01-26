@@ -10,7 +10,6 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
-	// TODO: test of operator * with comment
 	//TODO: test other methods of Scanner class
 	
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
@@ -700,7 +699,15 @@ public class ScannerTest {
 
 	@Test
 	public void testEqualIllegalCharError() throws IllegalCharException, IllegalNumberException {
-		String input = "=======";
+		String input = "=======abc";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+	}
+	
+	@Test
+	public void testEqualIllegalCharError2() throws IllegalCharException, IllegalNumberException {
+		String input = "======="; //EOF reached before token formation
 		Scanner scanner = new Scanner(input);
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
@@ -892,7 +899,7 @@ public class ScannerTest {
 	}
 	
 	@Test
-	public void testunclosedComment() throws IllegalCharException, IllegalNumberException {
+	public void testunclosedCommentError() throws IllegalCharException, IllegalNumberException {
 		String input = "123 /*abcd";
 		Scanner scanner = new Scanner(input);
 		thrown.expect(IllegalCharException.class);
@@ -900,7 +907,7 @@ public class ScannerTest {
 	}
 	
 	@Test
-	public void testunclosedComment2() throws IllegalCharException, IllegalNumberException {
+	public void testunclosedComment2Error() throws IllegalCharException, IllegalNumberException {
 		String input = "123 /*abcd*";
 		Scanner scanner = new Scanner(input);
 		thrown.expect(IllegalCharException.class);

@@ -180,8 +180,6 @@ public class Scanner {
 	 * @throws IllegalNumberException
 	 */
 	public Scanner scan() throws IllegalCharException, IllegalNumberException {
-		// TODO: add EOF handling in ALL non-terminal states!!
-		// TODO: convert non-START state ifs to case stmts
 		int pos = 0;
 		int length = chars.length();
 		State state = State.START;
@@ -338,7 +336,7 @@ public class Scanner {
 						pos++;
 						tokens.add(new Token(Kind.EQUAL, startPos, pos - startPos));
 						state = State.START;
-					} else {
+					} else { //handles EOF as well
 						throw new IllegalCharException("Illegal character '=' at position " + startPos);
 					}
 				}

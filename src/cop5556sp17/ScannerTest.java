@@ -10,7 +10,7 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
-	//TODO: test other methods of Scanner class
+	//TODO: test peek()?
 	
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -869,7 +869,7 @@ public class ScannerTest {
 	
 	@Test
 	public void testComments() throws IllegalCharException, IllegalNumberException {
-		String input = "/ /**/ / * /*aaabc%%$$ */   /*$$//****// * / /*|->!=*abcd*+*%*//";
+		String input = "/ /**/ / * /*aaabc%%$$ */   /*$$//****// * / /*|->!=*abcd*+*%*// /*/**/";
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 
@@ -914,6 +914,31 @@ public class ScannerTest {
 		scanner.scan();
 		assertEquals(1, scanner.tokens.size());
 	}	
-	// TODO more tests
 
+	@Test
+	public void testScannerGetLinePos() throws IllegalCharException, IllegalNumberException {
+		// test: tokens array is empty, lineStarts has 2 entries
+		String input = "+ % \n*   &\n +\r\n %";
+		// create and initialize the scanner
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		assertEquals(7, scanner.tokens.size());
+		Scanner.Token token0 = scanner.nextToken();
+		isValidLinePos(scanner.getLinePos(token0), 0, 0);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidLinePos(scanner.getLinePos(token1), 0, 2);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidLinePos(scanner.getLinePos(token2), 1, 0);
+
+		Scanner.Token token3 = scanner.nextToken();
+		isValidLinePos(scanner.getLinePos(token3), 1, 4);
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidLinePos(scanner.getLinePos(token4), 2, 1);
+
+		Scanner.Token token5 = scanner.nextToken();
+		isValidLinePos(scanner.getLinePos(token5), 3, 1);
+	}
 }

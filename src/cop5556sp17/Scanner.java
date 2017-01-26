@@ -459,7 +459,7 @@ public class Scanner {
 	public Token peek() {
 		if (tokenNum >= tokens.size())
 			return null;
-		return tokens.get(tokenNum + 1);
+		return tokens.get(tokenNum);
 	}
 
 	/**

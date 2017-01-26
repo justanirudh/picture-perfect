@@ -11,7 +11,8 @@ import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
 	// TODO: test of operator * with comment
-
+	//TODO: test other methods of Scanner class
+	
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
 		assertEquals(expPos, t.pos);
@@ -859,6 +860,53 @@ public class ScannerTest {
 		scanner.scan();
 	}
 	
+	@Test
+	public void testComments() throws IllegalCharException, IllegalNumberException {
+		String input = "/ /**/ / * /*aaabc%%$$ */   /*$$//****// * / /*|->!=*abcd*+*%*//";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+
+		assertEquals(8, scanner.tokens.size());
+		
+		Scanner.Token token = scanner.nextToken();
+		isValidToken(token, DIV, 0, "/", 1);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, DIV, 7, "/", 1);
+
+		Scanner.Token token2 = scanner.nextToken();
+		isValidToken(token2, TIMES, 9, "*", 1);
+
+		Scanner.Token token3 = scanner.nextToken();
+		isValidToken(token3, DIV, 39, "/", 1);
+
+		Scanner.Token token4 = scanner.nextToken();
+		isValidToken(token4, TIMES, 41, "*", 1);
+
+		Scanner.Token token5 = scanner.nextToken();
+		isValidToken(token5, DIV, 43, "/", 1);
+
+		Scanner.Token token6 = scanner.nextToken();
+		isValidToken(token6, DIV, 63, "/", 1);
+
+	}
+	
+	@Test
+	public void testunclosedComment() throws IllegalCharException, IllegalNumberException {
+		String input = "123 /*abcd";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+	}
+	
+	@Test
+	public void testunclosedComment2() throws IllegalCharException, IllegalNumberException {
+		String input = "123 /*abcd*";
+		Scanner scanner = new Scanner(input);
+		thrown.expect(IllegalCharException.class);
+		scanner.scan();
+		assertEquals(1, scanner.tokens.size());
+	}	
 	// TODO more tests
 
 }

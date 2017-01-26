@@ -27,7 +27,7 @@ public class Scanner {
 	}
 
 	public static enum State {
-		START, AFTER_DIV, AFTER_DIV_AST, IN_IDENT, IN_DIGIT, AFTER_BAR, AFTER_BAR_MINUS, AFTER_BANG, AFTER_LT, AFTER_GT, AFTER_EQ, AFTER_MINUS
+		START, AFTER_DIV, AFTER_DIV_AST, AFTER_DIV_AST_AST, IN_IDENT, IN_DIGIT, AFTER_BAR, AFTER_BAR_MINUS, AFTER_BANG, AFTER_LT, AFTER_GT, AFTER_EQ, AFTER_MINUS
 	}
 
 	/**
@@ -76,7 +76,6 @@ public class Scanner {
 
 		// returns the text of this Token
 		public String getText() {
-			// TODO IMPLEMENT THIS: return actual text
 			return chars.substring(pos, pos + length);
 		}
 
@@ -88,7 +87,6 @@ public class Scanner {
 		 * than the search value or ArrayList.size()
 		 */
 		LinePos getLinePos() {
-			// TODO IMPLEMENT THIS
 			int ret = Collections.binarySearch(newLines, pos); // ret should never be positive as a token can't have the same position as a newline
 			int line = -1 * (ret + 1);
 			int posInLine;
@@ -107,7 +105,6 @@ public class Scanner {
 		 * @throws NumberFormatException
 		 */
 		public int intVal() throws NumberFormatException {
-			// TODO IMPLEMENT THIS
 			return Integer.parseInt(getText());
 		}
 
@@ -183,8 +180,8 @@ public class Scanner {
 	 * @throws IllegalNumberException
 	 */
 	public Scanner scan() throws IllegalCharException, IllegalNumberException {
-		// TODO IMPLEMENT THIS!!!!
-
+		// TODO: add EOF handling in ALL non-terminal states!!
+		// TODO: convert non-START state ifs to case stmts
 		int pos = 0;
 		int length = chars.length();
 		State state = State.START;
@@ -201,7 +198,7 @@ public class Scanner {
 					switch (ch) {
 						case -1 : {
 							tokens.add(new Token(Kind.EOF, pos, 0));
-							pos++; // is probably not required as EOF will be last char. But still no harm as the while will catch
+							pos++; // required to break from loop
 						}
 							break;
 						case '&' : {
@@ -289,6 +286,11 @@ public class Scanner {
 							state = State.AFTER_BAR;
 						}
 							break;
+						case '/' : {
+							pos++;
+							state = State.AFTER_DIV;
+						}
+							break;
 						default : { // this should come after the '0' state else isDigit would catch that
 							if (Character.isDigit(ch)) {
 								state = State.IN_DIGIT;
@@ -297,7 +299,7 @@ public class Scanner {
 								state = State.IN_IDENT;
 								pos++;
 							} else {
-								throw new IllegalCharException("Illegal character " + (char)ch + " at position " + pos);
+								throw new IllegalCharException("Illegal character " + (char) ch + " at position " + pos);
 							}
 						}
 					} // switch (ch)
@@ -337,14 +339,40 @@ public class Scanner {
 						tokens.add(new Token(Kind.EQUAL, startPos, pos - startPos));
 						state = State.START;
 					} else {
-						throw new IllegalCharException("Illegal character '=' at position " + (pos - 1));
+						throw new IllegalCharException("Illegal character '=' at position " + startPos);
 					}
 				}
 					break;
 				case AFTER_DIV : {
+					if (ch == '*') {
+						pos++;
+						state = State.AFTER_DIV_AST;
+					} else { // add div as token, pos already incremented, reset state to start
+						tokens.add(new Token(Kind.DIV, startPos, pos - startPos));
+						state = State.START;
+					}
 				}
 					break;
 				case AFTER_DIV_AST : {
+					if (ch == -1)//EOF reached at this non-terminal state
+						throw new IllegalCharException("Comment (/*) that started at " + startPos + " has not been closed and the EOF has been reached");
+					if (ch != '*') {
+						pos++;
+					} else { // if another * found after /*
+						pos++;
+						state = State.AFTER_DIV_AST_AST;
+					}
+				}
+					break;
+				case AFTER_DIV_AST_AST : {
+					if (ch == '/') {
+						pos++;
+						state = State.START; // reset to start state
+					} else if (ch == '*') {
+						pos++;
+					} else { //if EOF reached here, it will go to AFTER_DIV_AST and throw there. Hence, no need to handle EOF exception in this state
+						state = State.AFTER_DIV_AST;
+					}
 				}
 					break;
 				case AFTER_BAR : {
@@ -361,7 +389,7 @@ public class Scanner {
 					if (ch == '>') {
 						pos++;
 						tokens.add(new Token(Kind.BARARROW, startPos, pos - startPos));
-					} else { //Eg. |-a, if only bar and minus, then they are two tokens and add them to the token list
+					} else { // Eg. |-a, if only bar and minus, then they are two tokens and add them to the token list
 						tokens.add(new Token(Kind.OR, startPos, (pos - 1) - startPos));
 						tokens.add(new Token(Kind.MINUS, startPos + 1, pos - (startPos + 1)));
 					}
@@ -445,7 +473,6 @@ public class Scanner {
 	 * @return
 	 */
 	public LinePos getLinePos(Token t) {
-		// TODO IMPLEMENT THIS
 		return t.getLinePos();
 	}
 

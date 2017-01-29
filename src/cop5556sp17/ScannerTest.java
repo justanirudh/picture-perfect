@@ -10,8 +10,7 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
-	//TODO: an all in one test
-	
+
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
 		assertEquals(expPos, t.pos);
@@ -704,15 +703,15 @@ public class ScannerTest {
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
 	}
-	
+
 	@Test
 	public void testEqualIllegalCharError2() throws IllegalCharException, IllegalNumberException {
-		String input = "======="; //EOF reached before token formation
+		String input = "======="; // EOF reached before token formation
 		Scanner scanner = new Scanner(input);
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
 	}
-	
+
 	@Test
 	public void testBarBararrow() throws IllegalCharException, IllegalNumberException {
 
@@ -748,10 +747,10 @@ public class ScannerTest {
 
 		Scanner.Token token7 = scanner.nextToken();
 		isValidToken(token7, OR, 20, "|", 1);
-		
+
 		Scanner.Token token8 = scanner.nextToken();
 		isValidToken(token8, BARARROW, 21, "|->", 3);
-		
+
 		Scanner.Token token9 = scanner.nextToken();
 		isValidToken(token9, OR, 24, "|", 1);
 	}
@@ -781,7 +780,6 @@ public class ScannerTest {
 
 	}
 
-	
 	@Test
 	public void testAllOverlappingOps() throws IllegalCharException, IllegalNumberException {
 		String input = "->== <->= |->== !=== <===<->";
@@ -789,7 +787,7 @@ public class ScannerTest {
 		scanner.scan();
 
 		assertEquals(13, scanner.tokens.size());
-		
+
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, ARROW, 0, "->", 2);
 
@@ -834,7 +832,7 @@ public class ScannerTest {
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
 	}
-	
+
 	@Test
 	public void testBarArrowEqualIllegalCharError() throws IllegalCharException, IllegalNumberException {
 		String input = "|->=";
@@ -842,7 +840,7 @@ public class ScannerTest {
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
 	}
-	
+
 	@Test
 	public void testLTEqEqIllegalCharError() throws IllegalCharException, IllegalNumberException {
 		String input = "<==";
@@ -850,7 +848,7 @@ public class ScannerTest {
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
 	}
-	
+
 	@Test
 	public void testNonLanguageIllegalCharError() throws IllegalCharException, IllegalNumberException {
 		String input = "<= ^";
@@ -858,7 +856,7 @@ public class ScannerTest {
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
 	}
-	
+
 	@Test
 	public void testNonLanguageIllegalCharError2() throws IllegalCharException, IllegalNumberException {
 		String input = "<= ###";
@@ -866,7 +864,7 @@ public class ScannerTest {
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
 	}
-	
+
 	@Test
 	public void testComments() throws IllegalCharException, IllegalNumberException {
 		String input = "/ /**/ / * /*aaabc%%$$ */   /*$$//****// * / /*|->!=*abcd*+*%*// /*/**/";
@@ -874,7 +872,7 @@ public class ScannerTest {
 		scanner.scan();
 
 		assertEquals(8, scanner.tokens.size());
-		
+
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, DIV, 0, "/", 1);
 
@@ -905,7 +903,7 @@ public class ScannerTest {
 		scanner.scan();
 
 		assertEquals(3, scanner.tokens.size());
-		
+
 		Scanner.Token token = scanner.nextToken();
 		isValidToken(token, DIV, 0, "/", 1);
 		isValidLinePos(token.getLinePos(), 0, 0);
@@ -913,17 +911,17 @@ public class ScannerTest {
 		Scanner.Token token1 = scanner.nextToken();
 		isValidToken(token1, TIMES, 2, "*", 1);
 		isValidLinePos(token1.getLinePos(), 1, 0);
-		
-		int[] expNewlines = new int[]{1,6,12,17,20,26,34,36,39};
-		
+
+		int[] expNewlines = new int[]{1, 6, 12, 17, 20, 26, 34, 36, 39};
+
 		assertEquals(expNewlines.length, scanner.newLines.size());
-		
-		for(int i = 0; i < expNewlines.length; ++i){
+
+		for (int i = 0; i < expNewlines.length; ++i) {
 			assertEquals(scanner.newLines.get(i).intValue(), expNewlines[i]);
 		}
-		
+
 	}
-	
+
 	@Test
 	public void testunclosedCommentError() throws IllegalCharException, IllegalNumberException {
 		String input = "123 /*abcd";
@@ -931,7 +929,7 @@ public class ScannerTest {
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
 	}
-	
+
 	@Test
 	public void testunclosedComment2Error() throws IllegalCharException, IllegalNumberException {
 		String input = "123 /*abcd*";
@@ -939,7 +937,7 @@ public class ScannerTest {
 		thrown.expect(IllegalCharException.class);
 		scanner.scan();
 		assertEquals(1, scanner.tokens.size());
-	}	
+	}
 
 	@Test
 	public void testScannerGetLinePos() throws IllegalCharException, IllegalNumberException {
@@ -967,4 +965,5 @@ public class ScannerTest {
 		Scanner.Token token5 = scanner.nextToken();
 		isValidLinePos(scanner.getLinePos(token5), 3, 1);
 	}
+
 }

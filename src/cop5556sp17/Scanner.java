@@ -336,7 +336,7 @@ public class Scanner {
 						pos++;
 						tokens.add(new Token(Kind.EQUAL, startPos, pos - startPos));
 						state = State.START;
-					} else { //handles EOF as well
+					} else { // handles EOF as well
 						throw new IllegalCharException("Illegal character '=' at position " + startPos);
 					}
 				}
@@ -352,9 +352,11 @@ public class Scanner {
 				}
 					break;
 				case AFTER_DIV_AST : {
-					if (ch == -1)//EOF reached at this non-terminal state
+					if (ch == -1)// EOF reached at this non-terminal state
 						throw new IllegalCharException("Comment (/*) that started at " + startPos + " has not been closed and the EOF has been reached");
 					if (ch != '*') {
+						if (ch == '\n') // if a newline in comment, add in newLines
+							newLines.add(pos);
 						pos++;
 					} else { // if another * found after /*
 						pos++;
@@ -368,7 +370,7 @@ public class Scanner {
 						state = State.START; // reset to start state
 					} else if (ch == '*') {
 						pos++;
-					} else { //if EOF reached here, it will go to AFTER_DIV_AST and throw there. Hence, no need to handle EOF exception in this state
+					} else { // if EOF reached here, it will go to AFTER_DIV_AST and throw there. Similar for newline
 						state = State.AFTER_DIV_AST;
 					}
 				}

@@ -10,7 +10,7 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
-	//TODO: test peek()?
+	//TODO: an all in one test
 	
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertEquals(expKind, t.kind);
@@ -896,6 +896,32 @@ public class ScannerTest {
 		Scanner.Token token6 = scanner.nextToken();
 		isValidToken(token6, DIV, 63, "/", 1);
 
+	}
+
+	@Test
+	public void testNewLineInComments() throws IllegalCharException, IllegalNumberException {
+		String input = "/\n* /*\n abcd\nefgh\n *\n*abcd\n*******\n*\n*/\n";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+
+		assertEquals(3, scanner.tokens.size());
+		
+		Scanner.Token token = scanner.nextToken();
+		isValidToken(token, DIV, 0, "/", 1);
+		isValidLinePos(token.getLinePos(), 0, 0);
+
+		Scanner.Token token1 = scanner.nextToken();
+		isValidToken(token1, TIMES, 2, "*", 1);
+		isValidLinePos(token1.getLinePos(), 1, 0);
+		
+		int[] expNewlines = new int[]{1,6,12,17,20,26,34,36,39};
+		
+		assertEquals(expNewlines.length, scanner.newLines.size());
+		
+		for(int i = 0; i < expNewlines.length; ++i){
+			assertEquals(scanner.newLines.get(i).intValue(), expNewlines[i]);
+		}
+		
 	}
 	
 	@Test

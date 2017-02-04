@@ -108,6 +108,10 @@ public class Scanner {
 			return Integer.parseInt(getText());
 		}
 
+		public boolean isKind(Kind k) {
+			return this.kind == k;
+		}
+
 		Token(Kind kind, int pos, int length) {
 			this.kind = kind;
 			this.pos = pos;

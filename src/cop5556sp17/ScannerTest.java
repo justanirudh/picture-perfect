@@ -1,7 +1,7 @@
 package cop5556sp17;
 
 import static cop5556sp17.Scanner.Kind.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,9 +10,12 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
+	// TODO: change eof's text to eof
+	// TODO: Reading the definition of the grammar, it would seem that the expected Kinds would be KW_SLEEP("sleep") and OP_SCALE("scale"). However in the provided code for Scanner, the definition of
+	// Kind has OP_SLEEP("sleep") and KW_SCALE("scale").
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
-		assertEquals(expKind, t.kind);
+		assertTrue(t.isKind(expKind));
 		assertEquals(expPos, t.pos);
 		assertEquals(expLen, t.length);
 		assertEquals(expText, t.getText());
@@ -28,7 +31,7 @@ public class ScannerTest {
 
 	@Test
 	public void testEmpty() throws IllegalCharException, IllegalNumberException {
-		String input = "System";
+		String input = "";
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 	}

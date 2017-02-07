@@ -10,9 +10,6 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Scanner.*;
 
 public class ScannerTest {
-	// TODO: change eof's text to eof
-	// TODO: Reading the definition of the grammar, it would seem that the expected Kinds would be KW_SLEEP("sleep") and OP_SCALE("scale"). However in the provided code for Scanner, the definition of
-	// Kind has OP_SLEEP("sleep") and KW_SCALE("scale").
 
 	private static void isValidToken(Token t, Kind expKind, int expPos, String expText, int expLen) {
 		assertTrue(t.isKind(expKind));

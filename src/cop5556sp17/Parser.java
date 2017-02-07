@@ -1,14 +1,15 @@
 package cop5556sp17;
 
 import cop5556sp17.Scanner.Kind;
+import cop5556sp17.Scanner.LinePos;
+
 import static cop5556sp17.Scanner.Kind.*;
 import cop5556sp17.Scanner.Token;
 
 public class Parser {
 
 	/**
-	 * Exception to be thrown if a syntax error is detected in the input.
-	 * You will want to provide a useful error message.
+	 * Exception to be thrown if a syntax error is detected in the input. You will want to provide a useful error message.
 	 *
 	 */
 	@SuppressWarnings("serial")
@@ -17,14 +18,12 @@ public class Parser {
 			super(message);
 		}
 	}
-	
+
 	/**
-	 * Useful during development to ensure unimplemented routines are
-	 * not accidentally called during development.  Delete it when 
-	 * the Parser is finished.
+	 * Useful during development to ensure unimplemented routines are not accidentally called during development. Delete it when the Parser is finished.
 	 *
 	 */
-	@SuppressWarnings("serial")	
+	@SuppressWarnings("serial")
 	public static class UnimplementedFeatureException extends RuntimeException {
 		public UnimplementedFeatureException() {
 			super();
@@ -40,8 +39,7 @@ public class Parser {
 	}
 
 	/**
-	 * parse the input using tokens from the scanner.
-	 * Check for EOF (i.e. no trailing junk) when finished
+	 * parse the input using tokens from the scanner. Check for EOF (i.e. no trailing junk) when finished
 	 * 
 	 * @throws SyntaxException
 	 */
@@ -52,96 +50,138 @@ public class Parser {
 	}
 
 	void expression() throws SyntaxException {
-		//TODO
+		// TODO
 		throw new UnimplementedFeatureException();
 	}
 
 	void term() throws SyntaxException {
-		//TODO
+		// TODO
 		throw new UnimplementedFeatureException();
 	}
 
 	void elem() throws SyntaxException {
-		//TODO
+		// TODO
 		throw new UnimplementedFeatureException();
 	}
 
 	void factor() throws SyntaxException {
-		Kind kind = t.kind;
-		switch (kind) {
-		case IDENT: {
-			consume();
-		}
-			break;
-		case INT_LIT: {
-			consume();
-		}
-			break;
-		case KW_TRUE:
-		case KW_FALSE: {
-			consume();
-		}
-			break;
-		case KW_SCREENWIDTH:
-		case KW_SCREENHEIGHT: {
-			consume();
-		}
-			break;
-		case LPAREN: {
-			consume();
-			expression();
-			match(RPAREN);
-		}
-			break;
-		default:
-			//you will want to provide a more useful error message
-			throw new SyntaxException("illegal factor");
-		}
-	}
-
-	void block() throws SyntaxException {
-		//TODO
+		// Kind kind = t.kind;
+		// switch (kind) {
+		// case IDENT: {
+		// consume();
+		// }
+		// break;
+		// case INT_LIT: {
+		// consume();
+		// }
+		// break;
+		// case KW_TRUE:
+		// case KW_FALSE: {
+		// consume();
+		// }
+		// break;
+		// case KW_SCREENWIDTH:
+		// case KW_SCREENHEIGHT: {
+		// consume();
+		// }
+		// break;
+		// case LPAREN: {
+		// consume();
+		// expression();
+		// match(RPAREN);
+		// }
+		// break;
+		// default:
+		// //you will want to provide a more useful error message
+		// throw new SyntaxException("illegal factor");
+		// }
 		throw new UnimplementedFeatureException();
 	}
 
 	void program() throws SyntaxException {
-		//TODO
-		throw new UnimplementedFeatureException();
+		match(IDENT);
+		program_tail();
+	}
+
+	void program_tail() throws SyntaxException {
+		Kind kind = t.kind;
+		switch (kind) {
+			case LBRACE : {
+				block();
+			}
+				break;
+			case KW_URL :
+			case KW_FILE :
+			case KW_INTEGER :
+			case KW_BOOLEAN : {
+				paramDec();
+				while (t.isKind(COMMA)) {
+					consume();
+					paramDec();
+				}
+				block();
+			}
+				break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " 
+				+ lp.line + " and at pos " + lp.posInLine);
+			}
+		}
 	}
 
 	void paramDec() throws SyntaxException {
-		//TODO
+		Kind kind = t.kind;
+		switch (kind) {
+			case KW_URL :
+			case KW_FILE :
+			case KW_INTEGER :
+			case KW_BOOLEAN : {
+				consume();
+				match(IDENT);
+			}
+				break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " 
+				+ lp.line + " and at pos " + lp.posInLine);
+			}
+		}
 		throw new UnimplementedFeatureException();
 	}
 
+	void block() throws SyntaxException {
+		match(LBRACE);
+		
+	}
+	
 	void dec() throws SyntaxException {
-		//TODO
+		// TODO
 		throw new UnimplementedFeatureException();
 	}
 
 	void statement() throws SyntaxException {
-		//TODO
+		// TODO
 		throw new UnimplementedFeatureException();
 	}
 
 	void chain() throws SyntaxException {
-		//TODO
+		// TODO
 		throw new UnimplementedFeatureException();
 	}
 
 	void chainElem() throws SyntaxException {
-		//TODO
+		// TODO
 		throw new UnimplementedFeatureException();
 	}
 
 	void arg() throws SyntaxException {
-		//TODO
+		// TODO
 		throw new UnimplementedFeatureException();
 	}
 
 	/**
-	 * Checks whether the current token is the EOF token. If not, a
-	 * SyntaxException is thrown.
+	 * Checks whether the current token is the EOF token. If not, a SyntaxException is thrown.
 	 * 
 	 * @return
 	 * @throws SyntaxException
@@ -154,8 +194,7 @@ public class Parser {
 	}
 
 	/**
-	 * Checks if the current token has the given kind. If so, the current token
-	 * is consumed and returned. If not, a SyntaxException is thrown.
+	 * Checks if the current token has the given kind. If so, the current token is consumed and returned. If not, a SyntaxException is thrown.
 	 * 
 	 * Precondition: kind != EOF
 	 * 
@@ -171,20 +210,18 @@ public class Parser {
 	}
 
 	/**
-	 * Checks if the current token has one of the given kinds. If so, the
-	 * current token is consumed and returned. If not, a SyntaxException is
-	 * thrown.
+	 * Checks if the current token has one of the given kinds. If so, the current token is consumed and returned. If not, a SyntaxException is thrown.
 	 * 
 	 * * Precondition: for all given kinds, kind != EOF
 	 * 
 	 * @param kinds
-	 *            list of kinds, matches any one
+	 *          list of kinds, matches any one
 	 * @return
 	 * @throws SyntaxException
 	 */
-	private Token match(Kind... kinds) throws SyntaxException {
+	private Token match(Kind... kinds) throws SyntaxException { // For multple terminal states in a production. check all at onces instead of multiple case statements
 		// TODO. Optional but handy
-		return null; //replace this statement
+		return null; // replace this statement
 	}
 
 	/**

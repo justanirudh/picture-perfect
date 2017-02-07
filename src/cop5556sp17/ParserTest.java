@@ -8,7 +8,6 @@ import cop5556sp17.Parser.SyntaxException;
 import cop5556sp17.Scanner.IllegalCharException;
 import cop5556sp17.Scanner.IllegalNumberException;
 
-
 public class ParserTest {
 
 	@Rule
@@ -30,7 +29,7 @@ public class ParserTest {
 		scanner.scan();
 		System.out.println(scanner);
 		Parser parser = new Parser(scanner);
-        parser.arg();
+		parser.arg();
 	}
 
 	@Test
@@ -43,9 +42,8 @@ public class ParserTest {
 		parser.arg();
 	}
 
-
 	@Test
-	public void testProgram0() throws IllegalCharException, IllegalNumberException, SyntaxException{
+	public void testProgram0() throws IllegalCharException, IllegalNumberException, SyntaxException {
 		String input = "prog0 {}";
 		Parser parser = new Parser(new Scanner(input).scan());
 		parser.parse();

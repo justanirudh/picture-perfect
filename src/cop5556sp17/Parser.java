@@ -49,21 +49,6 @@ public class Parser {
 		return;
 	}
 
-	void expression() throws SyntaxException {
-		// TODO
-		throw new UnimplementedFeatureException();
-	}
-
-	void term() throws SyntaxException {
-		// TODO
-		throw new UnimplementedFeatureException();
-	}
-
-	void elem() throws SyntaxException {
-		// TODO
-		throw new UnimplementedFeatureException();
-	}
-
 	void program() throws SyntaxException {
 		// TODO
 		throw new UnimplementedFeatureException();
@@ -150,13 +135,37 @@ public class Parser {
 		throw new UnimplementedFeatureException();
 	}
 
+	void expression() throws SyntaxException {
+		term();
+		while (t.isKind(LT) || t.isKind(LE) || t.isKind(GT) || t.isKind(GE) || t.isKind(EQUAL) || t.isKind(NOTEQUAL)) {
+			consume();
+			term();
+		}
+	}
+	
+	void term() throws SyntaxException {
+		elem();
+		while(t.isKind(PLUS) || t.isKind(MINUS)|| t.isKind(OR)){
+			consume();
+			elem();
+		}
+	}
+	
+	void elem() throws SyntaxException {
+		factor();
+		while(t.isKind(TIMES) || t.isKind(DIV)|| t.isKind(AND) || t.isKind(MOD)){
+			consume();
+			factor();
+		}
+	}
+	
 	void factor() throws SyntaxException {
 		Kind kind = t.kind;
 		switch (kind) {
 			case IDENT :
 			case INT_LIT :
 			case KW_TRUE :
-			case KW_FALSE : 
+			case KW_FALSE :
 			case KW_SCREENWIDTH :
 			case KW_SCREENHEIGHT : {
 				consume();
@@ -172,7 +181,6 @@ public class Parser {
 				LinePos lp = t.getLinePos();
 				throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
 		}
-		throw new UnimplementedFeatureException();
 	}
 
 	void relOp() throws SyntaxException {

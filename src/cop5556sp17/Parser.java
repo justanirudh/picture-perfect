@@ -64,97 +64,67 @@ public class Parser {
 		throw new UnimplementedFeatureException();
 	}
 
-	void factor() throws SyntaxException {
-		// Kind kind = t.kind;
-		// switch (kind) {
-		// case IDENT: {
-		// consume();
-		// }
-		// break;
-		// case INT_LIT: {
-		// consume();
-		// }
-		// break;
-		// case KW_TRUE:
-		// case KW_FALSE: {
-		// consume();
-		// }
-		// break;
-		// case KW_SCREENWIDTH:
-		// case KW_SCREENHEIGHT: {
-		// consume();
-		// }
-		// break;
-		// case LPAREN: {
-		// consume();
-		// expression();
-		// match(RPAREN);
-		// }
-		// break;
-		// default:
-		// //you will want to provide a more useful error message
-		// throw new SyntaxException("illegal factor");
-		// }
-		throw new UnimplementedFeatureException();
-	}
-
 	void program() throws SyntaxException {
-		match(IDENT);
-		program_tail();
+		// TODO
+		throw new UnimplementedFeatureException();
+		// match(IDENT);
+		// program_tail();
 	}
 
 	void program_tail() throws SyntaxException {
-		Kind kind = t.kind;
-		switch (kind) {
-			case LBRACE : {
-				block();
-			}
-				break;
-			case KW_URL :
-			case KW_FILE :
-			case KW_INTEGER :
-			case KW_BOOLEAN : {
-				paramDec();
-				while (t.isKind(COMMA)) {
-					consume();
-					paramDec();
-				}
-				block();
-			}
-				break;
-			default : {
-				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " 
-				+ lp.line + " and at pos " + lp.posInLine);
-			}
-		}
+		// TODO
+		throw new UnimplementedFeatureException();
+		// Kind kind = t.kind;
+		// switch (kind) {
+		// case LBRACE : {
+		// block();
+		// }
+		// break;
+		// case KW_URL :
+		// case KW_FILE :
+		// case KW_INTEGER :
+		// case KW_BOOLEAN : {
+		// paramDec();
+		// while (t.isKind(COMMA)) {
+		// consume();
+		// paramDec();
+		// }
+		// block();
+		// }
+		// break;
+		// default : {
+		// LinePos lp = t.getLinePos();
+		// throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+		// }
+		// }
 	}
 
 	void paramDec() throws SyntaxException {
-		Kind kind = t.kind;
-		switch (kind) {
-			case KW_URL :
-			case KW_FILE :
-			case KW_INTEGER :
-			case KW_BOOLEAN : {
-				consume();
-				match(IDENT);
-			}
-				break;
-			default : {
-				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " 
-				+ lp.line + " and at pos " + lp.posInLine);
-			}
-		}
+		// TODO
 		throw new UnimplementedFeatureException();
+		// Kind kind = t.kind;
+		// switch (kind) {
+		// case KW_URL :
+		// case KW_FILE :
+		// case KW_INTEGER :
+		// case KW_BOOLEAN : {
+		// consume();
+		// match(IDENT);
+		// }
+		// break;
+		// default : {
+		// LinePos lp = t.getLinePos();
+		// throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+		// }
+		// }
 	}
 
 	void block() throws SyntaxException {
-		match(LBRACE);
-		
+		// TODO
+		throw new UnimplementedFeatureException();
+
 	}
-	
+
 	void dec() throws SyntaxException {
 		// TODO
 		throw new UnimplementedFeatureException();
@@ -178,6 +148,83 @@ public class Parser {
 	void arg() throws SyntaxException {
 		// TODO
 		throw new UnimplementedFeatureException();
+	}
+
+	void factor() throws SyntaxException {
+		Kind kind = t.kind;
+		switch (kind) {
+			case IDENT :
+			case INT_LIT :
+			case KW_TRUE :
+			case KW_FALSE : 
+			case KW_SCREENWIDTH :
+			case KW_SCREENHEIGHT : {
+				consume();
+			}
+				break;
+			case LPAREN : {
+				consume();
+				expression();
+				match(RPAREN);
+			}
+				break;
+			default :
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+		}
+		throw new UnimplementedFeatureException();
+	}
+
+	void relOp() throws SyntaxException {
+		Kind kind = t.kind;
+		switch (kind) {
+			case LT :
+			case LE :
+			case GT :
+			case GE :
+			case EQUAL :
+			case NOTEQUAL : {
+				consume();
+			}
+				break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+			}
+		}
+	}
+
+	void weakOp() throws SyntaxException {
+		Kind kind = t.kind;
+		switch (kind) {
+			case PLUS :
+			case MINUS :
+			case OR : {
+				consume();
+			}
+				break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+			}
+		}
+	}
+
+	void strongOp() throws SyntaxException {
+		Kind kind = t.kind;
+		switch (kind) {
+			case TIMES :
+			case DIV :
+			case AND :
+			case MOD : {
+				consume();
+			}
+				break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+			}
+		}
 	}
 
 	/**
@@ -206,7 +253,8 @@ public class Parser {
 		if (t.isKind(kind)) {
 			return consume();
 		}
-		throw new SyntaxException("saw " + t.kind + "expected " + kind);
+		LinePos lp = t.getLinePos();
+		throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
 	}
 
 	/**

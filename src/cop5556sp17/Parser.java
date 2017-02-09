@@ -125,6 +125,21 @@ public class Parser {
 		throw new UnimplementedFeatureException();
 	}
 
+	void arrowOp() throws SyntaxException {
+		Kind kind = t.kind;
+		switch (kind) {
+			case ARROW :
+			case BARARROW : {
+				consume();
+			}
+				break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+			}
+		}
+	}
+
 	void chainElem() throws SyntaxException {
 		Kind kind = t.kind;
 		switch (kind) {
@@ -351,7 +366,8 @@ public class Parser {
 			return t;
 		}
 		LinePos lp = t.getLinePos();
-		throw new SyntaxException("Expected EOF. Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+		throw new SyntaxException("Expected EOF. Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos "
+				+ lp.posInLine);
 	}
 
 	/**

@@ -179,8 +179,18 @@ public class ParserTest {
 		parser2.chainElem();
 		parser2.chainElem();
 		parser2.chainElem();
-//		parser2.matchEOF();
 	}
+	
+	public void testArrowOp() throws IllegalCharException, IllegalNumberException, SyntaxException {
+		String input = "-> \n |->";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		parser.arrowOp();
+		parser.arrowOp();
+		parser.matchEOF();
+	}
+	
 	
 	// @Test
 	// public void testProgram0() throws IllegalCharException, IllegalNumberException, SyntaxException {

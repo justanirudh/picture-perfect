@@ -120,6 +120,12 @@ public class Parser {
 		throw new UnimplementedFeatureException();
 	}
 
+	void assign() throws SyntaxException {
+		match(IDENT);
+		match(ASSIGN);
+		expression();
+	}
+	
 	void chain() throws SyntaxException {
 		chainElem();
 		arrowOp();

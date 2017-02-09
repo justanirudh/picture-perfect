@@ -205,8 +205,24 @@ public class ParserTest {
 		Scanner scanner2 = new Scanner(input2);
 		scanner2.scan();
 		Parser parser2 = new Parser(scanner2);
-		parser2.chain();
-				
+		parser2.chain();				
+	}
+	
+	@Test
+	public void testAssign() throws IllegalCharException, IllegalNumberException, SyntaxException {
+		String input = "abc <- 4 + 5";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		parser.assign();
+		parser.matchEOF();
+		
+		String input2 = "abc <- (4 + 5)";
+		Scanner scanner2 = new Scanner(input2);
+		scanner2.scan();
+		Parser parser2 = new Parser(scanner2);
+		parser2.assign();
+		parser2.matchEOF();
 	}
 	
 //	public void testIfStatementWhileStatement() throws IllegalCharException, IllegalNumberException, SyntaxException {

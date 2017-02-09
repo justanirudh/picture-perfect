@@ -111,8 +111,21 @@ public class Parser {
 	}
 
 	void dec() throws SyntaxException {
-		// TODO
-		throw new UnimplementedFeatureException();
+		Kind kind = t.kind;
+		switch(kind) {
+			case KW_INTEGER:
+			case KW_BOOLEAN:
+			case KW_IMAGE:
+			case KW_FRAME: {
+				consume();
+				match(IDENT);
+			}
+			break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+			}
+		}
 	}
 
 	void statement() throws SyntaxException {

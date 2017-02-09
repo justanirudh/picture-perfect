@@ -193,6 +193,18 @@ public class ParserTest {
 	}
 	
 	@Test
+	public void testDec() throws IllegalCharException, IllegalNumberException, SyntaxException {
+		String input = "integer abc boolean bool frame fr";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		parser.dec();
+		parser.dec();
+		parser.dec();
+		parser.matchEOF();
+	}
+	
+	@Test
 	public void testChain() throws IllegalCharException, IllegalNumberException, SyntaxException {
 		String input = "abc -> def";
 		Scanner scanner = new Scanner(input);

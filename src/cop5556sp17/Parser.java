@@ -121,9 +121,50 @@ public class Parser {
 	}
 
 	void chain() throws SyntaxException {
-		// TODO
-		throw new UnimplementedFeatureException();
+		chainElem();
+		arrowOp();
+		chainElem();
+		while(t.isKind(ARROW) || t.isKind(BARARROW)){
+			consume();
+			chainElem();
+		}
 	}
+
+//	void whileStatement() throws SyntaxException {
+//		Kind kind = t.kind;
+//		switch (kind) {
+//			case KW_WHILE : {
+//				consume();
+//				match(LPAREN);
+//				expression();
+//				match(RPAREN);
+//				block();
+//			}
+//				break;
+//			default : {
+//				LinePos lp = t.getLinePos();
+//				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+//			}
+//		}
+//	}
+
+//	void ifStatement() throws SyntaxException {
+//		Kind kind = t.kind;
+//		switch (kind) {
+//			case KW_IF : {
+//				consume();
+//				match(LPAREN);
+//				expression();
+//				match(RPAREN);
+//				block();
+//			}
+//				break;
+//			default : {
+//				LinePos lp = t.getLinePos();
+//				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+//			}
+//		}
+//	}
 
 	void arrowOp() throws SyntaxException {
 		Kind kind = t.kind;

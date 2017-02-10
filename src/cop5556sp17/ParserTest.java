@@ -77,15 +77,15 @@ public class ParserTest {
 		parser6.expression();
 	}
 
-	// @Test
-	// public void testErrorProgram0() throws IllegalCharException, IllegalNumberException, SyntaxException {
-	// String input = "file abc";
-	// Scanner scanner = new Scanner(input);
-	// scanner.scan();
-	// Parser parser = new Parser(scanner);
-	// thrown.expect(Parser.SyntaxException.class);
-	// parser.parse();
-	// }
+	 @Test
+	 public void testErrorProgram0() throws IllegalCharException, IllegalNumberException, SyntaxException {
+	 String input = "file abc";
+	 Scanner scanner = new Scanner(input);
+	 scanner.scan();
+	 Parser parser = new Parser(scanner);
+	 thrown.expect(Parser.SyntaxException.class);
+	 parser.parse();
+	 }
 
 	@Test
 	public void testFactor() throws IllegalCharException, IllegalNumberException, SyntaxException {
@@ -280,11 +280,33 @@ public class ParserTest {
 		parser.matchEOF();
 	}
 
-	// @Test
-	// public void testProgram0() throws IllegalCharException, IllegalNumberException, SyntaxException {
-	// String input = "prog0 {}";
-	// Parser parser = new Parser(new Scanner(input).scan());
-	// parser.parse();
-	// }
-
+	 @Test
+	 public void testProgramTail() throws IllegalCharException, IllegalNumberException, SyntaxException {
+	 Parser parser = initializeParser("{}");
+	 parser.program_tail();
+	 
+	 Parser parser2 = initializeParser("{integer foo image bar}");
+	 parser2.program_tail();
+	 
+	 Parser parser3 = initializeParser("boolean foo {sleep a + b;}");
+	 parser3.program_tail();
+	 
+	 Parser parser4 = initializeParser("boolean foo, integer bar, url google {sleep a + b;}");
+	 parser4.program_tail();
+	 }
+	 
+	 @Test
+	 public void testParser() throws IllegalCharException, IllegalNumberException, SyntaxException {
+	 Parser parser = initializeParser("bar {}");
+	 parser.parse();
+	 
+	 Parser parser2 = initializeParser("foo {integer foo image bar}");
+	 parser2.parse();
+	 
+	 Parser parser3 = initializeParser("bar boolean foo {sleep a + b;}");
+	 parser3.parse();
+	 
+	 Parser parser4 = initializeParser("baz boolean foo, integer bar, url google {sleep a + b;}");
+	 parser4.parse();
+	 }
 }

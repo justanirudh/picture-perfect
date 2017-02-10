@@ -50,38 +50,35 @@ public class Parser {
 	}
 
 	void program() throws SyntaxException {
-		// TODO
-		// throw new UnimplementedFeatureException();
-		// match(IDENT);
-		// program_tail();
+		match(IDENT);
+		program_tail();
 	}
 
 	void program_tail() throws SyntaxException {
-		// TODO
-		throw new UnimplementedFeatureException();
-		// Kind kind = t.kind;
-		// switch (kind) {
-		// case LBRACE : {
-		// block();
-		// }
-		// break;
-		// case KW_URL :
-		// case KW_FILE :
-		// case KW_INTEGER :
-		// case KW_BOOLEAN : {
-		// paramDec();
-		// while (t.isKind(COMMA)) {
-		// consume();
-		// paramDec();
-		// }
-		// block();
-		// }
-		// break;
-		// default : {
-		// LinePos lp = t.getLinePos();
-		// throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
-		// }
-		// }
+		Kind kind = t.kind;
+		switch (kind) {
+			case LBRACE : {
+				block();
+			}
+				break;
+			case KW_URL :
+			case KW_FILE :
+			case KW_INTEGER :
+			case KW_BOOLEAN : {
+				paramDec();
+				while (t.isKind(COMMA)) {
+					consume();
+					paramDec();
+				}
+				block();
+			}
+				break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
+			}
+		}
 	}
 
 	void paramDec() throws SyntaxException {
@@ -161,8 +158,8 @@ public class Parser {
 				if (nextToken.isKind(ASSIGN)) {
 					assign();
 					match(SEMI);
-				} else { // no need for else if and check arrow operator. if arrow op, we are fine, else arrow op will throw, which is fine too as there are only 2 options
-					chain();
+				} else { // no need for else if and checking arrow operator. if arrow op, we are fine, else
+					chain(); // arrow op will throw, which is fine too as there are only 2 options
 					match(SEMI);
 				}
 			}

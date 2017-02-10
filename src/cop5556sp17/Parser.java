@@ -105,32 +105,90 @@ public class Parser {
 	}
 
 	void block() throws SyntaxException {
-		// TODO
-		throw new UnimplementedFeatureException();
-
+		match(LBRACE);
+		// union (first(dec), first(statement))
+		while (t.isKind(KW_INTEGER) || t.isKind(KW_BOOLEAN) || t.isKind(Kind.KW_IMAGE) || t.isKind(
+				KW_FRAME) || t.isKind(OP_SLEEP) || t.isKind(KW_WHILE) || t.isKind(KW_IF) || t.isKind(IDENT)
+				|| t.isKind(OP_BLUR) || t.isKind(OP_GRAY) || t.isKind(OP_CONVOLVE) || t.isKind(KW_SHOW) || t
+						.isKind(KW_HIDE) || t.isKind(KW_MOVE) || t.isKind(KW_XLOC) || t.isKind(KW_YLOC) || t
+								.isKind(OP_WIDTH) || t.isKind(OP_HEIGHT) || t.isKind(KW_SCALE)) {
+			if (t.isKind(KW_INTEGER) || t.isKind(KW_BOOLEAN) || t.isKind(Kind.KW_IMAGE) || t.isKind(
+					KW_FRAME))
+				dec();
+			else
+				statement();
+		}
+		match(RBRACE);
 	}
 
 	void dec() throws SyntaxException {
 		Kind kind = t.kind;
-		switch(kind) {
-			case KW_INTEGER:
-			case KW_BOOLEAN:
-			case KW_IMAGE:
-			case KW_FRAME: {
+		switch (kind) {
+			case KW_INTEGER :
+			case KW_BOOLEAN :
+			case KW_IMAGE :
+			case KW_FRAME : {
 				consume();
 				match(IDENT);
 			}
-			break;
+				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
 
 	void statement() throws SyntaxException {
-		// TODO
-		throw new UnimplementedFeatureException();
+		Kind kind = t.kind;
+		switch (kind) {
+			case OP_SLEEP : {
+				consume();
+				expression();
+				match(SEMI);
+			}
+				break;
+			case KW_WHILE : {
+				whileStatement();
+			}
+				break;
+			case KW_IF : {
+				ifStatement();
+			}
+				break;
+			case IDENT : { // can be either assign or chain, hence use peek()
+				Token nextToken = scanner.peek();
+				if (nextToken.isKind(ASSIGN)) {
+					assign();
+					match(SEMI);
+				} else { // no need for else if and check arrow operator. if arrow op, we are fine, else arrow op will throw, which is fine too as there are only 2 options
+					chain();
+					match(SEMI);
+				}
+			}
+				break;
+			case OP_BLUR :
+			case OP_GRAY :
+			case OP_CONVOLVE :
+			case KW_SHOW :
+			case KW_HIDE :
+			case KW_MOVE :
+			case KW_XLOC :
+			case KW_YLOC :
+			case OP_WIDTH :
+			case OP_HEIGHT :
+			case KW_SCALE : {
+				chain();
+				match(SEMI);
+			}
+				break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
+			}
+		}
 	}
 
 	void assign() throws SyntaxException {
@@ -138,52 +196,32 @@ public class Parser {
 		match(ASSIGN);
 		expression();
 	}
-	
+
 	void chain() throws SyntaxException {
 		chainElem();
 		arrowOp();
 		chainElem();
-		while(t.isKind(ARROW) || t.isKind(BARARROW)){
+		while (t.isKind(ARROW) || t.isKind(BARARROW)) {
 			consume();
 			chainElem();
 		}
 	}
 
-//	void whileStatement() throws SyntaxException {
-//		Kind kind = t.kind;
-//		switch (kind) {
-//			case KW_WHILE : {
-//				consume();
-//				match(LPAREN);
-//				expression();
-//				match(RPAREN);
-//				block();
-//			}
-//				break;
-//			default : {
-//				LinePos lp = t.getLinePos();
-//				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
-//			}
-//		}
-//	}
+	void whileStatement() throws SyntaxException {
+		match(KW_WHILE);
+		match(LPAREN);
+		expression();
+		match(RPAREN);
+		block();
+	}
 
-//	void ifStatement() throws SyntaxException {
-//		Kind kind = t.kind;
-//		switch (kind) {
-//			case KW_IF : {
-//				consume();
-//				match(LPAREN);
-//				expression();
-//				match(RPAREN);
-//				block();
-//			}
-//				break;
-//			default : {
-//				LinePos lp = t.getLinePos();
-//				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
-//			}
-//		}
-//	}
+	void ifStatement() throws SyntaxException {
+		match(KW_IF);
+		match(LPAREN);
+		expression();
+		match(RPAREN);
+		block();
+	}
 
 	void arrowOp() throws SyntaxException {
 		Kind kind = t.kind;
@@ -195,7 +233,8 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
@@ -232,7 +271,8 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
@@ -248,7 +288,8 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
@@ -266,7 +307,8 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
@@ -282,7 +324,8 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
@@ -308,14 +351,16 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
 
 	void expression() throws SyntaxException {
 		term();
-		while (t.isKind(LT) || t.isKind(LE) || t.isKind(GT) || t.isKind(GE) || t.isKind(EQUAL) || t.isKind(NOTEQUAL)) {
+		while (t.isKind(LT) || t.isKind(LE) || t.isKind(GT) || t.isKind(GE) || t.isKind(EQUAL) || t
+				.isKind(NOTEQUAL)) {
 			consume();
 			term();
 		}
@@ -357,7 +402,8 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
@@ -376,7 +422,8 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
@@ -392,7 +439,8 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
@@ -409,7 +457,8 @@ public class Parser {
 				break;
 			default : {
 				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
 			}
 		}
 	}
@@ -426,8 +475,8 @@ public class Parser {
 			return t;
 		}
 		LinePos lp = t.getLinePos();
-		throw new SyntaxException("Expected EOF. Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos "
-				+ lp.posInLine);
+		throw new SyntaxException("Expected EOF. Illegal token '" + t.getText() + "' of kind " + t.kind
+				+ " at line " + lp.line + " and at pos " + lp.posInLine);
 	}
 
 	/**
@@ -444,7 +493,8 @@ public class Parser {
 			return consume();
 		}
 		LinePos lp = t.getLinePos();
-		throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
+		throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line "
+				+ lp.line + " and at pos " + lp.posInLine);
 	}
 
 	/**
@@ -457,10 +507,11 @@ public class Parser {
 	 * @return
 	 * @throws SyntaxException
 	 */
-	private Token match(Kind... kinds) throws SyntaxException { // For multple terminal states in a production. check all at onces instead of multiple case statements
-		// TODO. Optional but handy
-		return null; // replace this statement
-	}
+	// TODO: Use this?
+	// private Token match(Kind... kinds) throws SyntaxException { // For multple terminal states in a production. check all at onces instead of multiple case statements
+	// // TODO. Optional but handy
+	// return null; // replace this statement
+	// }
 
 	/**
 	 * Gets the next token and returns the consumed token.

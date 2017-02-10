@@ -264,7 +264,20 @@ public class ParserTest {
 		
 		Parser parser7 = initializeParser("while( ((screenwidth))) \n{ if( a > 42) {  blur (3 < 2) -> move (4 < 3, 8 >= 9)  ;}}");
 		parser7.whileStatement();
-		
+	
+	}
+	
+	@Test
+	public void testParamDec() throws IllegalCharException, IllegalNumberException, SyntaxException {
+		String input = "integer abc boolean bool url foo file bar";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		parser.paramDec();
+		parser.paramDec();
+		parser.paramDec();
+		parser.paramDec();
+		parser.matchEOF();
 	}
 
 	// @Test

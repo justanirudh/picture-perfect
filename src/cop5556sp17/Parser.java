@@ -85,23 +85,22 @@ public class Parser {
 	}
 
 	void paramDec() throws SyntaxException {
-		// TODO
-		throw new UnimplementedFeatureException();
-		// Kind kind = t.kind;
-		// switch (kind) {
-		// case KW_URL :
-		// case KW_FILE :
-		// case KW_INTEGER :
-		// case KW_BOOLEAN : {
-		// consume();
-		// match(IDENT);
-		// }
-		// break;
-		// default : {
-		// LinePos lp = t.getLinePos();
-		// throw new SyntaxException("Illegal token " + t.getText() + " of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
-		// }
-		// }
+		Kind kind = t.kind;
+		switch (kind) {
+			case KW_URL :
+			case KW_FILE :
+			case KW_INTEGER :
+			case KW_BOOLEAN : {
+				consume();
+				match(IDENT);
+			}
+				break;
+			default : {
+				LinePos lp = t.getLinePos();
+				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
+						+ " at line " + lp.line + " and at pos " + lp.posInLine);
+			}
+		}
 	}
 
 	void block() throws SyntaxException {

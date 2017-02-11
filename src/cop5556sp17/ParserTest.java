@@ -127,7 +127,7 @@ public class ParserTest {
 		scanner4.scan();
 		Parser parser4 = new Parser(scanner4);
 		parser4.arg();
-		parser4.matchEOF();
+		parser4.matchEOFForTest();
 	}
 
 	@Test
@@ -158,7 +158,7 @@ public class ParserTest {
 		parser.imageOp();
 		parser.imageOp();
 		parser.imageOp();
-		parser.matchEOF();
+		parser.matchEOFForTest();
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public class ParserTest {
 		Parser parser = new Parser(scanner);
 		parser.arrowOp();
 		parser.arrowOp();
-		parser.matchEOF();
+		parser.matchEOFForTest();
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class ParserTest {
 		parser.dec();
 		parser.dec();
 		parser.dec();
-		parser.matchEOF();
+		parser.matchEOFForTest();
 	}
 
 	@Test
@@ -211,7 +211,7 @@ public class ParserTest {
 		scanner.scan();
 		Parser parser = new Parser(scanner);
 		parser.chain();
-		parser.matchEOF();
+		parser.matchEOFForTest();
 
 		String input2 = "abc -> def |-> gray (a + b) -> gray ;";
 		Scanner scanner2 = new Scanner(input2);
@@ -227,14 +227,14 @@ public class ParserTest {
 		scanner.scan();
 		Parser parser = new Parser(scanner);
 		parser.assign();
-		parser.matchEOF();
+		parser.matchEOFForTest();
 
 		String input2 = "abc <- (4 + 5)";
 		Scanner scanner2 = new Scanner(input2);
 		scanner2.scan();
 		Parser parser2 = new Parser(scanner2);
 		parser2.assign();
-		parser2.matchEOF();
+		parser2.matchEOFForTest();
 	}
 
 	@Test
@@ -245,7 +245,7 @@ public class ParserTest {
 		scanner.scan();
 		Parser parser = new Parser(scanner);
 		parser.ifStatement();
-		parser.matchEOF();
+		parser.matchEOFForTest();
 
 		Parser parser2 = initializeParser("while( a <= 234) \r\n{integer abc}");
 		parser2.whileStatement();
@@ -277,7 +277,7 @@ public class ParserTest {
 		parser.paramDec();
 		parser.paramDec();
 		parser.paramDec();
-		parser.matchEOF();
+		parser.matchEOFForTest();
 	}
 
 	 @Test
@@ -308,5 +308,6 @@ public class ParserTest {
 	 
 	 Parser parser4 = initializeParser("baz boolean foo, integer bar, url google {sleep a + b;}");
 	 parser4.parse();
+	 
 	 }
 }

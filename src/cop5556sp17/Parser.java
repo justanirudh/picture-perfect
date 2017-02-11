@@ -19,17 +19,6 @@ public class Parser {
 		}
 	}
 
-	/**
-	 * Useful during development to ensure unimplemented routines are not accidentally called during development. Delete it when the Parser is finished.
-	 *
-	 */
-	@SuppressWarnings("serial")
-	public static class UnimplementedFeatureException extends RuntimeException {
-		public UnimplementedFeatureException() {
-			super();
-		}
-	}
-
 	Scanner scanner;
 	Token t;
 
@@ -459,14 +448,17 @@ public class Parser {
 		}
 	}
 
+	public Token matchEOFForTest() throws SyntaxException {
+		return matchEOF();
+	}
+
 	/**
 	 * Checks whether the current token is the EOF token. If not, a SyntaxException is thrown.
 	 * 
 	 * @return
 	 * @throws SyntaxException
 	 */
-	// TODO: change back to private?
-	public Token matchEOF() throws SyntaxException {
+	private Token matchEOF() throws SyntaxException {
 		if (t.isKind(EOF)) {
 			return t;
 		}
@@ -492,22 +484,6 @@ public class Parser {
 		throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line "
 				+ lp.line + " and at pos " + lp.posInLine);
 	}
-
-	/**
-	 * Checks if the current token has one of the given kinds. If so, the current token is consumed and returned. If not, a SyntaxException is thrown.
-	 * 
-	 * * Precondition: for all given kinds, kind != EOF
-	 * 
-	 * @param kinds
-	 *          list of kinds, matches any one
-	 * @return
-	 * @throws SyntaxException
-	 */
-	// TODO: Use this?
-	// private Token match(Kind... kinds) throws SyntaxException { // For multple terminal states in a production. check all at onces instead of multiple case statements
-	// // TODO. Optional but handy
-	// return null; // replace this statement
-	// }
 
 	/**
 	 * Gets the next token and returns the consumed token.

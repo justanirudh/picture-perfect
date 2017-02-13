@@ -77,15 +77,16 @@ public class ParserTest {
 		parser6.expression();
 	}
 
-	 @Test
-	 public void testErrorProgram0() throws IllegalCharException, IllegalNumberException, SyntaxException {
-	 String input = "file abc";
-	 Scanner scanner = new Scanner(input);
-	 scanner.scan();
-	 Parser parser = new Parser(scanner);
-	 thrown.expect(Parser.SyntaxException.class);
-	 parser.parse();
-	 }
+	@Test
+	public void testErrorProgram0() throws IllegalCharException, IllegalNumberException,
+			SyntaxException {
+		String input = "file abc";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		thrown.expect(Parser.SyntaxException.class);
+		parser.parse();
+	}
 
 	@Test
 	public void testFactor() throws IllegalCharException, IllegalNumberException, SyntaxException {
@@ -128,6 +129,9 @@ public class ParserTest {
 		Parser parser4 = new Parser(scanner4);
 		parser4.arg();
 		parser4.matchEOFForTest();
+
+		Parser parser5 = initializeParser("123(");
+		parser5.arg();
 	}
 
 	@Test
@@ -138,6 +142,7 @@ public class ParserTest {
 		Parser parser = new Parser(scanner);
 		thrown.expect(Parser.SyntaxException.class);
 		parser.arg();
+
 	}
 
 	@Test
@@ -249,24 +254,25 @@ public class ParserTest {
 
 		Parser parser2 = initializeParser("while( a <= 234) \r\n{integer abc}");
 		parser2.whileStatement();
-		
+
 		Parser parser3 = initializeParser("if( 23 != 234) \n{sleep 23;}");
 		parser3.ifStatement();
-		
-		Parser parser4 = initializeParser("while( abc/0) \n{ abc <- 3 ;}"); //go to assign
+
+		Parser parser4 = initializeParser("while( abc/0) \n{ abc <- 3 ;}"); // go to assign
 		parser4.whileStatement();
-		
-		Parser parser5 = initializeParser("if( 0 % 99) \n{ abc -> blur;}"); //go to dec
+
+		Parser parser5 = initializeParser("if( 0 % 99) \n{ abc -> blur;}"); // go to dec
 		parser5.ifStatement();
-		
+
 		Parser parser6 = initializeParser("if( ((screenwidth))) \n{ while( a > 42) {image foo}}");
 		parser6.ifStatement();
-		
-		Parser parser7 = initializeParser("while( ((screenwidth))) \n{ if( a > 42) {  blur (3 < 2) -> move (4 < 3, 8 >= 9)  ;}}");
+
+		Parser parser7 = initializeParser(
+				"while( ((screenwidth))) \n{ if( a > 42) {  blur (3 < 2) -> move (4 < 3, 8 >= 9)  ;}}");
 		parser7.whileStatement();
-	
+
 	}
-	
+
 	@Test
 	public void testParamDec() throws IllegalCharException, IllegalNumberException, SyntaxException {
 		String input = "integer abc boolean bool url foo file bar";
@@ -280,34 +286,35 @@ public class ParserTest {
 		parser.matchEOFForTest();
 	}
 
-	 @Test
-	 public void testProgramTail() throws IllegalCharException, IllegalNumberException, SyntaxException {
-	 Parser parser = initializeParser("{}");
-	 parser.program_tail();
-	 
-	 Parser parser2 = initializeParser("{integer foo image bar}");
-	 parser2.program_tail();
-	 
-	 Parser parser3 = initializeParser("boolean foo {sleep a + b;}");
-	 parser3.program_tail();
-	 
-	 Parser parser4 = initializeParser("boolean foo, integer bar, url google {sleep a + b;}");
-	 parser4.program_tail();
-	 }
-	 
-	 @Test
-	 public void testParser() throws IllegalCharException, IllegalNumberException, SyntaxException {
-	 Parser parser = initializeParser("bar {}");
-	 parser.parse();
-	 
-	 Parser parser2 = initializeParser("foo {integer foo image bar}");
-	 parser2.parse();
-	 
-	 Parser parser3 = initializeParser("bar boolean foo {sleep a + b;}");
-	 parser3.parse();
-	 
-	 Parser parser4 = initializeParser("baz boolean foo, integer bar, url google {sleep a + b;}");
-	 parser4.parse();
-	 
-	 }
+	@Test
+	public void testProgramTail() throws IllegalCharException, IllegalNumberException,
+			SyntaxException {
+		Parser parser = initializeParser("{}");
+		parser.program_tail();
+
+		Parser parser2 = initializeParser("{integer foo image bar}");
+		parser2.program_tail();
+
+		Parser parser3 = initializeParser("boolean foo {sleep a + b;}");
+		parser3.program_tail();
+
+		Parser parser4 = initializeParser("boolean foo, integer bar, url google {sleep a + b;}");
+		parser4.program_tail();
+	}
+
+	@Test
+	public void testParser() throws IllegalCharException, IllegalNumberException, SyntaxException {
+		Parser parser = initializeParser("bar {}");
+		parser.parse();
+
+		Parser parser2 = initializeParser("foo {integer foo image bar}");
+		parser2.parse();
+
+		Parser parser3 = initializeParser("bar boolean foo {sleep a + b;}");
+		parser3.parse();
+
+		Parser parser4 = initializeParser("baz boolean foo, integer bar, url google {sleep a + b;}");
+		parser4.parse();
+
+	}
 }

@@ -318,12 +318,6 @@ public class Parser {
 	void arg() throws SyntaxException {
 		Kind kind = t.kind;
 		switch (kind) {
-			case ARROW :
-			case BARARROW :
-			case SEMI : {
-				// NOP
-			}
-				break;
 			case LPAREN : {
 				consume();
 				expression();
@@ -335,9 +329,7 @@ public class Parser {
 			}
 				break;
 			default : {
-				LinePos lp = t.getLinePos();
-				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
-						+ " at line " + lp.line + " and at pos " + lp.posInLine);
+				return;
 			}
 		}
 	}

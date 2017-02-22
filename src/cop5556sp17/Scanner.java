@@ -9,11 +9,18 @@ public class Scanner {
 	 * Kind enum
 	 */
 	public static enum Kind {
-		IDENT(""), INT_LIT(""), KW_INTEGER("integer"), KW_BOOLEAN("boolean"), KW_IMAGE("image"), KW_URL("url"), KW_FILE("file"), KW_FRAME("frame"), KW_WHILE("while"), KW_IF("if"), KW_TRUE(
-				"true"), KW_FALSE("false"), SEMI(";"), COMMA(","), LPAREN("("), RPAREN(")"), LBRACE("{"), RBRACE("}"), ARROW("->"), BARARROW("|->"), OR("|"), AND("&"), EQUAL("=="), NOTEQUAL("!="), LT(
-						"<"), GT(">"), LE("<="), GE(">="), PLUS("+"), MINUS("-"), TIMES("*"), DIV("/"), MOD("%"), NOT("!"), ASSIGN("<-"), OP_BLUR("blur"), OP_GRAY("gray"), OP_CONVOLVE(
-								"convolve"), KW_SCREENHEIGHT("screenheight"), KW_SCREENWIDTH("screenwidth"), OP_WIDTH("width"), OP_HEIGHT("height"), KW_XLOC("xloc"), KW_YLOC("yloc"), KW_HIDE("hide"), KW_SHOW(
-										"show"), KW_MOVE("move"), OP_SLEEP("sleep"), KW_SCALE("scale"), EOF("eof");
+		IDENT(""), INT_LIT(""), KW_INTEGER("integer"), KW_BOOLEAN("boolean"), KW_IMAGE("image"), KW_URL(
+				"url"), KW_FILE("file"), KW_FRAME("frame"), KW_WHILE("while"), KW_IF("if"), KW_TRUE(
+						"true"), KW_FALSE("false"), SEMI(";"), COMMA(","), LPAREN("("), RPAREN(")"), LBRACE(
+								"{"), RBRACE("}"), ARROW("->"), BARARROW("|->"), OR("|"), AND("&"), EQUAL(
+										"=="), NOTEQUAL("!="), LT("<"), GT(">"), LE("<="), GE(">="), PLUS("+"), MINUS(
+												"-"), TIMES("*"), DIV("/"), MOD("%"), NOT("!"), ASSIGN("<-"), OP_BLUR(
+														"blur"), OP_GRAY("gray"), OP_CONVOLVE("convolve"), KW_SCREENHEIGHT(
+																"screenheight"), KW_SCREENWIDTH("screenwidth"), OP_WIDTH(
+																		"width"), OP_HEIGHT("height"), KW_XLOC("xloc"), KW_YLOC(
+																				"yloc"), KW_HIDE("hide"), KW_SHOW("show"), KW_MOVE(
+																						"move"), OP_SLEEP("sleep"), KW_SCALE("scale"), EOF(
+																								"eof");
 
 		Kind(String text) {
 			this.text = text;
@@ -118,6 +125,47 @@ public class Scanner {
 			this.length = length;
 		}
 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((kind == null) ? 0 : kind.hashCode());
+			result = prime * result + length;
+			result = prime * result + pos;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (!(obj instanceof Token)) {
+				return false;
+			}
+			Token other = (Token) obj;
+			if (!getOuterType().equals(other.getOuterType())) {
+				return false;
+			}
+			if (kind != other.kind) {
+				return false;
+			}
+			if (length != other.length) {
+				return false;
+			}
+			if (pos != other.pos) {
+				return false;
+			}
+			return true;
+		}
+		
+		private Scanner getOuterType() {
+			return Scanner.this;
+		}
 	}
 
 	final ArrayList<Token> tokens;
@@ -301,7 +349,8 @@ public class Scanner {
 								state = State.IN_IDENT;
 								pos++;
 							} else {
-								throw new IllegalCharException("Illegal character " + (char) ch + " at position " + pos);
+								throw new IllegalCharException("Illegal character " + (char) ch + " at position "
+										+ pos);
 							}
 						}
 					} // switch (ch)
@@ -315,7 +364,8 @@ public class Scanner {
 						try {
 							Integer.parseInt(potentialToken.getText()); // at this point, text is definitely a number. Hence, numformatExp will only be thrown if it is to big
 						} catch (NumberFormatException n) {
-							throw new IllegalNumberException(potentialToken.getText() + " at position " + startPos + " is too big. Cannot be represented as a Java Integer.");
+							throw new IllegalNumberException(potentialToken.getText() + " at position " + startPos
+									+ " is too big. Cannot be represented as a Java Integer.");
 						}
 						tokens.add(potentialToken);
 						state = State.START;
@@ -357,7 +407,8 @@ public class Scanner {
 					break;
 				case AFTER_DIV_AST : {
 					if (ch == -1)// EOF reached at this non-terminal state
-						throw new IllegalCharException("Comment (/*) that started at " + startPos + " has not been closed and the EOF has been reached");
+						throw new IllegalCharException("Comment (/*) that started at " + startPos
+								+ " has not been closed and the EOF has been reached");
 					if (ch != '*') {
 						if (ch == '\n') // if a newline in comment, add in newLines
 							newLines.add(pos);

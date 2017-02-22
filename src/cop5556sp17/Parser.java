@@ -4,7 +4,12 @@ import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.LinePos;
 
 import static cop5556sp17.Scanner.Kind.*;
+
+import java.util.ArrayList;
+
 import cop5556sp17.Scanner.Token;
+import cop5556sp17.AST.Expression;
+import cop5556sp17.AST.Tuple;
 
 public class Parser {
 
@@ -315,21 +320,26 @@ public class Parser {
 		}
 	}
 
-	void arg() throws SyntaxException {
+	Tuple arg() throws SyntaxException {
+		Token firstToken = t;
 		Kind kind = t.kind;
 		switch (kind) {
 			case LPAREN : {
 				consume();
-				expression();
+				ArrayList<Expression> expArr = new ArrayList<>();
+				Expression e = expression(); 
+				expArr.add(e);
 				while (t.isKind(COMMA)) {
 					consume();
-					expression();
+					Expression e = expression(); 
+					expArr.add(e);
 				}
 				match(RPAREN);
+				return new Tuple(firstToken, expArr);
 			}
 				break;
 			default : {
-				return;
+				return null;
 			}
 		}
 	}

@@ -223,6 +223,11 @@ public class ParserTest {
 		scanner2.scan();
 		Parser parser2 = new Parser(scanner2);
 		parser2.chain();
+		
+		Parser p3 = initializeParser("blur )");
+		thrown.expect(Parser.SyntaxException.class);
+		p3.chain();
+		
 	}
 
 	@Test
@@ -270,6 +275,10 @@ public class ParserTest {
 		Parser parser7 = initializeParser(
 				"while( ((screenwidth))) \n{ if( a > 42) {  blur (3 < 2) -> move (4 < 3, 8 >= 9)  ;}}");
 		parser7.whileStatement();
+		
+		Parser p8 = initializeParser("blur -> gray");
+		thrown.expect(Parser.SyntaxException.class);
+		p8.statement();
 
 	}
 
@@ -315,6 +324,7 @@ public class ParserTest {
 
 		Parser parser4 = initializeParser("baz boolean foo, integer bar, url google {sleep a + b;}");
 		parser4.parse();
+		
 
 	}
 }

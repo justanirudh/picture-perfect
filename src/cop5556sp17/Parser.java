@@ -8,7 +8,12 @@ import static cop5556sp17.Scanner.Kind.*;
 import java.util.ArrayList;
 
 import cop5556sp17.Scanner.Token;
+import cop5556sp17.AST.BinaryExpression;
+import cop5556sp17.AST.BooleanLitExpression;
+import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Expression;
+import cop5556sp17.AST.IdentExpression;
+import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.Tuple;
 
 public class Parser {
@@ -327,66 +332,88 @@ public class Parser {
 			case LPAREN : {
 				consume();
 				ArrayList<Expression> expArr = new ArrayList<>();
-				Expression e = expression(); 
-				expArr.add(e);
+				expArr.add(expression());
 				while (t.isKind(COMMA)) {
 					consume();
-					Expression e = expression(); 
-					expArr.add(e);
+					expArr.add(expression());
 				}
 				match(RPAREN);
 				return new Tuple(firstToken, expArr);
 			}
-				break;
 			default : {
 				return null;
 			}
 		}
 	}
-
-	void expression() throws SyntaxException {
-		term();
+//precedence established in the 4 functions: factor before elem before term before expression
+	Expression expression() throws SyntaxException {
+		Token firstToken = t;
+		Expression e0 = term();
+		Expression e1;
 		while (t.isKind(LT) || t.isKind(LE) || t.isKind(GT) || t.isKind(GE) || t.isKind(EQUAL) || t
 				.isKind(NOTEQUAL)) {
+			Token op = t;
 			consume();
-			term();
+			e1 = term();
+			e0 = new BinaryExpression(firstToken, e0, op, e1);
 		}
+		return e0;
 	}
 
-	void term() throws SyntaxException {
-		elem();
+	Expression term() throws SyntaxException {
+		Token firstToken = t;
+		Expression e0 = elem();
+		Expression e1;
 		while (t.isKind(PLUS) || t.isKind(MINUS) || t.isKind(OR)) {
+			Token op = t;
 			consume();
-			elem();
+			e1 = elem();
+			e0 = new BinaryExpression(firstToken, e0, op, e1);
 		}
+		return e0;
 	}
 
-	void elem() throws SyntaxException {
-		factor();
+	Expression elem() throws SyntaxException {
+		Token firstToken = t;
+		Expression e0 = factor();
+		Expression e1;
 		while (t.isKind(TIMES) || t.isKind(DIV) || t.isKind(AND) || t.isKind(MOD)) {
+			Token op = t;
 			consume();
-			factor();
+			e1 = factor();
+			e0 = new BinaryExpression(firstToken, e0, op, e1);
 		}
+		return e0;
 	}
 
-	void factor() throws SyntaxException {
+	Expression factor() throws SyntaxException {
+		Token firstToken = t;
 		Kind kind = t.kind;
 		switch (kind) {
-			case IDENT :
-			case INT_LIT :
+			case IDENT : {
+				consume();
+				return new IdentExpression(firstToken);
+			}
+			case INT_LIT : {
+				consume();
+				return new IntLitExpression(firstToken);
+			}
 			case KW_TRUE :
-			case KW_FALSE :
+			case KW_FALSE : {
+				consume();
+				return new BooleanLitExpression(firstToken);
+			}
 			case KW_SCREENWIDTH :
 			case KW_SCREENHEIGHT : {
 				consume();
+				return new ConstantExpression(firstToken);
 			}
-				break;
 			case LPAREN : {
 				consume();
-				expression();
+				Expression e = expression();
 				match(RPAREN);
+				return e;
 			}
-				break;
 			default : {
 				LinePos lp = t.getLinePos();
 				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind

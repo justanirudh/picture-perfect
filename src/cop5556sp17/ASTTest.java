@@ -2,6 +2,9 @@ package cop5556sp17;
 
 import static cop5556sp17.Scanner.Kind.*;
 import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -13,8 +16,10 @@ import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.BinaryExpression;
 import cop5556sp17.AST.BooleanLitExpression;
 import cop5556sp17.AST.ConstantExpression;
+import cop5556sp17.AST.Expression;
 import cop5556sp17.AST.IdentExpression;
 import cop5556sp17.AST.IntLitExpression;
+import cop5556sp17.AST.Tuple;
 
 public class ASTTest {
 
@@ -117,6 +122,25 @@ public class ASTTest {
 		assertEquals(IdentExpression.class, be3.getE0().getClass());
 		assertEquals(ConstantExpression.class, be3.getE1().getClass());
 		assertEquals(TIMES, be3.getOp().kind);
+	}
+
+	@Test
+	public void testArg() throws IllegalCharException, IllegalNumberException, SyntaxException {
+		String input = "(abc, 2 + true, screenwidth/false)";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.arg();
+		assertEquals(Tuple.class, ast.getClass());
+		Tuple tup = (Tuple) ast;
+		List<Expression> exps = tup.getExprList();
+		assertEquals(IdentExpression.class, exps.get(0).getClass());
+		assertEquals(BinaryExpression.class, exps.get(1).getClass());
+		assertEquals(BinaryExpression.class, exps.get(2).getClass());
+		BinaryExpression be = (BinaryExpression) exps.get(2);
+		assertEquals(ConstantExpression.class, be.getE0().getClass());
+		assertEquals(BooleanLitExpression.class, be.getE1().getClass());
+		assertEquals(DIV, be.getOp().kind);
 	}
 
 }

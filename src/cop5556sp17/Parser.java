@@ -345,7 +345,7 @@ public class Parser {
 			}
 		}
 	}
-//precedence established in the 4 functions: factor before elem before term before expression
+//precedence established in the 4 functions: factor before elem (*) before term(+) before expression(>)
 	Expression expression() throws SyntaxException {
 		Token firstToken = t;
 		Expression e0 = term();

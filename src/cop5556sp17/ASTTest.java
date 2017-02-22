@@ -12,14 +12,18 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.Parser.SyntaxException;
 import cop5556sp17.Scanner.IllegalCharException;
 import cop5556sp17.Scanner.IllegalNumberException;
+import cop5556sp17.Scanner.Token;
 import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.BinaryExpression;
+import cop5556sp17.AST.Block;
 import cop5556sp17.AST.BooleanLitExpression;
 import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Expression;
 import cop5556sp17.AST.IdentExpression;
+import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.Tuple;
+import cop5556sp17.AST.WhileStatement;
 
 public class ASTTest {
 
@@ -141,6 +145,32 @@ public class ASTTest {
 		assertEquals(ConstantExpression.class, be.getE0().getClass());
 		assertEquals(BooleanLitExpression.class, be.getE1().getClass());
 		assertEquals(DIV, be.getOp().kind);
+	}
+
+	@Test
+	public void testIfStmtWhileStmt() throws IllegalCharException, IllegalNumberException,
+			SyntaxException {
+		Parser parser = initParser("if (a/0) {integer foo}");
+
+		ASTNode ast = parser.ifStatement();
+		assertEquals(IfStatement.class, ast.getClass());
+
+		IfStatement ifStmt = (IfStatement) ast;
+		assertEquals(BinaryExpression.class, ifStmt.getE().getClass());
+		//TODO:Uncomment this after implementing block 
+		//assertEquals(Block.class, ifStmt.getB().getClass());
+		assertEquals(Token.class, ifStmt.getFirstToken().getClass());
+		
+		Parser parser2 = initParser("while (false) {foo <- bar;}");
+
+		ASTNode ast2 = parser2.whileStatement();
+		assertEquals(WhileStatement.class, ast2.getClass());
+
+		WhileStatement whileStmt = (WhileStatement) ast2;
+		assertEquals(BooleanLitExpression.class, whileStmt.getE().getClass());
+		//TODO:Uncomment this after implementing block 
+		//assertEquals(Block.class, ifStmt.getB().getClass());
+		assertEquals(Token.class, whileStmt.getFirstToken().getClass());
 	}
 
 }

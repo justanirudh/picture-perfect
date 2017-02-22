@@ -9,12 +9,15 @@ import java.util.ArrayList;
 
 import cop5556sp17.Scanner.Token;
 import cop5556sp17.AST.BinaryExpression;
+import cop5556sp17.AST.Block;
 import cop5556sp17.AST.BooleanLitExpression;
 import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Expression;
 import cop5556sp17.AST.IdentExpression;
+import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.Tuple;
+import cop5556sp17.AST.WhileStatement;
 
 public class Parser {
 
@@ -99,7 +102,7 @@ public class Parser {
 		}
 	}
 
-	void block() throws SyntaxException {
+	Block block() throws SyntaxException {
 		match(LBRACE);
 		// union (first(dec), first(statement))
 		while (t.isKind(KW_INTEGER) || t.isKind(KW_BOOLEAN) || t.isKind(Kind.KW_IMAGE) || t.isKind(
@@ -114,6 +117,8 @@ public class Parser {
 				statement();
 		}
 		match(RBRACE);
+		// TODO implement this
+		return null;
 	}
 
 	void dec() throws SyntaxException {
@@ -202,20 +207,24 @@ public class Parser {
 		}
 	}
 
-	void whileStatement() throws SyntaxException {
+	WhileStatement whileStatement() throws SyntaxException {
+		Token firstToken = t;
 		match(KW_WHILE);
 		match(LPAREN);
-		expression();
+		Expression e = expression();
 		match(RPAREN);
-		block();
+		Block b = block();
+		return new WhileStatement(firstToken, e, b);
 	}
 
-	void ifStatement() throws SyntaxException {
+	IfStatement ifStatement() throws SyntaxException {
+		Token firstToken = t;
 		match(KW_IF);
 		match(LPAREN);
-		expression();
+		Expression e = expression();
 		match(RPAREN);
-		block();
+		Block b = block();
+		return new IfStatement(firstToken, e, b);
 	}
 
 	void arrowOp() throws SyntaxException {
@@ -345,7 +354,7 @@ public class Parser {
 			}
 		}
 	}
-//precedence established in the 4 functions: factor before elem (*) before term(+) before expression(>)
+	// precedence established in the 4 functions: factor before elem (*) before term(+) before expression(>)
 	Expression expression() throws SyntaxException {
 		Token firstToken = t;
 		Expression e0 = term();

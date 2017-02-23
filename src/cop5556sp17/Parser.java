@@ -8,6 +8,7 @@ import static cop5556sp17.Scanner.Kind.*;
 import java.util.ArrayList;
 
 import cop5556sp17.Scanner.Token;
+import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.BinaryChain;
 import cop5556sp17.AST.BinaryExpression;
 import cop5556sp17.AST.Block;
@@ -20,6 +21,7 @@ import cop5556sp17.AST.FilterOpChain;
 import cop5556sp17.AST.FrameOpChain;
 import cop5556sp17.AST.IdentChain;
 import cop5556sp17.AST.IdentExpression;
+import cop5556sp17.AST.IdentLValue;
 import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
@@ -201,10 +203,13 @@ public class Parser {
 		}
 	}
 
-	void assign() throws SyntaxException {
+	AssignmentStatement assign() throws SyntaxException {
+		Token firstToken = t; // Lvalue
+		IdentLValue var = new IdentLValue(firstToken);
 		match(IDENT);
 		match(ASSIGN);
-		expression();
+		Expression e = expression();
+		return new AssignmentStatement(firstToken, var, e);
 	}
 
 	Chain chain() throws SyntaxException {

@@ -14,6 +14,7 @@ import cop5556sp17.Scanner.IllegalCharException;
 import cop5556sp17.Scanner.IllegalNumberException;
 import cop5556sp17.Scanner.Token;
 import cop5556sp17.AST.ASTNode;
+import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.BinaryChain;
 import cop5556sp17.AST.BinaryExpression;
 //import cop5556sp17.AST.Block;
@@ -25,6 +26,7 @@ import cop5556sp17.AST.FilterOpChain;
 import cop5556sp17.AST.FrameOpChain;
 import cop5556sp17.AST.IdentChain;
 import cop5556sp17.AST.IdentExpression;
+import cop5556sp17.AST.IdentLValue;
 import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
@@ -200,26 +202,51 @@ public class ASTTest {
 		assertEquals(IdentChain.class, chain.getE1().getClass());
 		assertEquals(ARROW, chain.getArrow().kind);
 
-		Parser parser2 = initParser("height (a + b) -> hide |-> convolve (foo, screenwidth/false) -> bar");
+		Parser parser2 = initParser(
+				"height (a + b) -> hide |-> convolve (foo, screenwidth/false) -> bar");
 
 		ASTNode ast2 = parser2.chain();
-		
+
 		assertEquals(BinaryChain.class, ast2.getClass());
-		
+
 		BinaryChain bc0 = (BinaryChain) ast2;
 		assertEquals(BinaryChain.class, bc0.getE0().getClass());
 		assertEquals(IdentChain.class, bc0.getE1().getClass());
 		assertEquals(ARROW, bc0.getArrow().kind);
-		
+
 		BinaryChain bc1 = (BinaryChain) bc0.getE0();
 		assertEquals(BinaryChain.class, bc1.getE0().getClass());
 		assertEquals(FilterOpChain.class, bc1.getE1().getClass());
 		assertEquals(BARARROW, bc1.getArrow().kind);
-		
+
 		BinaryChain bc2 = (BinaryChain) bc1.getE0();
 		assertEquals(ImageOpChain.class, bc2.getE0().getClass());
 		assertEquals(FrameOpChain.class, bc2.getE1().getClass());
 		assertEquals(ARROW, bc2.getArrow().kind);
+
+	}
+
+	@Test
+	public void testAssignmentStmt() throws IllegalCharException, IllegalNumberException,
+			SyntaxException {
+
+		String input = "foo <- (1 + 4)";
+		Parser parser = initParser(input);
+		ASTNode ast = parser.assign();
+		assertEquals(AssignmentStatement.class, ast.getClass());
+
+		AssignmentStatement ag = (AssignmentStatement) ast;
+		assertEquals(IdentLValue.class, ag.var.getClass());
+		assertEquals(BinaryExpression.class, ag.e.getClass());
+		
+		Parser parser2 = initParser("bar <- true");
+		ASTNode ast2 = parser2.assign();
+		assertEquals(AssignmentStatement.class, ast2.getClass());
+
+		AssignmentStatement ag2 = (AssignmentStatement) ast2;
+		assertEquals(IdentLValue.class, ag2.var.getClass());
+		assertEquals(BooleanLitExpression.class, ag2.e.getClass());
+		
 		
 	}
 

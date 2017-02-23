@@ -17,9 +17,9 @@ import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.BinaryChain;
 import cop5556sp17.AST.BinaryExpression;
+import cop5556sp17.AST.Block;
 //import cop5556sp17.AST.Block;
 import cop5556sp17.AST.BooleanLitExpression;
-import cop5556sp17.AST.Chain;
 import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Dec;
 import cop5556sp17.AST.Expression;
@@ -240,7 +240,7 @@ public class ASTTest {
 		AssignmentStatement ag = (AssignmentStatement) ast;
 		assertEquals(IdentLValue.class, ag.getVar().getClass());
 		assertEquals(BinaryExpression.class, ag.getE().getClass());
-		
+
 		Parser parser2 = initParser("bar <- true");
 		ASTNode ast2 = parser2.assign();
 		assertEquals(AssignmentStatement.class, ast2.getClass());
@@ -249,10 +249,9 @@ public class ASTTest {
 		assertEquals(IdentLValue.class, ag2.getVar().getClass());
 		assertEquals(BooleanLitExpression.class, ag2.getE().getClass());
 	}
-	
+
 	@Test
-	public void testStatement() throws IllegalCharException, IllegalNumberException,
-			SyntaxException {
+	public void testStatement() throws IllegalCharException, IllegalNumberException, SyntaxException {
 
 		Parser parser = initParser("sleep foo;");
 		ASTNode ast = parser.statement();
@@ -260,19 +259,19 @@ public class ASTTest {
 
 		SleepStatement ss = (SleepStatement) ast;
 		assertEquals(IdentExpression.class, ss.getE().getClass());
-		
+
 		Parser parser2 = initParser("while(foo){}");
 		ASTNode ast2 = parser2.statement();
 		assertEquals(WhileStatement.class, ast2.getClass());
-		
+
 		Parser parser3 = initParser("if(foo){}");
 		ASTNode ast3 = parser3.statement();
 		assertEquals(IfStatement.class, ast3.getClass());
-		
+
 		Parser parser4 = initParser("blur ((a+b)) -> width;");
 		ASTNode ast4 = parser4.statement();
 		assertEquals(BinaryChain.class, ast4.getClass());
-		
+
 		Parser parser5 = initParser("foo <- false;");
 		ASTNode ast5 = parser5.statement();
 		assertEquals(AssignmentStatement.class, ast5.getClass());
@@ -283,8 +282,7 @@ public class ASTTest {
 	}
 
 	@Test
-	public void testDec() throws IllegalCharException, IllegalNumberException,
-			SyntaxException {
+	public void testDec() throws IllegalCharException, IllegalNumberException, SyntaxException {
 		String input = "frame foo";
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
@@ -292,5 +290,31 @@ public class ASTTest {
 		ASTNode ast = parser.dec();
 		assertEquals(Dec.class, ast.getClass());
 	}
-	
+
+	@Test
+	public void testBlock() throws IllegalCharException, IllegalNumberException, SyntaxException {
+
+		Parser parser = initParser("{image foo}");
+		ASTNode ast = parser.block();
+		assertEquals(Block.class, ast.getClass());
+		Block b = (Block) ast;
+		assertEquals(Dec.class, b.getDecs().get(0).getClass());
+
+		Parser parser2 = initParser("{while(foo){}}");
+		ASTNode ast2 = parser2.block();
+		assertEquals(Block.class, ast2.getClass());
+		Block b2 = (Block) ast2;
+		assertEquals(WhileStatement.class, b2.getStatements().get(0).getClass());
+
+		Parser parser3 = initParser(
+				"{ boolean baz \n foo -> baz; \n frame google_dot_com \n barbar <- 1+2;  }");
+		ASTNode ast3 = parser3.block();
+		assertEquals(Block.class, ast3.getClass());
+		Block b3 = (Block) ast3;
+		assertEquals(Dec.class, b3.getDecs().get(0).getClass());
+		assertEquals(Dec.class, b3.getDecs().get(1).getClass());
+		assertEquals(BinaryChain.class, b3.getStatements().get(0).getClass());
+		assertEquals(AssignmentStatement.class, b3.getStatements().get(1).getClass());
+	}
+
 }

@@ -118,7 +118,10 @@ public class Parser {
 	}
 
 	Block block() throws SyntaxException {
+		Token firstToken = t;
 		match(LBRACE);
+		ArrayList<Dec> decs = new ArrayList<>();
+		ArrayList<Statement> stmts = new ArrayList<>();
 		// union (first(dec), first(statement))
 		while (t.isKind(KW_INTEGER) || t.isKind(KW_BOOLEAN) || t.isKind(Kind.KW_IMAGE) || t.isKind(
 				KW_FRAME) || t.isKind(OP_SLEEP) || t.isKind(KW_WHILE) || t.isKind(KW_IF) || t.isKind(IDENT)
@@ -127,13 +130,12 @@ public class Parser {
 								.isKind(OP_WIDTH) || t.isKind(OP_HEIGHT) || t.isKind(KW_SCALE)) {
 			if (t.isKind(KW_INTEGER) || t.isKind(KW_BOOLEAN) || t.isKind(Kind.KW_IMAGE) || t.isKind(
 					KW_FRAME))
-				dec();
+				decs.add(dec());
 			else
-				statement();
+				stmts.add(statement());
 		}
 		match(RBRACE);
-		// TODO implement this
-		return null;
+		return new Block(firstToken, decs, stmts);
 	}
 
 	Dec dec() throws SyntaxException {
@@ -547,7 +549,7 @@ public class Parser {
 		}
 		LinePos lp = t.getLinePos();
 		throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line "
-				+ lp.line + " and at pos " + lp.posInLine);
+				+ lp.line + " and at pos " + lp.posInLine + ". Expected kind: " + kind);
 	}
 
 	/**

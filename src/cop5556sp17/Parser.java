@@ -16,6 +16,7 @@ import cop5556sp17.AST.BooleanLitExpression;
 import cop5556sp17.AST.Chain;
 import cop5556sp17.AST.ChainElem;
 import cop5556sp17.AST.ConstantExpression;
+import cop5556sp17.AST.Dec;
 import cop5556sp17.AST.Expression;
 import cop5556sp17.AST.FilterOpChain;
 import cop5556sp17.AST.FrameOpChain;
@@ -135,7 +136,8 @@ public class Parser {
 		return null;
 	}
 
-	void dec() throws SyntaxException {
+	Dec dec() throws SyntaxException {
+		Token firstToken = t;
 		Kind kind = t.kind;
 		switch (kind) {
 			case KW_INTEGER :
@@ -143,9 +145,10 @@ public class Parser {
 			case KW_IMAGE :
 			case KW_FRAME : {
 				consume();
+				Token ident = t;
 				match(IDENT);
+				return new Dec(firstToken, ident);
 			}
-				break;
 			default : {
 				LinePos lp = t.getLinePos();
 				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind

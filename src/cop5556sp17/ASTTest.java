@@ -21,6 +21,7 @@ import cop5556sp17.AST.BinaryExpression;
 import cop5556sp17.AST.BooleanLitExpression;
 import cop5556sp17.AST.Chain;
 import cop5556sp17.AST.ConstantExpression;
+import cop5556sp17.AST.Dec;
 import cop5556sp17.AST.Expression;
 import cop5556sp17.AST.FilterOpChain;
 import cop5556sp17.AST.FrameOpChain;
@@ -279,7 +280,17 @@ public class ASTTest {
 		Parser parser6 = initParser("foo -> blur;");
 		ASTNode ast6 = parser6.statement();
 		assertEquals(BinaryChain.class, ast6.getClass());
-		
 	}
 
+	@Test
+	public void testDec() throws IllegalCharException, IllegalNumberException,
+			SyntaxException {
+		String input = "frame foo";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.dec();
+		assertEquals(Dec.class, ast.getClass());
+	}
+	
 }

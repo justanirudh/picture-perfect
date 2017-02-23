@@ -31,6 +31,7 @@ import cop5556sp17.AST.IdentLValue;
 import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
+import cop5556sp17.AST.ParamDec;
 import cop5556sp17.AST.SleepStatement;
 import cop5556sp17.AST.Tuple;
 import cop5556sp17.AST.WhileStatement;
@@ -289,6 +290,16 @@ public class ASTTest {
 		Parser parser = new Parser(scanner);
 		ASTNode ast = parser.dec();
 		assertEquals(Dec.class, ast.getClass());
+	}
+	
+	@Test
+	public void testParamDec() throws IllegalCharException, IllegalNumberException, SyntaxException {
+		String input = "boolean foo";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.paramDec();
+		assertEquals(ParamDec.class, ast.getClass());
 	}
 
 	@Test

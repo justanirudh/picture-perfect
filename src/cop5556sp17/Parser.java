@@ -26,6 +26,7 @@ import cop5556sp17.AST.IdentLValue;
 import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
+import cop5556sp17.AST.ParamDec;
 import cop5556sp17.AST.SleepStatement;
 import cop5556sp17.AST.Statement;
 import cop5556sp17.AST.Tuple;
@@ -98,7 +99,8 @@ public class Parser {
 		}
 	}
 
-	void paramDec() throws SyntaxException {
+	ParamDec paramDec() throws SyntaxException {
+		Token firstToken = t;
 		Kind kind = t.kind;
 		switch (kind) {
 			case KW_URL :
@@ -106,9 +108,10 @@ public class Parser {
 			case KW_INTEGER :
 			case KW_BOOLEAN : {
 				consume();
+				Token ident = t;
 				match(IDENT);
+				return new ParamDec(firstToken, ident); 
 			}
-				break;
 			default : {
 				LinePos lp = t.getLinePos();
 				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind

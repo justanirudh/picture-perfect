@@ -30,6 +30,7 @@ import cop5556sp17.AST.IdentLValue;
 import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
+import cop5556sp17.AST.SleepStatement;
 import cop5556sp17.AST.Tuple;
 import cop5556sp17.AST.WhileStatement;
 
@@ -236,17 +237,48 @@ public class ASTTest {
 		assertEquals(AssignmentStatement.class, ast.getClass());
 
 		AssignmentStatement ag = (AssignmentStatement) ast;
-		assertEquals(IdentLValue.class, ag.var.getClass());
-		assertEquals(BinaryExpression.class, ag.e.getClass());
+		assertEquals(IdentLValue.class, ag.getVar().getClass());
+		assertEquals(BinaryExpression.class, ag.getE().getClass());
 		
 		Parser parser2 = initParser("bar <- true");
 		ASTNode ast2 = parser2.assign();
 		assertEquals(AssignmentStatement.class, ast2.getClass());
 
 		AssignmentStatement ag2 = (AssignmentStatement) ast2;
-		assertEquals(IdentLValue.class, ag2.var.getClass());
-		assertEquals(BooleanLitExpression.class, ag2.e.getClass());
+		assertEquals(IdentLValue.class, ag2.getVar().getClass());
+		assertEquals(BooleanLitExpression.class, ag2.getE().getClass());
+	}
+	
+	@Test
+	public void testStatement() throws IllegalCharException, IllegalNumberException,
+			SyntaxException {
+
+		Parser parser = initParser("sleep foo;");
+		ASTNode ast = parser.statement();
+		assertEquals(SleepStatement.class, ast.getClass());
+
+		SleepStatement ss = (SleepStatement) ast;
+		assertEquals(IdentExpression.class, ss.getE().getClass());
 		
+		Parser parser2 = initParser("while(foo){}");
+		ASTNode ast2 = parser2.statement();
+		assertEquals(WhileStatement.class, ast2.getClass());
+		
+		Parser parser3 = initParser("if(foo){}");
+		ASTNode ast3 = parser3.statement();
+		assertEquals(IfStatement.class, ast3.getClass());
+		
+		Parser parser4 = initParser("blur ((a+b)) -> width;");
+		ASTNode ast4 = parser4.statement();
+		assertEquals(BinaryChain.class, ast4.getClass());
+		
+		Parser parser5 = initParser("foo <- false;");
+		ASTNode ast5 = parser5.statement();
+		assertEquals(AssignmentStatement.class, ast5.getClass());
+
+		Parser parser6 = initParser("foo -> blur;");
+		ASTNode ast6 = parser6.statement();
+		assertEquals(BinaryChain.class, ast6.getClass());
 		
 	}
 

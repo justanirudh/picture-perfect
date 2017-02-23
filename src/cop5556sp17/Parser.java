@@ -25,6 +25,8 @@ import cop5556sp17.AST.IdentLValue;
 import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
+import cop5556sp17.AST.SleepStatement;
+import cop5556sp17.AST.Statement;
 import cop5556sp17.AST.Tuple;
 import cop5556sp17.AST.WhileStatement;
 
@@ -152,34 +154,34 @@ public class Parser {
 		}
 	}
 
-	void statement() throws SyntaxException {
+	Statement statement() throws SyntaxException {
+		Token firstToken = t;
 		Kind kind = t.kind;
 		switch (kind) {
 			case OP_SLEEP : {
 				consume();
-				expression();
+				Expression e = expression();
 				match(SEMI);
+				return new SleepStatement(firstToken, e);
 			}
-				break;
 			case KW_WHILE : {
-				whileStatement();
+				return whileStatement();
 			}
-				break;
 			case KW_IF : {
-				ifStatement();
+				return ifStatement();
 			}
-				break;
 			case IDENT : { // can be either assign or chain, hence use peek()
 				Token nextToken = scanner.peek();
 				if (nextToken.isKind(ASSIGN)) {
-					assign();
+					AssignmentStatement a = assign();
 					match(SEMI);
+					return a;
 				} else { // no need for else if and checking arrow operator. if arrow op, we are fine, else
-					chain(); // arrow op will throw, which is fine too as there are only 2 options
+					Chain c = chain(); // arrow op will throw, which is fine too as there are only 2 options
 					match(SEMI);
+					return c;
 				}
 			}
-				break;
 			case OP_BLUR :
 			case OP_GRAY :
 			case OP_CONVOLVE :
@@ -191,10 +193,10 @@ public class Parser {
 			case OP_WIDTH :
 			case OP_HEIGHT :
 			case KW_SCALE : {
-				chain();
+				Chain c = chain();
 				match(SEMI);
+				return c;
 			}
-				break;
 			default : {
 				LinePos lp = t.getLinePos();
 				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
@@ -204,7 +206,7 @@ public class Parser {
 	}
 
 	AssignmentStatement assign() throws SyntaxException {
-		Token firstToken = t; // Lvalue
+		Token firstToken = t; // also the Lvalue
 		IdentLValue var = new IdentLValue(firstToken);
 		match(IDENT);
 		match(ASSIGN);

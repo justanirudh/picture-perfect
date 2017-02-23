@@ -14,13 +14,19 @@ import cop5556sp17.Scanner.IllegalCharException;
 import cop5556sp17.Scanner.IllegalNumberException;
 import cop5556sp17.Scanner.Token;
 import cop5556sp17.AST.ASTNode;
+import cop5556sp17.AST.BinaryChain;
 import cop5556sp17.AST.BinaryExpression;
-import cop5556sp17.AST.Block;
+//import cop5556sp17.AST.Block;
 import cop5556sp17.AST.BooleanLitExpression;
+import cop5556sp17.AST.Chain;
 import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Expression;
+import cop5556sp17.AST.FilterOpChain;
+import cop5556sp17.AST.FrameOpChain;
+import cop5556sp17.AST.IdentChain;
 import cop5556sp17.AST.IdentExpression;
 import cop5556sp17.AST.IfStatement;
+import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.Tuple;
 import cop5556sp17.AST.WhileStatement;
@@ -157,10 +163,10 @@ public class ASTTest {
 
 		IfStatement ifStmt = (IfStatement) ast;
 		assertEquals(BinaryExpression.class, ifStmt.getE().getClass());
-		//TODO:Uncomment this after implementing block 
-		//assertEquals(Block.class, ifStmt.getB().getClass());
+		// TODO:Uncomment this after implementing block
+		// assertEquals(Block.class, ifStmt.getB().getClass());
 		assertEquals(Token.class, ifStmt.getFirstToken().getClass());
-		
+
 		Parser parser2 = initParser("while (false) {foo <- bar;}");
 
 		ASTNode ast2 = parser2.whileStatement();
@@ -168,9 +174,53 @@ public class ASTTest {
 
 		WhileStatement whileStmt = (WhileStatement) ast2;
 		assertEquals(BooleanLitExpression.class, whileStmt.getE().getClass());
-		//TODO:Uncomment this after implementing block 
-		//assertEquals(Block.class, ifStmt.getB().getClass());
+		// TODO:Uncomment this after implementing block
+		// assertEquals(Block.class, ifStmt.getB().getClass());
 		assertEquals(Token.class, whileStmt.getFirstToken().getClass());
+	}
+
+	@Test
+	public void testChainError() throws IllegalCharException, IllegalNumberException,
+			SyntaxException {
+		Parser parser0 = initParser("foo");
+		thrown.expect(Parser.SyntaxException.class);
+		parser0.chain();
+	}
+
+	@Test
+	public void testChain() throws IllegalCharException, IllegalNumberException, SyntaxException {
+
+		Parser parser = initParser("blur->foo");// also testing null case of Tuple
+
+		ASTNode ast = parser.chain();
+		assertEquals(BinaryChain.class, ast.getClass());
+
+		BinaryChain chain = (BinaryChain) ast;
+		assertEquals(FilterOpChain.class, chain.getE0().getClass());
+		assertEquals(IdentChain.class, chain.getE1().getClass());
+		assertEquals(ARROW, chain.getArrow().kind);
+
+		Parser parser2 = initParser("height (a + b) -> hide |-> convolve (foo, screenwidth/false) -> bar");
+
+		ASTNode ast2 = parser2.chain();
+		
+		assertEquals(BinaryChain.class, ast2.getClass());
+		
+		BinaryChain bc0 = (BinaryChain) ast2;
+		assertEquals(BinaryChain.class, bc0.getE0().getClass());
+		assertEquals(IdentChain.class, bc0.getE1().getClass());
+		assertEquals(ARROW, bc0.getArrow().kind);
+		
+		BinaryChain bc1 = (BinaryChain) bc0.getE0();
+		assertEquals(BinaryChain.class, bc1.getE0().getClass());
+		assertEquals(FilterOpChain.class, bc1.getE1().getClass());
+		assertEquals(BARARROW, bc1.getArrow().kind);
+		
+		BinaryChain bc2 = (BinaryChain) bc1.getE0();
+		assertEquals(ImageOpChain.class, bc2.getE0().getClass());
+		assertEquals(FrameOpChain.class, bc2.getE1().getClass());
+		assertEquals(ARROW, bc2.getArrow().kind);
+		
 	}
 
 }

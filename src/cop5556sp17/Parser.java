@@ -8,13 +8,20 @@ import static cop5556sp17.Scanner.Kind.*;
 import java.util.ArrayList;
 
 import cop5556sp17.Scanner.Token;
+import cop5556sp17.AST.BinaryChain;
 import cop5556sp17.AST.BinaryExpression;
 import cop5556sp17.AST.Block;
 import cop5556sp17.AST.BooleanLitExpression;
+import cop5556sp17.AST.Chain;
+import cop5556sp17.AST.ChainElem;
 import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Expression;
+import cop5556sp17.AST.FilterOpChain;
+import cop5556sp17.AST.FrameOpChain;
+import cop5556sp17.AST.IdentChain;
 import cop5556sp17.AST.IdentExpression;
 import cop5556sp17.AST.IfStatement;
+import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.Tuple;
 import cop5556sp17.AST.WhileStatement;
@@ -45,6 +52,9 @@ public class Parser {
 	 * 
 	 * @throws SyntaxException
 	 */
+	// TODO: change this.
+	// Yes. The parse method is the one that will be called in the actual compiler and it returns the AST (ASTNode).
+	// (You could also have it return a Program, but either one works.)
 	void parse() throws SyntaxException {
 		program();
 		matchEOF();
@@ -197,14 +207,20 @@ public class Parser {
 		expression();
 	}
 
-	void chain() throws SyntaxException {
-		chainElem();
+	Chain chain() throws SyntaxException {
+		Token firstToken = t;
+		ChainElem ce0 = chainElem();
+		Token op = t;
 		arrowOp();
-		chainElem();
+		ChainElem ce1 = chainElem();
+		BinaryChain bc = new BinaryChain(firstToken, ce0, op, ce1); // ChainElem (ce0) in parameter abstracted to Chain
 		while (t.isKind(ARROW) || t.isKind(BARARROW)) {
+			op = t;
 			consume();
-			chainElem();
+			ChainElem ce = chainElem();
+			bc = new BinaryChain(firstToken, bc, op, ce); // BinaryChain (bc) in parameter abstracted to Chain
 		}
+		return bc;
 	}
 
 	WhileStatement whileStatement() throws SyntaxException {
@@ -243,36 +259,37 @@ public class Parser {
 		}
 	}
 
-	void chainElem() throws SyntaxException {
+	ChainElem chainElem() throws SyntaxException {
+		Token firstToken = t;
 		Kind kind = t.kind;
 		switch (kind) {
 			case IDENT : {
 				consume();
+				return new IdentChain(firstToken);
 			}
-				break;
 			case OP_BLUR :
 			case OP_GRAY :
 			case OP_CONVOLVE : {
 				filterOp();
-				arg();
+				Tuple arg = arg();
+				return new FilterOpChain(firstToken, arg);
 			}
-				break;
 			case KW_SHOW :
 			case KW_HIDE :
 			case KW_MOVE :
 			case KW_XLOC :
 			case KW_YLOC : {
 				frameOp();
-				arg();
+				Tuple arg = arg();
+				return new FrameOpChain(firstToken, arg);
 			}
-				break;
 			case OP_WIDTH :
 			case OP_HEIGHT :
 			case KW_SCALE : {
 				imageOp();
-				arg();
+				Tuple arg = arg();
+				return new ImageOpChain(firstToken, arg);
 			}
-				break;
 			default : {
 				LinePos lp = t.getLinePos();
 				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
@@ -350,7 +367,7 @@ public class Parser {
 				return new Tuple(firstToken, expArr);
 			}
 			default : {
-				return null;
+				return new Tuple(firstToken, new ArrayList<>()); // return token with empty expression array
 			}
 		}
 	}

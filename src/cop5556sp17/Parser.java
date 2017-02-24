@@ -60,7 +60,6 @@ public class Parser {
 	 * 
 	 * @throws SyntaxException
 	 */
-	// TODO: change this.
 	// Yes. The parse method is the one that will be called in the actual compiler and it returns the AST (ASTNode).
 	// (You could also have it return a Program, but either one works.)
 	ASTNode parse() throws SyntaxException {

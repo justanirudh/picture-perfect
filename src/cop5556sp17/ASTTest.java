@@ -18,7 +18,6 @@ import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.BinaryChain;
 import cop5556sp17.AST.BinaryExpression;
 import cop5556sp17.AST.Block;
-//import cop5556sp17.AST.Block;
 import cop5556sp17.AST.BooleanLitExpression;
 import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Dec;
@@ -169,8 +168,8 @@ public class ASTTest {
 
 		IfStatement ifStmt = (IfStatement) ast;
 		assertEquals(BinaryExpression.class, ifStmt.getE().getClass());
-		// TODO:Uncomment this after implementing block
-		// assertEquals(Block.class, ifStmt.getB().getClass());
+		assertEquals(Block.class, ifStmt.getB().getClass());
+		assertEquals(Dec.class, ifStmt.getB().getDecs().get(0).getClass());
 		assertEquals(Token.class, ifStmt.getFirstToken().getClass());
 
 		Parser parser2 = initParser("while (false) {foo <- bar;}");
@@ -180,8 +179,8 @@ public class ASTTest {
 
 		WhileStatement whileStmt = (WhileStatement) ast2;
 		assertEquals(BooleanLitExpression.class, whileStmt.getE().getClass());
-		// TODO:Uncomment this after implementing block
-		// assertEquals(Block.class, ifStmt.getB().getClass());
+		assertEquals(Block.class, whileStmt.getB().getClass());
+		assertEquals(AssignmentStatement.class, whileStmt.getB().getStatements().get(0).getClass());
 		assertEquals(Token.class, whileStmt.getFirstToken().getClass());
 	}
 
@@ -292,7 +291,7 @@ public class ASTTest {
 		ASTNode ast = parser.dec();
 		assertEquals(Dec.class, ast.getClass());
 	}
-	
+
 	@Test
 	public void testParamDec() throws IllegalCharException, IllegalNumberException, SyntaxException {
 		String input = "boolean foo";
@@ -328,7 +327,7 @@ public class ASTTest {
 		assertEquals(BinaryChain.class, b3.getStatements().get(0).getClass());
 		assertEquals(AssignmentStatement.class, b3.getStatements().get(1).getClass());
 	}
-	
+
 	@Test
 	public void testProgram() throws IllegalCharException, IllegalNumberException, SyntaxException {
 
@@ -341,6 +340,27 @@ public class ASTTest {
 
 		Parser parser2 = initParser("BAR url google, file plp, integer answer {baz <- 5;}");
 		ASTNode ast2 = parser2.program();
+		assertEquals(Program.class, ast2.getClass());
+		Program p2 = (Program) ast2;
+		assertEquals("BAR", p2.getFirstToken().getText());
+		assertEquals(ParamDec.class, p2.getParams().get(0).getClass());
+		assertEquals(ParamDec.class, p2.getParams().get(1).getClass());
+		assertEquals(ParamDec.class, p2.getParams().get(2).getClass());
+		assertEquals(AssignmentStatement.class, p2.getB().getStatements().get(0).getClass());
+	}
+
+	@Test
+	public void testParse() throws IllegalCharException, IllegalNumberException, SyntaxException {
+
+		Parser parser = initParser("foo {frame bar}");
+		ASTNode ast = parser.parse();
+		assertEquals(Program.class, ast.getClass());
+		Program P = (Program) ast;
+		assertEquals(Dec.class, P.getB().getDecs().get(0).getClass());
+		assertEquals(0, P.getParams().size());
+
+		Parser parser2 = initParser("BAR url google, file plp, integer answer {baz <- 5;}");
+		ASTNode ast2 = parser2.parse();
 		assertEquals(Program.class, ast2.getClass());
 		Program p2 = (Program) ast2;
 		assertEquals("BAR", p2.getFirstToken().getText());

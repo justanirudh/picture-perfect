@@ -74,7 +74,7 @@ public class Parser {
 		return program_tail(firstToken);
 	}
 
-	/* private */ Program program_tail(Token firstToken) throws SyntaxException { // can be private as creatd by me
+	/* private */ Program program_tail(Token firstToken) throws SyntaxException { // can be private as created by me
 		ArrayList<ParamDec> params = new ArrayList<>();
 		Kind kind = t.kind;
 		switch (kind) {
@@ -554,8 +554,8 @@ public class Parser {
 			return consume();
 		}
 		LinePos lp = t.getLinePos();
-		throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind + " at line "
-				+ lp.line + " and at pos " + lp.posInLine + ". Expected kind: " + kind);
+		throw new SyntaxException("Expected kind: " + kind + ".Illegal token '" + t.getText()
+				+ "' of kind " + t.kind + " at line " + lp.line + " and at pos " + lp.posInLine);
 	}
 
 	/**

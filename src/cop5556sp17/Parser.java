@@ -8,6 +8,7 @@ import static cop5556sp17.Scanner.Kind.*;
 import java.util.ArrayList;
 
 import cop5556sp17.Scanner.Token;
+import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.BinaryChain;
 import cop5556sp17.AST.BinaryExpression;
@@ -27,6 +28,7 @@ import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.ParamDec;
+import cop5556sp17.AST.Program;
 import cop5556sp17.AST.SleepStatement;
 import cop5556sp17.AST.Statement;
 import cop5556sp17.AST.Tuple;
@@ -61,36 +63,38 @@ public class Parser {
 	// TODO: change this.
 	// Yes. The parse method is the one that will be called in the actual compiler and it returns the AST (ASTNode).
 	// (You could also have it return a Program, but either one works.)
-	void parse() throws SyntaxException {
-		program();
+	ASTNode parse() throws SyntaxException {
+		Program p = program();
 		matchEOF();
-		return;
+		return p;
 	}
 
-	void program() throws SyntaxException {
+	Program program() throws SyntaxException {
+		Token firstToken = t;
 		match(IDENT);
-		program_tail();
+		return program_tail(firstToken);
 	}
 
-	void program_tail() throws SyntaxException {
+	/* private */ Program program_tail(Token firstToken) throws SyntaxException { // can be private as creatd by me
+		ArrayList<ParamDec> params = new ArrayList<>();
 		Kind kind = t.kind;
 		switch (kind) {
 			case LBRACE : {
-				block();
+				Block b = block();
+				return new Program(firstToken, params, b);
 			}
-				break;
 			case KW_URL :
 			case KW_FILE :
 			case KW_INTEGER :
 			case KW_BOOLEAN : {
-				paramDec();
+				params.add(paramDec());
 				while (t.isKind(COMMA)) {
 					consume();
-					paramDec();
+					params.add(paramDec());
 				}
-				block();
+				Block b = block();
+				return new Program(firstToken, params, b);
 			}
-				break;
 			default : {
 				LinePos lp = t.getLinePos();
 				throw new SyntaxException("Illegal token '" + t.getText() + "' of kind " + t.kind
@@ -110,7 +114,7 @@ public class Parser {
 				consume();
 				Token ident = t;
 				match(IDENT);
-				return new ParamDec(firstToken, ident); 
+				return new ParamDec(firstToken, ident);
 			}
 			default : {
 				LinePos lp = t.getLinePos();

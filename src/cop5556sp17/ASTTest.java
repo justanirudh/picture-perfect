@@ -32,6 +32,7 @@ import cop5556sp17.AST.IfStatement;
 import cop5556sp17.AST.ImageOpChain;
 import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.ParamDec;
+import cop5556sp17.AST.Program;
 import cop5556sp17.AST.SleepStatement;
 import cop5556sp17.AST.Tuple;
 import cop5556sp17.AST.WhileStatement;
@@ -326,6 +327,27 @@ public class ASTTest {
 		assertEquals(Dec.class, b3.getDecs().get(1).getClass());
 		assertEquals(BinaryChain.class, b3.getStatements().get(0).getClass());
 		assertEquals(AssignmentStatement.class, b3.getStatements().get(1).getClass());
+	}
+	
+	@Test
+	public void testProgram() throws IllegalCharException, IllegalNumberException, SyntaxException {
+
+		Parser parser = initParser("foo {frame bar}");
+		ASTNode ast = parser.program();
+		assertEquals(Program.class, ast.getClass());
+		Program P = (Program) ast;
+		assertEquals(Dec.class, P.getB().getDecs().get(0).getClass());
+		assertEquals(0, P.getParams().size());
+
+		Parser parser2 = initParser("BAR url google, file plp, integer answer {baz <- 5;}");
+		ASTNode ast2 = parser2.program();
+		assertEquals(Program.class, ast2.getClass());
+		Program p2 = (Program) ast2;
+		assertEquals("BAR", p2.getFirstToken().getText());
+		assertEquals(ParamDec.class, p2.getParams().get(0).getClass());
+		assertEquals(ParamDec.class, p2.getParams().get(1).getClass());
+		assertEquals(ParamDec.class, p2.getParams().get(2).getClass());
+		assertEquals(AssignmentStatement.class, p2.getB().getStatements().get(0).getClass());
 	}
 
 }

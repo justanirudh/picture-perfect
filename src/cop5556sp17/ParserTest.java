@@ -223,11 +223,11 @@ public class ParserTest {
 		scanner2.scan();
 		Parser parser2 = new Parser(scanner2);
 		parser2.chain();
-		
+
 		Parser p3 = initializeParser("blur )");
 		thrown.expect(Parser.SyntaxException.class);
 		p3.chain();
-		
+
 	}
 
 	@Test
@@ -275,7 +275,7 @@ public class ParserTest {
 		Parser parser7 = initializeParser(
 				"while( ((screenwidth))) \n{ if( a > 42) {  blur (3 < 2) -> move (4 < 3, 8 >= 9)  ;}}");
 		parser7.whileStatement();
-		
+
 		Parser p8 = initializeParser("blur -> gray");
 		thrown.expect(Parser.SyntaxException.class);
 		p8.statement();
@@ -298,17 +298,20 @@ public class ParserTest {
 	@Test
 	public void testProgramTail() throws IllegalCharException, IllegalNumberException,
 			SyntaxException {
-		Parser parser = initializeParser("{}");
-		parser.program_tail();
+		Scanner scanner = new Scanner("{}");
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+
+		parser.program_tail(scanner.new Token(null, 0, 0));
 
 		Parser parser2 = initializeParser("{integer foo image bar}");
-		parser2.program_tail();
+		parser2.program_tail(scanner.new Token(null, 0, 0));
 
 		Parser parser3 = initializeParser("boolean foo {sleep a + b;}");
-		parser3.program_tail();
+		parser3.program_tail(scanner.new Token(null, 0, 0));
 
 		Parser parser4 = initializeParser("boolean foo, integer bar, url google {sleep a + b;}");
-		parser4.program_tail();
+		parser4.program_tail(scanner.new Token(null, 0, 0));
 	}
 
 	@Test
@@ -324,7 +327,6 @@ public class ParserTest {
 
 		Parser parser4 = initializeParser("baz boolean foo, integer bar, url google {sleep a + b;}");
 		parser4.parse();
-		
 
 	}
 }

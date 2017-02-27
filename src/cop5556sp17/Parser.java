@@ -74,7 +74,7 @@ public class Parser {
 		return program_tail(firstToken);
 	}
 
-	/* private */ Program program_tail(Token firstToken) throws SyntaxException { // can be private as created by me
+	Program program_tail(Token firstToken) throws SyntaxException {
 		ArrayList<ParamDec> params = new ArrayList<>();
 		Kind kind = t.kind;
 		switch (kind) {
@@ -176,15 +176,15 @@ public class Parser {
 				return new SleepStatement(firstToken, e);
 			}
 			case KW_WHILE : {
-				return whileStatement();
+				return whileStatement(firstToken);
 			}
 			case KW_IF : {
-				return ifStatement();
+				return ifStatement(firstToken);
 			}
 			case IDENT : { // can be either assign or chain, hence use peek()
 				Token nextToken = scanner.peek();
 				if (nextToken.isKind(ASSIGN)) {
-					AssignmentStatement a = assign();
+					AssignmentStatement a = assign(firstToken);
 					match(SEMI);
 					return a;
 				} else { // no need for else if and checking arrow operator. if arrow op, we are fine, else
@@ -216,8 +216,7 @@ public class Parser {
 		}
 	}
 
-	AssignmentStatement assign() throws SyntaxException {
-		Token firstToken = t; // also the Lvalue
+	AssignmentStatement assign(Token firstToken) throws SyntaxException {
 		IdentLValue var = new IdentLValue(firstToken);
 		match(IDENT);
 		match(ASSIGN);
@@ -241,8 +240,7 @@ public class Parser {
 		return bc;
 	}
 
-	WhileStatement whileStatement() throws SyntaxException {
-		Token firstToken = t;
+	WhileStatement whileStatement(Token firstToken) throws SyntaxException {
 		match(KW_WHILE);
 		match(LPAREN);
 		Expression e = expression();
@@ -251,8 +249,7 @@ public class Parser {
 		return new WhileStatement(firstToken, e, b);
 	}
 
-	IfStatement ifStatement() throws SyntaxException {
-		Token firstToken = t;
+	IfStatement ifStatement(Token firstToken) throws SyntaxException {
 		match(KW_IF);
 		match(LPAREN);
 		Expression e = expression();

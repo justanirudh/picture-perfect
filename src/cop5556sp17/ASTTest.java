@@ -162,8 +162,9 @@ public class ASTTest {
 	public void testIfStmtWhileStmt() throws IllegalCharException, IllegalNumberException,
 			SyntaxException {
 		Parser parser = initParser("if (a/0) {integer foo}");
+		Scanner scanner = new Scanner("if (a/0) {integer foo}");
 
-		ASTNode ast = parser.ifStatement();
+		ASTNode ast = parser.ifStatement(scanner.new Token(null, 0, 0));
 		assertEquals(IfStatement.class, ast.getClass());
 
 		IfStatement ifStmt = (IfStatement) ast;
@@ -174,7 +175,7 @@ public class ASTTest {
 
 		Parser parser2 = initParser("while (false) {foo <- bar;}");
 
-		ASTNode ast2 = parser2.whileStatement();
+		ASTNode ast2 = parser2.whileStatement(scanner.new Token(null, 0, 0));
 		assertEquals(WhileStatement.class, ast2.getClass());
 
 		WhileStatement whileStmt = (WhileStatement) ast2;
@@ -234,8 +235,9 @@ public class ASTTest {
 			SyntaxException {
 
 		String input = "foo <- (1 + 4)";
+		Scanner scanner = new Scanner(input);
 		Parser parser = initParser(input);
-		ASTNode ast = parser.assign();
+		ASTNode ast = parser.assign(scanner.new Token(null, 0, 0));
 		assertEquals(AssignmentStatement.class, ast.getClass());
 
 		AssignmentStatement ag = (AssignmentStatement) ast;
@@ -243,7 +245,7 @@ public class ASTTest {
 		assertEquals(BinaryExpression.class, ag.getE().getClass());
 
 		Parser parser2 = initParser("bar <- true");
-		ASTNode ast2 = parser2.assign();
+		ASTNode ast2 = parser2.assign(scanner.new Token(null, 0, 0));
 		assertEquals(AssignmentStatement.class, ast2.getClass());
 
 		AssignmentStatement ag2 = (AssignmentStatement) ast2;

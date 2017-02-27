@@ -236,14 +236,14 @@ public class ParserTest {
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 		Parser parser = new Parser(scanner);
-		parser.assign();
+		parser.assign(scanner.new Token(null, 0, 0));
 		parser.matchEOFForTest();
 
 		String input2 = "abc <- (4 + 5)";
 		Scanner scanner2 = new Scanner(input2);
 		scanner2.scan();
 		Parser parser2 = new Parser(scanner2);
-		parser2.assign();
+		parser2.assign(scanner.new Token(null, 0, 0));
 		parser2.matchEOFForTest();
 	}
 
@@ -254,27 +254,27 @@ public class ParserTest {
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 		Parser parser = new Parser(scanner);
-		parser.ifStatement();
+		parser.ifStatement(scanner.new Token(null, 0, 0));
 		parser.matchEOFForTest();
 
 		Parser parser2 = initializeParser("while( a <= 234) \r\n{integer abc}");
-		parser2.whileStatement();
+		parser2.whileStatement(scanner.new Token(null, 0, 0));
 
 		Parser parser3 = initializeParser("if( 23 != 234) \n{sleep 23;}");
-		parser3.ifStatement();
+		parser3.ifStatement(scanner.new Token(null, 0, 0));
 
 		Parser parser4 = initializeParser("while( abc/0) \n{ abc <- 3 ;}"); // go to assign
-		parser4.whileStatement();
+		parser4.whileStatement(scanner.new Token(null, 0, 0));
 
 		Parser parser5 = initializeParser("if( 0 % 99) \n{ abc -> blur;}"); // go to dec
-		parser5.ifStatement();
+		parser5.ifStatement(scanner.new Token(null, 0, 0));
 
 		Parser parser6 = initializeParser("if( ((screenwidth))) \n{ while( a > 42) {image foo}}");
-		parser6.ifStatement();
+		parser6.ifStatement(scanner.new Token(null, 0, 0));
 
 		Parser parser7 = initializeParser(
 				"while( ((screenwidth))) \n{ if( a > 42) {  blur (3 < 2) -> move (4 < 3, 8 >= 9)  ;}}");
-		parser7.whileStatement();
+		parser7.whileStatement(scanner.new Token(null, 0, 0));
 
 		Parser p8 = initializeParser("blur -> gray");
 		thrown.expect(Parser.SyntaxException.class);

@@ -34,7 +34,10 @@ public class SymbolTable {
 	public void leaveScope() {
 		// TODO: Make sure this is correct; diff in slides
 		scopeStack.pop();
-		currentScope = scopeStack.peek();
+		if (scopeStack.isEmpty())
+			currentScope = -1;
+		else
+			currentScope = scopeStack.peek();
 	}
 
 	public boolean insert(String ident, Dec dec) {
@@ -76,7 +79,7 @@ public class SymbolTable {
 	}
 
 	public SymbolTable() {
-		currentScope = 0;
+		currentScope = -1;
 		nextScope = 0;
 		scopeStack = new Stack<>();
 		table = new HashMap<>();

@@ -78,8 +78,8 @@ public class SymbolTable {
 		return dec;
 	}
 
-	public SymbolTable() {
-		currentScope = -1;
+	public SymbolTable() { //for this language, outermost scope can be -1 as everything inside 'ident{}'
+		currentScope = -1; //cS and nS can start with 0 and 1, doesn't matter as long as diff of 1
 		nextScope = 0;
 		scopeStack = new Stack<>();
 		table = new HashMap<>();

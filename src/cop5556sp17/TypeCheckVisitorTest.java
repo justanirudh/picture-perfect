@@ -118,16 +118,17 @@ public class TypeCheckVisitorTest {
 		program.visit(v, null);
 	}
 
-//	@Test
-//	public void testAssignmentBoolLitError0() throws Exception {
-//		String input = "p {\nboolean y \ny <- 3;}";
-//		Scanner scanner = new Scanner(input);
-//		scanner.scan();
-//		Parser parser = new Parser(scanner);
-//		ASTNode program = parser.parse();
-//		TypeCheckVisitor v = new TypeCheckVisitor();
+	@Test
+	public void testAssignmentBoolLitError0() throws Exception {
+		String input = "p {\nboolean y \ny <- 3;}";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode program = parser.parse();
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		//TODO: Uncomment this when implemented
 //		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
-//		program.visit(v, null);
-//	}
+		program.visit(v, null);
+	}
 
 }

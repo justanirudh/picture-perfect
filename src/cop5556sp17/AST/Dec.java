@@ -1,10 +1,12 @@
 package cop5556sp17.AST;
 
+import cop5556sp17.AST.Type.TypeName;
 import cop5556sp17.Scanner.Token;
 
 public class Dec extends ASTNode {
-	
+
 	final Token ident;
+	private TypeName typeName;
 
 	public Dec(Token firstToken, Token ident) {
 		super(firstToken);
@@ -19,13 +21,19 @@ public class Dec extends ASTNode {
 	public Token getIdent() {
 		return ident;
 	}
+	
+	public TypeName getTypeName() {
+		return typeName;
+	}
+
+	public void setTypeName(TypeName typeName) {
+		this.typeName = typeName;
+	}
 
 	@Override
 	public String toString() {
 		return "Dec [ident=" + ident + ", firstToken=" + firstToken + "]";
 	}
-	
-	
 
 	@Override
 	public int hashCode() {
@@ -59,7 +67,7 @@ public class Dec extends ASTNode {
 
 	@Override
 	public Object visit(ASTVisitor v, Object arg) throws Exception {
-		return v.visitDec(this,arg);
+		return v.visitDec(this, arg);
 	}
 
 }

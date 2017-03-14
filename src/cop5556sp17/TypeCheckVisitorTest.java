@@ -125,6 +125,8 @@ public class TypeCheckVisitorTest {
 		scanner.scan();
 		Parser parser = new Parser(scanner);
 		ASTNode program = parser.parse();
+		//making a visitor and passing it. Designed this way so that I can create different kinds of 
+		//visitors and do different things with the AST. Awesome,right? 
 		TypeCheckVisitor v = new TypeCheckVisitor();
 		//TODO: Uncomment this when implemented
 //		thrown.expect(TypeCheckVisitor.TypeCheckException.class);

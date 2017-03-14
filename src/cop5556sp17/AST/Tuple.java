@@ -21,8 +21,6 @@ public class Tuple extends ASTNode {
 	public String toString() {
 		return "Tuple [exprList=" + exprList + "]";
 	}
-	
-	
 
 	@Override
 	public int hashCode() {

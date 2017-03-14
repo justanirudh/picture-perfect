@@ -56,6 +56,14 @@ public class TypeCheckVisitor implements ASTVisitor {
 		}
 	}
 
+	private void throwTypeCheckException(Token firstToken, TypeName expected, TypeName obtained)
+			throws TypeCheckException {
+		LinePos lp = firstToken.getLinePos();
+		throw new TypeCheckException("Expected type: " + expected + "\nFound type: " + obtained
+				+ "\nLocation: Starts with " + firstToken.getText() + " at line number " + lp.line
+				+ "and pos number " + lp.posInLine);
+	}
+
 	SymbolTable symtab = new SymbolTable();
 
 	@Override
@@ -178,8 +186,14 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitTuple(Tuple tuple, Object arg) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		// condition: for all expression in List<Expression>: Expression.type = INTEGER
+		for (Expression exp : tuple.getExprList()) {
+			if (exp.getTypeName() != INTEGER)
+				throwTypeCheckException(tuple.getFirstToken(), INTEGER, exp.getTypeName());
+			exp.visit(this, arg); //store return values into a new exp array
+		}
+		//TODO: reinstatiate new tuple with new expr values and return that?
+		return tuple;
 	}
 
 }

@@ -45,7 +45,8 @@ public class SymbolTable {
 		if (table.containsKey(ident)) {
 			// this ident already declared. First check whether it has not been declared in current scope.
 			for (Attr attr : table.get(ident)) {
-				if (attr.scope == currentScope) // found an ident already in the table with the same scope as current scope
+				if (attr.scope == currentScope) // found an ident already in the table with the same scope
+																				// as current scope
 					return false;
 			}
 			// not declared in current scope, then just add.
@@ -59,18 +60,38 @@ public class SymbolTable {
 			return true;
 		}
 	}
-
+	/*
+	 * gets matching entry in hash table; scan chain and return attributes for entry with scope number
+	 * closest to the top of the scope stack;
+	 */
 	public Dec lookup(String ident) {
+		//TODO: solve the parallel scope problem:
+		/*This should return null;
+		 * { //scope 1
+		 * 	int x;
+		 * }
+		 * { //scope 2
+		 * x = 5;
+		 * }
+		 * */
 		if (!table.containsKey(ident))
 			return null;
 		ArrayList<Attr> declarations = table.get(ident);
 		Dec dec = null;
 		int minDiff = Integer.MAX_VALUE;
 		for (Attr attr : declarations) {
-			int currDiff = currentScope - attr.scope; // current scope always >= some previously declared scope
-			if (currDiff == 0) // if scope of the declaration of the ident same as the current scope, we got what we wanted
+			int currDiff = currentScope - attr.scope;
+			if (currDiff < 0) // current scope < scope of recorded attr, then I am in outer scope (cannot
+												// be a parallel scope as it would be closed then and hence, not in current
+												// scope)
+				continue;
+			if (currDiff == 0) // if scope of the declaration of the ident same as the current scope, we
+													// got what we wanted
 				return attr.dec;
-			if (currDiff < minDiff) {
+			if (currDiff < minDiff) { // curr scope > attr scope, it is definitely nested. attr's scope is
+																// parent of current scope. curr scope cannot be parallel to the
+																// attr scope and be greater than it as
+																// then
 				minDiff = currDiff;
 				dec = attr.dec;
 			}
@@ -78,8 +99,9 @@ public class SymbolTable {
 		return dec;
 	}
 
-	public SymbolTable() { //for this language, outermost scope can be -1 as everything inside 'ident{}'
-		currentScope = -1; //cS and nS can start with 0 and 1, doesn't matter as long as diff of 1
+	public SymbolTable() { // for this language, outermost scope can be -1 as everything inside
+													// 'ident{}'
+		currentScope = -1; // cS and nS can start with 0 and 1, doesn't matter as long as diff of 1
 		nextScope = 0;
 		scopeStack = new Stack<>();
 		table = new HashMap<>();

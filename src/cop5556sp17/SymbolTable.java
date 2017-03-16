@@ -35,7 +35,7 @@ public class SymbolTable {
 		// TODO: Make sure this is correct; diff in slides
 		scopeStack.pop();
 		if (scopeStack.isEmpty())
-			currentScope = -1;
+			currentScope = 0;
 		else
 			currentScope = scopeStack.peek();
 	}
@@ -65,15 +65,10 @@ public class SymbolTable {
 	 * closest to the top of the scope stack;
 	 */
 	public Dec lookup(String ident) {
-		//TODO: solve the parallel scope problem:
-		/*This should return null;
-		 * { //scope 1
-		 * 	int x;
-		 * }
-		 * { //scope 2
-		 * x = 5;
-		 * }
-		 * */
+		// TODO: solve the parallel scope problem:
+		/*
+		 * This should return null; { //scope 1 int x; } { //scope 2 x = 5; }
+		 */
 		if (!table.containsKey(ident))
 			return null;
 		ArrayList<Attr> declarations = table.get(ident);
@@ -88,10 +83,13 @@ public class SymbolTable {
 			if (currDiff == 0) // if scope of the declaration of the ident same as the current scope, we
 													// got what we wanted
 				return attr.dec;
-			if (currDiff < minDiff) { // curr scope > attr scope, it is definitely nested. attr's scope is
-																// parent of current scope. curr scope cannot be parallel to the
-																// attr scope and be greater than it as
-																// then
+			if (currDiff < minDiff) { // TODO: curr scope > attr scope, it is definitely nested. attr's
+																// scope is
+																// parent of current scope. curr scope can be parallel, *so use the
+																// stack. Lookup the value in stack before making a decision. For
+																// each entry in the Dec array, check the stack and its depth. the
+																// entry woth minimum depth is returned. So, instead of minDiff, it
+																// is minDepth and each operation is O(depth of stack)*
 				minDiff = currDiff;
 				dec = attr.dec;
 			}
@@ -101,8 +99,8 @@ public class SymbolTable {
 
 	public SymbolTable() { // for this language, outermost scope can be -1 as everything inside
 													// 'ident{}'
-		currentScope = -1; // cS and nS can start with 0 and 1, doesn't matter as long as diff of 1
-		nextScope = 0;
+		currentScope = 0; // cS and nS can start with 0 and 1, doesn't matter as long as diff of 1
+		nextScope = 1;
 		scopeStack = new Stack<>();
 		table = new HashMap<>();
 	}

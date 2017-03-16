@@ -17,6 +17,7 @@ import org.junit.rules.ExpectedException;
 
 import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.AssignmentStatement;
+import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Dec;
 import cop5556sp17.AST.Expression;
 import cop5556sp17.AST.IdentExpression;
@@ -29,7 +30,7 @@ import cop5556sp17.Scanner.IllegalNumberException;
 import cop5556sp17.Scanner.Token;
 import cop5556sp17.TypeCheckVisitor.TypeCheckException;
 import static cop5556sp17.Scanner.Kind.*;
-import cop5556sp17.AST.Type.TypeName;
+import static cop5556sp17.AST.Type.TypeName;
 
 public class TypeCheckVisitorTest {
 	
@@ -166,9 +167,23 @@ public class TypeCheckVisitorTest {
 		TypeCheckVisitor v = new TypeCheckVisitor();
 		//inserting a declaration of false
 		v.symtab.insert("foo", new Dec(scanner.new Token(KW_INTEGER, 0, 0),scanner.new Token(IDENT, 0, 0) ));
-		exp.visit(v, null);
+		iExp.visit(v, null);
 		assertEquals(TypeName.INTEGER, iExp.getTypeName());
 		assertEquals(KW_INTEGER, iExp.getDec().firstToken.kind);
+	}
+	
+	@Test
+	public void testConstantExpression() throws Exception {
+		String input = "screenwidth";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		Expression exp = parser.factor();
+		assertEquals(ConstantExpression.class, exp.getClass());
+		ConstantExpression cExp = (ConstantExpression)exp;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		cExp.visit(v, null);
+		assertEquals(TypeName.INTEGER, cExp.getTypeName());
 	}
 
 	@Test

@@ -97,7 +97,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 	@Override
 	public Object visitBooleanLitExpression(BooleanLitExpression booleanLitExpression, Object arg)
 			throws Exception {
-		// TODO Auto-generated method stub
+		booleanLitExpression.setTypeName(TypeName.BOOLEAN);
 		return null;
 	}
 
@@ -139,7 +139,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 	@Override
 	public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg)
 			throws Exception {
-		// TODO Auto-generated method stub
+		intLitExpression.setTypeName(INTEGER);
 		return null;
 	}
 
@@ -188,7 +188,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitConstantExpression(ConstantExpression constantExpression, Object arg) {
-		// TODO Auto-generated method stub
+		constantExpression.setTypeName(INTEGER);
 		return null;
 	}
 

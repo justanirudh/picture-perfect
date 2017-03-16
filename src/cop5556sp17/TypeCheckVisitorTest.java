@@ -20,6 +20,7 @@ import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.Dec;
 import cop5556sp17.AST.Expression;
 import cop5556sp17.AST.IdentExpression;
+import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.Program;
 import cop5556sp17.AST.Statement;
 import cop5556sp17.Parser.SyntaxException;
@@ -28,6 +29,7 @@ import cop5556sp17.Scanner.IllegalNumberException;
 import cop5556sp17.Scanner.Token;
 import cop5556sp17.TypeCheckVisitor.TypeCheckException;
 import static cop5556sp17.Scanner.Kind.*;
+import cop5556sp17.AST.Type.TypeName;
 
 public class TypeCheckVisitorTest {
 	
@@ -154,15 +156,19 @@ public class TypeCheckVisitorTest {
 	
 	@Test
 	public void testIdentExpression() throws Exception {
-		String input = "false";
+		String input = "foo";
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 		Parser parser = new Parser(scanner);
 		Expression exp = parser.factor();
+		assertEquals(IdentExpression.class, exp.getClass());
+		IdentExpression iExp = (IdentExpression)exp;
 		TypeCheckVisitor v = new TypeCheckVisitor();
 		//inserting a declaration of false
-		v.symtab.insert("false", new Dec(scanner.new Token(KW_INTEGER, 0, 0),scanner.new Token(IDENT, 0, 0) ));
+		v.symtab.insert("foo", new Dec(scanner.new Token(KW_INTEGER, 0, 0),scanner.new Token(IDENT, 0, 0) ));
 		exp.visit(v, null);
+		assertEquals(TypeName.INTEGER, iExp.getTypeName());
+		assertEquals(KW_INTEGER, iExp.getDec().firstToken.kind);
 	}
 
 	@Test

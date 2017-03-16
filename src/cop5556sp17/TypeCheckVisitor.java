@@ -3,6 +3,7 @@ package cop5556sp17;
 import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.ASTVisitor;
 import cop5556sp17.AST.Tuple;
+import cop5556sp17.AST.Type;
 import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.BinaryChain;
 import cop5556sp17.AST.BinaryExpression;
@@ -56,13 +57,21 @@ public class TypeCheckVisitor implements ASTVisitor {
 		}
 	}
 
-	private void throwTypeCheckException(Token firstToken, TypeName expected, TypeName obtained)
+	private void throwNonMatchingTypeException(Token firstToken, TypeName expected, TypeName obtained)
 			throws TypeCheckException {
 		LinePos lp = firstToken.getLinePos();
 		throw new TypeCheckException("Expected type: " + expected + "\nFound type: " + obtained
 				+ "\nLocation: Starts with " + firstToken.getText() + " at line number " + lp.line
 				+ "and pos number " + lp.posInLine);
 	}
+
+	private void throwUndeclaredVariableException(Token firstToken) throws TypeCheckException {
+		LinePos lp = firstToken.getLinePos();
+		throw new TypeCheckException(firstToken.getText() + " at line " + lp.line + " and position "
+				+ lp.posInLine + " has not been declared for the current scope");
+	}
+
+	// TODO: Return: type or class or even null, whatever is required by the parent
 
 	SymbolTable symtab = new SymbolTable();
 
@@ -112,7 +121,12 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		Token identToken = identExpression.firstToken;
+		Dec dec = symtab.lookup(identToken.getText());
+		if (dec == null)
+			throwUndeclaredVariableException(identToken);
+		identExpression.setTypeName(Type.getTypeName(identToken));
+		identExpression.setDec(dec);
 		return null;
 	}
 
@@ -186,14 +200,16 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitTuple(Tuple tuple, Object arg) throws Exception {
-		// condition: for all expression in List<Expression>: Expression.type = INTEGER
-		for (Expression exp : tuple.getExprList()) {
-			if (exp.getTypeName() != INTEGER)
-				throwTypeCheckException(tuple.getFirstToken(), INTEGER, exp.getTypeName());
-			exp.visit(this, arg); //store return values into a new exp array
-		}
-		//TODO: reinstatiate new tuple with new expr values and return that?
-		return tuple;
+		// TODO: finish this
+		// // condition: for all expression in List<Expression>: Expression.type = INTEGER
+		// for (Expression exp : tuple.getExprList()) {
+		// if (exp.getTypeName() != INTEGER)
+		// throwNonMatchingTypeException(tuple.getFirstToken(), INTEGER, exp.getTypeName());
+		// exp.visit(this, arg); // store return values into a new exp array
+		// }
+		// // TODO: reinstatiate new tuple with new expr values and return that?
+		// return tuple;
+		return null;
 	}
 
 }

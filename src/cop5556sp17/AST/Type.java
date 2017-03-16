@@ -27,7 +27,7 @@ public class Type {
 				return TypeName.FILE;
 			}
 			default :
-				throw new Parser.SyntaxException("illegal type");
+				throw new Parser.SyntaxException("Illegal type: " + token.kind);
 		}
 	}
 

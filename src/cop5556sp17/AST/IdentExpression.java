@@ -4,8 +4,18 @@ import cop5556sp17.Scanner.Token;
 
 public class IdentExpression extends Expression {
 
+	private Dec dec;
+
 	public IdentExpression(Token firstToken) {
 		super(firstToken);
+	}
+
+	public Dec getDec() {
+		return dec;
+	}
+
+	public void setDec(Dec dec) {
+		this.dec = dec;
 	}
 
 	@Override

@@ -16,7 +16,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import cop5556sp17.AST.ASTNode;
+import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.Dec;
+import cop5556sp17.AST.Expression;
 import cop5556sp17.AST.IdentExpression;
 import cop5556sp17.AST.Program;
 import cop5556sp17.AST.Statement;
@@ -28,7 +30,7 @@ import cop5556sp17.TypeCheckVisitor.TypeCheckException;
 import static cop5556sp17.Scanner.Kind.*;
 
 public class TypeCheckVisitorTest {
-
+	
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
@@ -103,7 +105,7 @@ public class TypeCheckVisitorTest {
 		
 		symtab.leaveScope();
 		
-		System.out.println(symtab.toString());
+//		System.out.println(symtab.toString());
 			
 	}
 	
@@ -135,7 +137,7 @@ public class TypeCheckVisitorTest {
 		assertEquals(null, dec);
 		symtab.leaveScope();
 		
-		System.out.println(symtab.toString());
+//		System.out.println(symtab.toString());
 			
 	}
 	
@@ -148,6 +150,19 @@ public class TypeCheckVisitorTest {
 		ASTNode program = parser.parse();
 		TypeCheckVisitor v = new TypeCheckVisitor();
 		program.visit(v, null);
+	}
+	
+	@Test
+	public void testIdentExpression() throws Exception {
+		String input = "false";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		Expression exp = parser.factor();
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		//inserting a declaration of false
+		v.symtab.insert("false", new Dec(scanner.new Token(KW_INTEGER, 0, 0),scanner.new Token(IDENT, 0, 0) ));
+		exp.visit(v, null);
 	}
 
 	@Test

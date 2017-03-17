@@ -1,26 +1,31 @@
 package cop5556sp17.AST;
 
+import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.Token;
 
 public class FrameOpChain extends ChainElem {
 
 	final Tuple tuple;
+	final Kind kind;
 
 	public FrameOpChain(Token firstToken, Tuple arg) {
 		super(firstToken);
 		this.tuple = arg;
+		this.kind = firstToken.kind;
 	}
 
 	public Tuple getArg() {
 		return tuple;
 	}
 
+	public boolean isKind(Kind kind) {
+		return this.kind == kind;
+	}
+
 	@Override
 	public String toString() {
 		return "FrameOpChain [tuple=" + tuple + "]";
 	}
-	
-	
 
 	@Override
 	public int hashCode() {

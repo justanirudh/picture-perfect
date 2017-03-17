@@ -30,6 +30,7 @@ import cop5556sp17.AST.Type.TypeName;
 import cop5556sp17.AST.WhileStatement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.LinePos;
@@ -145,7 +146,30 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitFrameOpChain(FrameOpChain frameOpChain, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+
+		Tuple tup = frameOpChain.getArg();
+
+		tup.visit(this, arg);
+
+		List<Expression> expList = tup.getExprList();
+
+		if (frameOpChain.isKind(KW_SHOW) || frameOpChain.isKind(KW_HIDE)) {
+			if (!expList.isEmpty())
+				throw new TypeCheckException("Expression list for FrameOp Chain is not empty. "
+						+ getFirstTokenInfo(tup.getFirstToken()));
+			frameOpChain.setTypeName(NONE);
+		} else if (frameOpChain.isKind(Kind.KW_XLOC) || frameOpChain.isKind(KW_YLOC)) {
+			if (!expList.isEmpty())
+				throw new TypeCheckException("Expression list for FrameOp Chain is not empty. "
+						+ getFirstTokenInfo(tup.getFirstToken()));
+			frameOpChain.setTypeName(INTEGER);
+		} else { // KW_MOVE
+			if (expList.size() != 2)
+				throw new TypeCheckException("Expression list for FrameOp Chain does not have size two. "
+						+ getFirstTokenInfo(tup.getFirstToken()));
+			frameOpChain.setTypeName(NONE);
+		}
+
 		return null;
 	}
 

@@ -18,6 +18,7 @@ import org.junit.rules.ExpectedException;
 import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.BinaryExpression;
+import cop5556sp17.AST.ChainElem;
 import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Dec;
 import cop5556sp17.AST.Expression;
@@ -33,6 +34,7 @@ import cop5556sp17.Scanner.Token;
 import cop5556sp17.TypeCheckVisitor.TypeCheckException;
 import static cop5556sp17.Scanner.Kind.*;
 import static cop5556sp17.AST.Type.TypeName;
+import static cop5556sp17.AST.Type.TypeName.*;
 
 public class TypeCheckVisitorTest {
 
@@ -214,6 +216,75 @@ public class TypeCheckVisitorTest {
 																															// boolean and tuple() expects all
 																															// expressions to be integers
 		tup.visit(v, null);
+	}
+
+	@Test
+	public void testIdentChain() throws Exception {
+		String input = "foo";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.chainElem();
+		ChainElem ce = (ChainElem) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		v.symtab.insert("foo", new Dec(scanner.new Token(KW_FRAME, 0, 0), scanner.new Token(IDENT, 0,
+				0)));
+		ce.visit(v, null);
+		assertEquals(FRAME, ce.getTypeName());
+	}
+	
+	@Test
+	public void testFilterChain() throws Exception {
+		String input = "gray";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.chainElem();
+		ChainElem ce = (ChainElem) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		ce.visit(v, null);
+		assertEquals(IMAGE, ce.getTypeName());
+	}
+	
+	@Test
+	public void testFrameOpChain0() throws Exception {
+		String input = "show";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.chainElem();
+		ChainElem ce = (ChainElem) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		ce.visit(v, null);
+		assertEquals(NONE, ce.getTypeName());
+	}
+	
+	@Test
+	public void testFrameOpChain1() throws Exception {
+		String input = "xloc (abc)";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.chainElem();
+		ChainElem ce = (ChainElem) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+		ce.visit(v, null);
+	}
+	
+	@Test
+	public void testFrameOpChain2() throws Exception {
+		String input = "move (abc, screenwidth)";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.chainElem();
+		ChainElem ce = (ChainElem) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		v.symtab.insert("abc", new Dec(scanner.new Token(KW_INTEGER, 0, 0), scanner.new Token(IDENT, 0,
+				0)));
+		ce.visit(v, null);
+		assertEquals(NONE, ce.getTypeName());
 	}
 
 	@Test

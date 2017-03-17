@@ -7,7 +7,7 @@ import cop5556sp17.Scanner.Token;
 public class Dec extends ASTNode {
 
 	final Token ident;
-	private TypeName typeName;
+	private final TypeName typeName;
 
 	public Dec(Token firstToken, Token ident) throws SyntaxException {
 		super(firstToken);
@@ -25,11 +25,6 @@ public class Dec extends ASTNode {
 
 	public TypeName getTypeName() {
 		return typeName;
-	}
-
-	//Note: Probably will never be used as the type is always set in the constructor
-	public void setTypeName(TypeName typeName) {
-		this.typeName = typeName;
 	}
 
 	@Override

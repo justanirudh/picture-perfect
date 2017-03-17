@@ -57,18 +57,21 @@ public class TypeCheckVisitor implements ASTVisitor {
 		}
 	}
 
+	private String getFirstTokenInfo(Token firstToken) {
+		LinePos lp = firstToken.getLinePos();
+		return "Location: Starts with '" + firstToken.getText() + "' at line number " + lp.line
+				+ " and pos number " + lp.posInLine;
+	}
+
 	private void throwNonMatchingTypeException(Token firstToken, TypeName expected, TypeName obtained)
 			throws TypeCheckException {
-		LinePos lp = firstToken.getLinePos();
-		throw new TypeCheckException("Expected type: " + expected + ", Found type: " + obtained
-				+ "; Location: Starts with '" + firstToken.getText() + "' at line number " + lp.line
-				+ " and pos number " + lp.posInLine);
+		throw new TypeCheckException("Expected type: " + expected + ", Found type: " + obtained + ";"
+				+ getFirstTokenInfo(firstToken));
 	}
 
 	private void throwUndeclaredVariableException(Token firstToken) throws TypeCheckException {
-		LinePos lp = firstToken.getLinePos();
-		throw new TypeCheckException(firstToken.getText() + " at line " + lp.line + " and position "
-				+ lp.posInLine + " has not been declared for the current scope");
+		throw new TypeCheckException(getFirstTokenInfo(firstToken)
+				+ " has not been declared for the current scope");
 	}
 
 	// Doing a *post-order* traversal
@@ -86,19 +89,19 @@ public class TypeCheckVisitor implements ASTVisitor {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object visitSleepStatement(SleepStatement sleepStatement, Object arg) throws Exception {
 		// TODO Auto-generated method stub
@@ -111,16 +114,32 @@ public class TypeCheckVisitor implements ASTVisitor {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		// TODO: in grammar, ident.type a thing or just a temp variable of representing dec's type?
+		Token identToken = identChain.firstToken;
+		Dec dec = symtab.lookup(identToken.getText());
+		if (dec == null)
+			throwUndeclaredVariableException(identToken);
+		identChain.setTypeName(dec.getTypeName());
 		return null;
 	}
-	
+
 	@Override
 	public Object visitFilterOpChain(FilterOpChain filterOpChain, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		// refer to children
+		Tuple tup = filterOpChain.getArg();
+
+		// decorate children
+		tup.visit(this, arg);
+
+		// decorate current node
+		if (!tup.getExprList().isEmpty())
+			throw new TypeCheckException("Expression list for FilterOp Chain is not empty. "
+					+ getFirstTokenInfo(tup.getFirstToken()));
+		filterOpChain.setTypeName(IMAGE);
+
 		return null;
 	}
 
@@ -129,7 +148,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object visitImageOpChain(ImageOpChain imageOpChain, Object arg) throws Exception {
 		// TODO Auto-generated method stub
@@ -141,19 +160,19 @@ public class TypeCheckVisitor implements ASTVisitor {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object visitWhileStatement(WhileStatement whileStatement, Object arg) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object visitIfStatement(IfStatement ifStatement, Object arg) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
 		Token identToken = identExpression.firstToken;
@@ -170,7 +189,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg)
 			throws Exception {
@@ -228,12 +247,9 @@ public class TypeCheckVisitor implements ASTVisitor {
 			binaryExpression.setTypeName(BOOLEAN);
 		else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type))
 			binaryExpression.setTypeName(BOOLEAN);
-		else {
-			Token fT = binaryExpression.getFirstToken();
-			LinePos lp = fT.getLinePos();
-			throw new TypeCheckException("Incompatible types for Binary Expression that starts with '"
-					+ fT.getText() + "' at line " + lp.line + " at position " + lp.posInLine);
-		}
+		else
+			throw new TypeCheckException("Incompatible types for Binary Expression." + getFirstTokenInfo(
+					binaryExpression.getFirstToken()));
 		return null;
 	}
 

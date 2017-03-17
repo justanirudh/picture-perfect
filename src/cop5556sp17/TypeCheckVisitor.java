@@ -82,22 +82,8 @@ public class TypeCheckVisitor implements ASTVisitor {
 	}
 
 	@Override
-	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visitBooleanLitExpression(BooleanLitExpression booleanLitExpression, Object arg)
-			throws Exception {
-		booleanLitExpression.setTypeName(TypeName.BOOLEAN);
 		return null;
 	}
 
@@ -120,26 +106,8 @@ public class TypeCheckVisitor implements ASTVisitor {
 	}
 
 	@Override
-	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
-		Token identToken = identExpression.firstToken;
-		Dec dec = symtab.lookup(identToken.getText());
-		if (dec == null)
-			throwUndeclaredVariableException(identToken);
-		identExpression.setTypeName(Type.getTypeName(dec.firstToken));
-		identExpression.setDec(dec);
-		return null;
-	}
-
-	@Override
 	public Object visitIfStatement(IfStatement ifStatement, Object arg) throws Exception {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg)
-			throws Exception {
-		intLitExpression.setTypeName(INTEGER);
 		return null;
 	}
 
@@ -187,13 +155,45 @@ public class TypeCheckVisitor implements ASTVisitor {
 	}
 
 	@Override
+	public Object visitImageOpChain(ImageOpChain imageOpChain, Object arg) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
+		Token identToken = identExpression.firstToken;
+		Dec dec = symtab.lookup(identToken.getText());
+		if (dec == null)
+			throwUndeclaredVariableException(identToken);
+		identExpression.setTypeName(Type.getTypeName(dec.firstToken));
+		identExpression.setDec(dec);
+		return null;
+	}
+
+	@Override
+	public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg)
+			throws Exception {
+		intLitExpression.setTypeName(INTEGER);
+		return null;
+	}
+
+	@Override
+	public Object visitBooleanLitExpression(BooleanLitExpression booleanLitExpression, Object arg)
+			throws Exception {
+		booleanLitExpression.setTypeName(TypeName.BOOLEAN);
+		return null;
+	}
+
+	@Override
 	public Object visitConstantExpression(ConstantExpression constantExpression, Object arg) {
 		constantExpression.setTypeName(INTEGER);
 		return null;
 	}
 
 	@Override
-	public Object visitImageOpChain(ImageOpChain imageOpChain, Object arg) throws Exception {
+	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
+			throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}

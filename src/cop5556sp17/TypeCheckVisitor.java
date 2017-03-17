@@ -160,7 +160,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 		Dec dec = symtab.lookup(identToken.getText());
 		if (dec == null)
 			throwUndeclaredVariableException(identToken);
-		identExpression.setTypeName(Type.getTypeName(dec.firstToken));
+		identExpression.setTypeName(dec.getTypeName());
 		identExpression.setDec(dec);
 		return null;
 	}

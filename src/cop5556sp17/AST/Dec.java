@@ -1,6 +1,7 @@
 package cop5556sp17.AST;
 
 import cop5556sp17.AST.Type.TypeName;
+import cop5556sp17.Parser.SyntaxException;
 import cop5556sp17.Scanner.Token;
 
 public class Dec extends ASTNode {
@@ -8,10 +9,10 @@ public class Dec extends ASTNode {
 	final Token ident;
 	private TypeName typeName;
 
-	public Dec(Token firstToken, Token ident) {
+	public Dec(Token firstToken, Token ident) throws SyntaxException {
 		super(firstToken);
-
 		this.ident = ident;
+		this.typeName = Type.getTypeName(firstToken);
 	}
 
 	public Token getType() {
@@ -21,11 +22,12 @@ public class Dec extends ASTNode {
 	public Token getIdent() {
 		return ident;
 	}
-	
+
 	public TypeName getTypeName() {
 		return typeName;
 	}
 
+	//Note: Probably will never be used as the type is always set in the constructor
 	public void setTypeName(TypeName typeName) {
 		this.typeName = typeName;
 	}

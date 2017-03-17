@@ -194,7 +194,42 @@ public class TypeCheckVisitor implements ASTVisitor {
 	@Override
 	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
 			throws Exception {
-		// TODO Auto-generated method stub
+		// decorate children
+		binaryExpression.getE0().visit(this, arg);
+		binaryExpression.getE1().visit(this, arg);
+
+		// get values
+		TypeName e0Type = binaryExpression.getE0().getTypeName();
+		Token op = binaryExpression.getOp();
+		TypeName e1Type = binaryExpression.getE1().getTypeName();
+
+		// decorate current node
+		if (e0Type.isType(INTEGER) && (op.isKind(PLUS) || op.isKind(MINUS)) && e1Type.isType(INTEGER))
+			binaryExpression.setTypeName(INTEGER);
+		else if (e0Type.isType(IMAGE) && (op.isKind(PLUS) || op.isKind(MINUS)) && e1Type.isType(IMAGE))
+			binaryExpression.setTypeName(IMAGE);
+		else if (e0Type.isType(INTEGER) && (op.isKind(TIMES) || op.isKind(DIV)) && e1Type.isType(
+				INTEGER))
+			binaryExpression.setTypeName(INTEGER);
+		else if (e0Type.isType(INTEGER) && op.isKind(TIMES) && e1Type.isType(IMAGE))
+			binaryExpression.setTypeName(IMAGE);
+		else if (e0Type.isType(IMAGE) && op.isKind(TIMES) && e1Type.isType(INTEGER))
+			binaryExpression.setTypeName(IMAGE);
+		else if (e0Type.isType(INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE) || op
+				.isKind(GE)) && e1Type.isType(INTEGER))
+			binaryExpression.setTypeName(BOOLEAN);
+		else if (e0Type.isType(BOOLEAN) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE) || op
+				.isKind(GE)) && e1Type.isType(BOOLEAN))
+			binaryExpression.setTypeName(BOOLEAN);
+		else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type))
+			binaryExpression.setTypeName(BOOLEAN);
+		else {
+			Token fT = binaryExpression.getFirstToken();
+			LinePos lp = fT.getLinePos();
+			throw new TypeCheckException("Incompatible types for Binary Expression that starts with '"
+					+ fT.getText() + "' at line " + lp.line + " at position " + lp.posInLine);
+		}
+
 		return null;
 	}
 

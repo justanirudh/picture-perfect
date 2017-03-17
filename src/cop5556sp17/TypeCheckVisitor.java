@@ -175,7 +175,24 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitImageOpChain(ImageOpChain imageOpChain, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		Tuple tup = imageOpChain.getArg();
+
+		tup.visit(this, arg);
+
+		List<Expression> expList = tup.getExprList();
+
+		if (imageOpChain.isKind(OP_WIDTH) || imageOpChain.isKind(OP_HEIGHT)) {
+			if (!expList.isEmpty())
+				throw new TypeCheckException("Expression list for ImageOp Chain is not empty. "
+						+ getFirstTokenInfo(tup.getFirstToken()));
+			imageOpChain.setTypeName(INTEGER);
+		} else { // KW_SCALE
+			if (expList.size() != 1)
+				throw new TypeCheckException("Expression list for ImageOp Chain does not have size 1. "
+						+ getFirstTokenInfo(tup.getFirstToken()));
+			imageOpChain.setTypeName(IMAGE);
+		}
+
 		return null;
 	}
 

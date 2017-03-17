@@ -286,6 +286,45 @@ public class TypeCheckVisitorTest {
 		ce.visit(v, null);
 		assertEquals(NONE, ce.getTypeName());
 	}
+	
+	@Test
+	public void testImageOpChain0() throws Exception {
+		String input = "width";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.chainElem();
+		ChainElem ce = (ChainElem) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		ce.visit(v, null);
+		assertEquals(INTEGER, ce.getTypeName());
+	}
+	
+	@Test
+	public void testImageOpChain1() throws Exception {
+		String input = "scale";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.chainElem();
+		ChainElem ce = (ChainElem) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+		ce.visit(v, null);
+	}
+	
+	@Test
+	public void testImageOpChain2() throws Exception {
+		String input = "scale (5)";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.chainElem();
+		ChainElem ce = (ChainElem) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		ce.visit(v, null);
+		assertEquals(IMAGE, ce.getTypeName());
+	}
 
 	@Test
 	public void testAssignmentBoolLitError0() throws Exception {

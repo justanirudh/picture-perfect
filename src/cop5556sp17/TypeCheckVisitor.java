@@ -60,9 +60,9 @@ public class TypeCheckVisitor implements ASTVisitor {
 	private void throwNonMatchingTypeException(Token firstToken, TypeName expected, TypeName obtained)
 			throws TypeCheckException {
 		LinePos lp = firstToken.getLinePos();
-		throw new TypeCheckException("Expected type: " + expected + "\nFound type: " + obtained
-				+ "\nLocation: Starts with " + firstToken.getText() + " at line number " + lp.line
-				+ "and pos number " + lp.posInLine);
+		throw new TypeCheckException("Expected type: " + expected + ", Found type: " + obtained
+				+ "; Location: Starts with '" + firstToken.getText() + "' at line number " + lp.line
+				+ " and pos number " + lp.posInLine);
 	}
 
 	private void throwUndeclaredVariableException(Token firstToken) throws TypeCheckException {
@@ -71,7 +71,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 				+ lp.posInLine + " has not been declared for the current scope");
 	}
 
-	// TODO: Return: type or class or even null, whatever is required by the parent
+	// Doing a *post-order* traversal
 
 	SymbolTable symtab = new SymbolTable();
 
@@ -194,14 +194,19 @@ public class TypeCheckVisitor implements ASTVisitor {
 	@Override
 	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
 			throws Exception {
+
+		// refer to children
+		Expression e0 = binaryExpression.getE0();
+		Expression e1 = binaryExpression.getE1();
+
 		// decorate children
-		binaryExpression.getE0().visit(this, arg);
-		binaryExpression.getE1().visit(this, arg);
+		e0.visit(this, arg);
+		e1.visit(this, arg);
 
 		// get values
-		TypeName e0Type = binaryExpression.getE0().getTypeName();
+		TypeName e0Type = e0.getTypeName();
 		Token op = binaryExpression.getOp();
-		TypeName e1Type = binaryExpression.getE1().getTypeName();
+		TypeName e1Type = e1.getTypeName();
 
 		// decorate current node
 		if (e0Type.isType(INTEGER) && (op.isKind(PLUS) || op.isKind(MINUS)) && e1Type.isType(INTEGER))
@@ -229,21 +234,17 @@ public class TypeCheckVisitor implements ASTVisitor {
 			throw new TypeCheckException("Incompatible types for Binary Expression that starts with '"
 					+ fT.getText() + "' at line " + lp.line + " at position " + lp.posInLine);
 		}
-
 		return null;
 	}
 
 	@Override
 	public Object visitTuple(Tuple tuple, Object arg) throws Exception {
-		// TODO: finish this
-		// // condition: for all expression in List<Expression>: Expression.type = INTEGER
-		// for (Expression exp : tuple.getExprList()) {
-		// if (exp.getTypeName() != INTEGER)
-		// throwNonMatchingTypeException(tuple.getFirstToken(), INTEGER, exp.getTypeName());
-		// exp.visit(this, arg); // store return values into a new exp array
-		// }
-		// // TODO: reinstatiate new tuple with new expr values and return that?
-		// return tuple;
+		for (Expression exp : tuple.getExprList()) {
+			exp.visit(this, arg); // visit child first
+			TypeName expType = exp.getTypeName();
+			if (!expType.isType(INTEGER))
+				throwNonMatchingTypeException(exp.getFirstToken(), INTEGER, expType);
+		}
 		return null;
 	}
 

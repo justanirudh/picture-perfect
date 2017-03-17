@@ -25,6 +25,7 @@ import cop5556sp17.AST.IdentExpression;
 import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.Program;
 import cop5556sp17.AST.Statement;
+import cop5556sp17.AST.Tuple;
 import cop5556sp17.Parser.SyntaxException;
 import cop5556sp17.Scanner.IllegalCharException;
 import cop5556sp17.Scanner.IllegalNumberException;
@@ -196,6 +197,23 @@ public class TypeCheckVisitorTest {
 
 		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
 		decorateBinaryExpression("false > 5");
+	}
+
+	@Test
+	public void testTuple() throws Exception {
+		String input = "(abc, screenwidth, false > true)";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.arg();
+		Tuple tup = (Tuple) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		v.symtab.insert("abc", new Dec(scanner.new Token(KW_INTEGER, 0, 0), scanner.new Token(IDENT, 0,
+				0)));
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class); // throws for false > true as that is
+																															// boolean and tuple() expects all
+																															// expressions to be integers
+		tup.visit(v, null);
 	}
 
 	@Test

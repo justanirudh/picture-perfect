@@ -256,7 +256,7 @@ public class TypeCheckVisitorTest {
 		assertEquals(TypeName.FRAME, b6.getTypeName());
 
 		BinaryChain b7 = decorateBinaryChain("ident_img -> height");
-		assertEquals(TypeName.IMAGE, b7.getTypeName());
+		assertEquals(TypeName.INTEGER, b7.getTypeName());
 
 		BinaryChain b8 = decorateBinaryChain("ident_img |-> convolve");
 		assertEquals(TypeName.IMAGE, b8.getTypeName());

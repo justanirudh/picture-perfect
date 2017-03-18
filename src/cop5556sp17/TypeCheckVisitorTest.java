@@ -31,6 +31,7 @@ import cop5556sp17.AST.Program;
 import cop5556sp17.AST.SleepStatement;
 import cop5556sp17.AST.Statement;
 import cop5556sp17.AST.Tuple;
+import cop5556sp17.AST.WhileStatement;
 import cop5556sp17.Parser.SyntaxException;
 import cop5556sp17.Scanner.IllegalCharException;
 import cop5556sp17.Scanner.IllegalNumberException;
@@ -450,6 +451,67 @@ public class TypeCheckVisitorTest {
 		assertEquals("ident_int", v.symtab.lookup("ident_int").getIdent().getText());
 		assertEquals(INTEGER, v.symtab.lookup("ident_int").getTypeName());
 		assertTrue(v.symtab.lookup("ident_int").getType().isKind(KW_INTEGER));
+	}
+
+	@Test
+	public void testIfWhileStmtError0() throws Exception {
+		String input = "while (false) \n { integer foo \n foo <- 10 ;\n if(foo + 5) {foo <- foo + 5;"
+				+ "}\n if(foo > 5) { foo <- foo - 5;}\n }";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.statement();
+		WhileStatement ws = (WhileStatement) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class); // if(foo + 5)
+		ws.visit(v, null);
+	}
+
+	@Test
+	public void testIfWhileStmtError1() throws Exception {
+		String input = "while (false) \n { integer foo \n foo <- 10 ;\n if(foo <= 5) {foo <- foo + 5;"
+				+ "}\n if(foo > 5) { foo <- foo - 5;}\n if(5 < 2) { integer bar \n image bar}}";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.statement();
+		WhileStatement ws = (WhileStatement) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor(); // { integer bar \n image bar}
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+		ws.visit(v, null);
+	}
+
+	@Test
+	public void testIfWhileStmtError2() throws Exception {
+		String input = "while (false) \n { integer foo \n foo <- 10 ;\n if(foo <= 5) {foo <- foo + 5;"
+				+ "}\n if(foo > 5) { foo <- foo - 5;}\n if(5 < 2) { integer bar} bar <- 5;}";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.statement();
+		WhileStatement ws = (WhileStatement) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor(); // { integer bar} bar <- 5;
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+		ws.visit(v, null);
+		// assertEquals("ident_int", v.symtab.lookup("ident_int").getIdent().getText());
+		// assertEquals(INTEGER, v.symtab.lookup("ident_int").getTypeName());
+		// assertTrue(v.symtab.lookup("ident_int").getType().isKind(KW_INTEGER));
+	}
+
+	@Test
+	public void testIfWhileStmt() throws Exception {
+		String input = "while (false) \n { integer foo \n integer bar \n image ident_img\n frame ident_frame\n "
+				+ "foo <- 10 ;\n if(foo <= 5) {foo <- foo + 5;"
+				+ "}\n if(foo > 5) { foo <- foo - 5;}\n if(5 < 2) { integer bar \n bar <- 10; } bar <- 15; \n sleep 5 ;\n "
+				+ "/*ident_img -> ident_frame ->xloc ;*/}";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.statement();
+		WhileStatement ws = (WhileStatement) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor(); // { integer bar} bar <- 5;
+		ws.visit(v, null);
+//		System.out.println(v.symtab);
 	}
 
 	@Test

@@ -87,19 +87,35 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitParamDec(ParamDec paramDec, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		boolean inserted = symtab.insert(paramDec.getIdent().getText(), paramDec);
+		if (!inserted)
+			throw new TypeCheckException("Double declaration in the same scope." + getFirstTokenInfo(
+					paramDec.getFirstToken()));
 		return null;
 	}
 
 	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		symtab.enterScope();
+
+		ArrayList<Dec> decList = block.getDecs();
+		ArrayList<Statement> stmtList = block.getStatements();
+
+		for (Dec dec : decList)
+			dec.visit(this, arg);
+		for (Statement stmt : stmtList)
+			stmt.visit(this, arg);
+
+		symtab.leaveScope();
 		return null;
 	}
 
 	@Override
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
-		symtab.insert(declaration.getIdent().getText(), declaration);
+		boolean inserted = symtab.insert(declaration.getIdent().getText(), declaration);
+		if (!inserted)
+			throw new TypeCheckException("Double declaration in the same scope." + getFirstTokenInfo(
+					declaration.getFirstToken()));
 		return null;
 	}
 
@@ -266,13 +282,31 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitWhileStatement(WhileStatement whileStatement, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		Expression exp = whileStatement.getE();
+		Block bl = whileStatement.getB();
+
+		exp.visit(this, arg);
+		bl.visit(this, arg);
+
+		if (!exp.getTypeName().isType(BOOLEAN))
+			throw new TypeCheckException("Expression for while statement is of type " + exp.getTypeName()
+					+ " and not of type boolean" + getFirstTokenInfo(whileStatement.getFirstToken()));
+
 		return null;
 	}
 
 	@Override
 	public Object visitIfStatement(IfStatement ifStatement, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		Expression exp = ifStatement.getE();
+		Block bl = ifStatement.getB();
+
+		exp.visit(this, arg);
+		bl.visit(this, arg);
+
+		if (!exp.getTypeName().isType(BOOLEAN))
+			throw new TypeCheckException("Expression for if statement is of type " + exp.getTypeName()
+					+ " and not of type boolean" + getFirstTokenInfo(ifStatement.getFirstToken()));
+
 		return null;
 	}
 

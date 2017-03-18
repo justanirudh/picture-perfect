@@ -75,13 +75,21 @@ public class TypeCheckVisitor implements ASTVisitor {
 				+ " has not been declared for the current scope");
 	}
 
-	// Doing a *post-order* traversal
+	// Note:Doing a *post-order* traversal
+	// Note: making a visitor and passing it. Designed this way so that I can create different kinds of
+	// visitors and do different things with the AST. Awesome,right?
 
 	SymbolTable symtab = new SymbolTable();
 
 	@Override
 	public Object visitProgram(Program program, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		ArrayList<ParamDec> paramDecList = program.getParams();
+		Block bl = program.getB();
+
+		for (ParamDec paramdec : paramDecList)
+			paramdec.visit(this, arg);
+		bl.visit(this, arg);
+
 		return null;
 	}
 
@@ -144,8 +152,8 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 		if (!ilv.getTypeName().isType(exp.getTypeName()))
 			throw new TypeCheckException("Type mismatch: Lvalue is " + ilv.getTypeName()
-					+ " while Expression is of type " + exp.getTypeName() + "; Location: "
-					+ getFirstTokenInfo(assignStatement.getFirstToken()));
+					+ " while Expression is of type " + exp.getTypeName() + "; " + getFirstTokenInfo(
+							assignStatement.getFirstToken()));
 
 		return null;
 	}

@@ -454,6 +454,21 @@ public class TypeCheckVisitorTest {
 	}
 
 	@Test
+	public void testParamDec() throws Exception {
+		String input = "file ident_file";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.paramDec();
+		ParamDec pd = (ParamDec) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		pd.visit(v, null);
+		assertEquals("ident_file", v.symtab.lookup("ident_file").getIdent().getText());
+		assertEquals(FILE, v.symtab.lookup("ident_file").getTypeName());
+		assertTrue(v.symtab.lookup("ident_file").getType().isKind(KW_FILE));
+	}
+
+	@Test
 	public void testIfWhileStmtError0() throws Exception {
 		String input = "while (false) \n { integer foo \n foo <- 10 ;\n if(foo + 5) {foo <- foo + 5;"
 				+ "}\n if(foo > 5) { foo <- foo - 5;}\n }";
@@ -493,9 +508,6 @@ public class TypeCheckVisitorTest {
 		TypeCheckVisitor v = new TypeCheckVisitor(); // { integer bar} bar <- 5;
 		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
 		ws.visit(v, null);
-		// assertEquals("ident_int", v.symtab.lookup("ident_int").getIdent().getText());
-		// assertEquals(INTEGER, v.symtab.lookup("ident_int").getTypeName());
-		// assertTrue(v.symtab.lookup("ident_int").getType().isKind(KW_INTEGER));
 	}
 
 	@Test
@@ -511,21 +523,32 @@ public class TypeCheckVisitorTest {
 		WhileStatement ws = (WhileStatement) ast;
 		TypeCheckVisitor v = new TypeCheckVisitor(); // { integer bar} bar <- 5;
 		ws.visit(v, null);
-//		System.out.println(v.symtab);
+		// System.out.println(v.symtab);
 	}
 
 	@Test
-	public void testAssignmentBoolLitError0() throws Exception {
+	public void testProgram() throws Exception {
+		String input = "myprog url ident_url, file ident_file {while (false) \n { integer foo \n integer bar \n image ident_img\n frame ident_frame\n "
+				+ "foo <- 10 ;\n if(foo <= 5) {foo <- foo + 5;"
+				+ "}\n if(foo > 5) { foo <- foo - 5;}\n if(5 < 2) { integer bar \n bar <- 10; } bar <- 15; \n sleep 5 ;\n "
+				+ "/*ident_img -> ident_frame ->xloc ;*/}}";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode program = parser.parse();
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		program.visit(v, null);
+	}
+
+	@Test
+	public void testProgramError0() throws Exception {
 		String input = "p {\nboolean y \ny <- 3;}";
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 		Parser parser = new Parser(scanner);
 		ASTNode program = parser.parse();
-		// making a visitor and passing it. Designed this way so that I can create different kinds of
-		// visitors and do different things with the AST. Awesome,right?
 		TypeCheckVisitor v = new TypeCheckVisitor();
-		// TODO: Uncomment this when implemented
-		// thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
 		program.visit(v, null);
 	}
 

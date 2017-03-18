@@ -64,20 +64,14 @@ public class TypeCheckVisitor implements ASTVisitor {
 				+ " and pos number " + lp.posInLine;
 	}
 
-	private void throwNonMatchingTypeException(Token firstToken, TypeName expected, TypeName obtained)
-			throws TypeCheckException {
-		throw new TypeCheckException("Expected type: " + expected + ", Found type: " + obtained + ";"
-				+ getFirstTokenInfo(firstToken));
-	}
-
 	private void throwUndeclaredVariableException(Token firstToken) throws TypeCheckException {
 		throw new TypeCheckException(getFirstTokenInfo(firstToken)
 				+ " has not been declared for the current scope");
 	}
 
 	// Note:Doing a *post-order* traversal
-	// Note: making a visitor and passing it. Designed this way so that I can create different kinds of
-	// visitors and do different things with the AST. Awesome,right?
+	// Note: making a visitor and passing it. Designed this way so that I can create different kinds
+	// of visitors and do different things with the AST. Awesome,right?
 
 	SymbolTable symtab = new SymbolTable();
 
@@ -408,7 +402,8 @@ public class TypeCheckVisitor implements ASTVisitor {
 			exp.visit(this, arg); // visit child first
 			TypeName expType = exp.getTypeName();
 			if (!expType.isType(INTEGER))
-				throwNonMatchingTypeException(exp.getFirstToken(), INTEGER, expType);
+				throw new TypeCheckException("Expected type: " + INTEGER + ", Found type: " + expType + ";"
+						+ getFirstTokenInfo(exp.getFirstToken()));
 		}
 		return null;
 	}

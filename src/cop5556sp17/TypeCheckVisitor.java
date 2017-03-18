@@ -154,7 +154,8 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
-		// TODO: in grammar, ident.type a thing or just a temp variable of representing dec's type?:check with anurag
+		// TODO: in grammar, ident.type a thing or just a temp variable of representing dec's
+		// type?:check with anurag
 		Token identToken = identChain.getFirstToken();
 		Dec dec = symtab.lookup(identToken.getText());
 		if (dec == null)
@@ -251,30 +252,40 @@ public class TypeCheckVisitor implements ASTVisitor {
 		// decorate current node
 		if (e0Type.isType(URL) && op.isKind(ARROW) && e1Type.isType(IMAGE))
 			binaryChain.setTypeName(IMAGE);
+
 		else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE))
 			binaryChain.setTypeName(IMAGE);
+
 		else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain && (e1FT.isKind(
 				KW_XLOC) || e1FT.isKind(KW_YLOC)))
 			binaryChain.setTypeName(INTEGER);
+
 		else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain && (e1FT.isKind(
 				KW_SHOW) || e1FT.isKind(KW_HIDE) || e1FT.isKind(KW_MOVE)))
 			binaryChain.setTypeName(FRAME);
+
 		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof ImageOpChain && (e1FT.isKind(
 				Kind.OP_WIDTH) || e1FT.isKind(OP_HEIGHT)))
-			binaryChain.setTypeName(IMAGE);
+			binaryChain.setTypeName(INTEGER);
+
 		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FRAME))
 			binaryChain.setTypeName(FRAME);
+
 		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FILE))
 			binaryChain.setTypeName(NONE);
+
 		else if (e0Type.isType(IMAGE) && (op.isKind(ARROW) || op.isKind(BARARROW))
 				&& e1 instanceof FilterOpChain && (e1FT.isKind(OP_BLUR) || e1FT.isKind(Kind.OP_GRAY) || e1FT
 						.isKind(OP_CONVOLVE)))
 			binaryChain.setTypeName(IMAGE);
+
 		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof ImageOpChain && e1FT.isKind(
 				KW_SCALE))
 			binaryChain.setTypeName(IMAGE);
+
 		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof IdentChain)
 			binaryChain.setTypeName(IMAGE);
+
 		else
 			throw new TypeCheckException("Incompatible types for Binary Chain." + getFirstTokenInfo(
 					binaryChain.getFirstToken()));
@@ -373,33 +384,42 @@ public class TypeCheckVisitor implements ASTVisitor {
 		// decorate current node
 		if (e0Type.isType(INTEGER) && (op.isKind(PLUS) || op.isKind(MINUS)) && e1Type.isType(INTEGER))
 			binaryExpression.setTypeName(INTEGER);
+
 		else if (e0Type.isType(IMAGE) && (op.isKind(PLUS) || op.isKind(MINUS)) && e1Type.isType(IMAGE))
 			binaryExpression.setTypeName(IMAGE);
+
 		else if (e0Type.isType(INTEGER) && (op.isKind(TIMES) || op.isKind(DIV)) && e1Type.isType(
 				INTEGER))
 			binaryExpression.setTypeName(INTEGER);
+
 		else if (e0Type.isType(INTEGER) && op.isKind(TIMES) && e1Type.isType(IMAGE))
 			binaryExpression.setTypeName(IMAGE);
+
 		else if (e0Type.isType(IMAGE) && op.isKind(TIMES) && e1Type.isType(INTEGER))
 			binaryExpression.setTypeName(IMAGE);
+
 		else if (e0Type.isType(INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE) || op
 				.isKind(GE)) && e1Type.isType(INTEGER))
 			binaryExpression.setTypeName(BOOLEAN);
+
 		else if (e0Type.isType(BOOLEAN) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE) || op
 				.isKind(GE)) && e1Type.isType(BOOLEAN))
 			binaryExpression.setTypeName(BOOLEAN);
+
 		else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type))
 			binaryExpression.setTypeName(BOOLEAN);
+
 		else
 			throw new TypeCheckException("Incompatible types for Binary Expression." + getFirstTokenInfo(
 					binaryExpression.getFirstToken()));
+
 		return null;
 	}
 
 	@Override
 	public Object visitTuple(Tuple tuple, Object arg) throws Exception {
 		List<Expression> expList = tuple.getExprList();
-		
+
 		for (Expression exp : expList) {
 			exp.visit(this, arg); // visit child first
 			TypeName expType = exp.getTypeName();

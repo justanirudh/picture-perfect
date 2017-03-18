@@ -28,6 +28,7 @@ import cop5556sp17.AST.IdentExpression;
 import cop5556sp17.AST.IntLitExpression;
 import cop5556sp17.AST.ParamDec;
 import cop5556sp17.AST.Program;
+import cop5556sp17.AST.SleepStatement;
 import cop5556sp17.AST.Statement;
 import cop5556sp17.AST.Tuple;
 import cop5556sp17.Parser.SyntaxException;
@@ -339,6 +340,21 @@ public class TypeCheckVisitorTest {
 		TypeCheckVisitor v = new TypeCheckVisitor();
 		ce.visit(v, null);
 		assertEquals(IMAGE, ce.getTypeName());
+	}
+
+	@Test
+	public void testSleepStmtError() throws Exception {
+		String input = "sleep ident_bool ;";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.statement();
+		SleepStatement ss = (SleepStatement) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		v.symtab.insert("ident_bool", new Dec(scanner.new Token(KW_BOOLEAN, 0, 0), scanner.new Token(
+				IDENT, 0, 0)));
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class); //expected type is integer
+		ss.visit(v, null);
 	}
 
 	@Test

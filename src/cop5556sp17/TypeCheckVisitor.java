@@ -60,7 +60,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	private String getFirstTokenInfo(Token firstToken) {
 		LinePos lp = firstToken.getLinePos();
-		return "Location: Starts with '" + firstToken.getText() + "' at line number " + lp.line
+		return " Location: Starts with '" + firstToken.getText() + "' at line number " + lp.line
 				+ " and pos number " + lp.posInLine;
 	}
 
@@ -105,7 +105,14 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitSleepStatement(SleepStatement sleepStatement, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		Expression exp = sleepStatement.getE();
+
+		exp.visit(this, arg);
+
+		if (!exp.getTypeName().isType(INTEGER))
+			throw new TypeCheckException("Expected type of expression was integer. Found: " + exp
+					.getTypeName() + getFirstTokenInfo(sleepStatement.getFirstToken()));
+
 		return null;
 	}
 

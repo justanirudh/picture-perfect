@@ -299,6 +299,36 @@ public class TypeCheckVisitorTest {
 	}
 
 	@Test
+	public void testAssignmentStmt() throws Exception {
+		String input = "foo <- 3;";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.statement();
+		AssignmentStatement as = (AssignmentStatement) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		v.symtab.insert("foo", new Dec(scanner.new Token(KW_INTEGER, 0, 0), scanner.new Token(IDENT, 0,
+				0)));
+		as.visit(v, null);
+		assertEquals(as.getVar().getTypeName(), as.getE().getTypeName());
+	}
+
+	@Test
+	public void testAssignmentStmt1Error() throws Exception {
+		String input = "foo <- true;";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.statement();
+		AssignmentStatement as = (AssignmentStatement) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		v.symtab.insert("foo", new Dec(scanner.new Token(KW_INTEGER, 0, 0), scanner.new Token(IDENT, 0,
+				0)));
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+		as.visit(v, null);
+	}
+
+	@Test
 	public void testFilterChain() throws Exception {
 		String input = "gray";
 		Scanner scanner = new Scanner(input);

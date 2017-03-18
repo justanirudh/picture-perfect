@@ -112,7 +112,18 @@ public class TypeCheckVisitor implements ASTVisitor {
 	@Override
 	public Object visitAssignmentStatement(AssignmentStatement assignStatement, Object arg)
 			throws Exception {
-		// TODO Auto-generated method stub
+
+		IdentLValue ilv = assignStatement.getVar();
+		Expression exp = assignStatement.getE();
+
+		ilv.visit(this, arg);
+		exp.visit(this, null);
+
+		if (!ilv.getTypeName().isType(exp.getTypeName()))
+			throw new TypeCheckException("Type mismatch: Lvalue is " + ilv.getTypeName()
+					+ " while Expression is of type " + exp.getTypeName() + "; Location: "
+					+ getFirstTokenInfo(assignStatement.getFirstToken()));
+
 		return null;
 	}
 
@@ -198,8 +209,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
-		// TODO Auto-generated method stub
-
 		// refer to the children
 		Chain e0 = binaryChain.getE0();
 		ChainElem e1 = binaryChain.getE1();
@@ -262,7 +271,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
-		Token identToken = identExpression.firstToken;
+		Token identToken = identExpression.getFirstToken();
 		Dec dec = symtab.lookup(identToken.getText());
 		if (dec == null)
 			throwUndeclaredVariableException(identToken);
@@ -273,7 +282,11 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitIdentLValue(IdentLValue identX, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		Token identToken = identX.getFirstToken();
+		Dec dec = symtab.lookup(identToken.getText());
+		if (dec == null)
+			throwUndeclaredVariableException(identToken);
+		identX.setDec(dec);
 		return null;
 	}
 

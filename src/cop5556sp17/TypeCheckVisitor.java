@@ -154,7 +154,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
-		// TODO: in grammar, ident.type a thing or just a temp variable of representing dec's type?
+		// TODO: in grammar, ident.type a thing or just a temp variable of representing dec's type?:check with anurag
 		Token identToken = identChain.getFirstToken();
 		Dec dec = symtab.lookup(identToken.getText());
 		if (dec == null)
@@ -398,7 +398,9 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitTuple(Tuple tuple, Object arg) throws Exception {
-		for (Expression exp : tuple.getExprList()) {
+		List<Expression> expList = tuple.getExprList();
+		
+		for (Expression exp : expList) {
 			exp.visit(this, arg); // visit child first
 			TypeName expType = exp.getTypeName();
 			if (!expType.isType(INTEGER))

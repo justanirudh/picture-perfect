@@ -17,13 +17,16 @@ import org.junit.rules.ExpectedException;
 
 import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.AssignmentStatement;
+import cop5556sp17.AST.BinaryChain;
 import cop5556sp17.AST.BinaryExpression;
+import cop5556sp17.AST.Chain;
 import cop5556sp17.AST.ChainElem;
 import cop5556sp17.AST.ConstantExpression;
 import cop5556sp17.AST.Dec;
 import cop5556sp17.AST.Expression;
 import cop5556sp17.AST.IdentExpression;
 import cop5556sp17.AST.IntLitExpression;
+import cop5556sp17.AST.ParamDec;
 import cop5556sp17.AST.Program;
 import cop5556sp17.AST.Statement;
 import cop5556sp17.AST.Tuple;
@@ -45,8 +48,29 @@ public class TypeCheckVisitorTest {
 		Expression exp = parser.expression();
 		BinaryExpression bExp = (BinaryExpression) exp;
 		TypeCheckVisitor v = new TypeCheckVisitor();
+		v.symtab.insert("ident_img", new Dec(scanner.new Token(KW_IMAGE, 0, 0), scanner.new Token(IDENT,
+				0, 0)));
 		bExp.visit(v, null);
 		return bExp;
+	}
+
+	private BinaryChain decorateBinaryChain(String input) throws Exception {
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		Chain c = parser.chain();
+		BinaryChain bc = (BinaryChain) c;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		v.symtab.insert("ident_url", new ParamDec(scanner.new Token(KW_URL, 0, 0), scanner.new Token(
+				IDENT, 0, 0)));
+		v.symtab.insert("ident_file", new ParamDec(scanner.new Token(KW_FILE, 0, 0), scanner.new Token(
+				IDENT, 0, 0)));
+		v.symtab.insert("ident_img", new Dec(scanner.new Token(KW_IMAGE, 0, 0), scanner.new Token(IDENT,
+				0, 0)));
+		v.symtab.insert("ident_frame", new Dec(scanner.new Token(KW_FRAME, 0, 0), scanner.new Token(
+				IDENT, 0, 0)));
+		bc.visit(v, null);
+		return bc;
 	}
 
 	@Rule
@@ -181,7 +205,6 @@ public class TypeCheckVisitorTest {
 
 	@Test
 	public void testBinaryExpression() throws Exception {
-		// TODO: test for image with integer
 		BinaryExpression b1 = decorateBinaryExpression("1 - 2");
 		assertEquals(TypeName.INTEGER, b1.getTypeName());
 
@@ -197,8 +220,50 @@ public class TypeCheckVisitorTest {
 		BinaryExpression b5 = decorateBinaryExpression("false == true");
 		assertEquals(TypeName.BOOLEAN, b5.getTypeName());
 
+		BinaryExpression b6 = decorateBinaryExpression("ident_img + ident_img");
+		assertEquals(TypeName.IMAGE, b6.getTypeName());
+
+		BinaryExpression b7 = decorateBinaryExpression("5 * ident_img");
+		assertEquals(TypeName.IMAGE, b7.getTypeName());
+
+		BinaryExpression b8 = decorateBinaryExpression("ident_img * 4");
+		assertEquals(TypeName.IMAGE, b8.getTypeName());
+
 		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
 		decorateBinaryExpression("false > 5");
+	}
+
+	@Test
+	public void testBinaryChain() throws Exception {
+		BinaryChain b1 = decorateBinaryChain("ident_url -> ident_img");
+		assertEquals(TypeName.IMAGE, b1.getTypeName());
+
+		BinaryChain b2 = decorateBinaryChain("ident_file -> ident_img");
+		assertEquals(TypeName.IMAGE, b2.getTypeName());
+
+		BinaryChain b3 = decorateBinaryChain("ident_img -> ident_frame");
+		assertEquals(TypeName.FRAME, b3.getTypeName());
+
+		BinaryChain b4 = decorateBinaryChain("ident_img -> ident_file");
+		assertEquals(TypeName.NONE, b4.getTypeName());
+
+		BinaryChain b5 = decorateBinaryChain("ident_frame -> xloc");
+		assertEquals(TypeName.INTEGER, b5.getTypeName());
+
+		BinaryChain b6 = decorateBinaryChain("ident_frame -> hide");
+		assertEquals(TypeName.FRAME, b6.getTypeName());
+
+		BinaryChain b7 = decorateBinaryChain("ident_img -> height");
+		assertEquals(TypeName.IMAGE, b7.getTypeName());
+
+		BinaryChain b8 = decorateBinaryChain("ident_img |-> convolve");
+		assertEquals(TypeName.IMAGE, b8.getTypeName());
+
+		BinaryChain b9 = decorateBinaryChain("ident_img -> scale (5)");
+		assertEquals(TypeName.IMAGE, b9.getTypeName());
+
+		BinaryChain b10 = decorateBinaryChain("ident_img -> ident_url");
+		assertEquals(TypeName.IMAGE, b10.getTypeName());
 	}
 
 	@Test
@@ -232,7 +297,7 @@ public class TypeCheckVisitorTest {
 		ce.visit(v, null);
 		assertEquals(FRAME, ce.getTypeName());
 	}
-	
+
 	@Test
 	public void testFilterChain() throws Exception {
 		String input = "gray";
@@ -245,7 +310,7 @@ public class TypeCheckVisitorTest {
 		ce.visit(v, null);
 		assertEquals(IMAGE, ce.getTypeName());
 	}
-	
+
 	@Test
 	public void testFrameOpChain0() throws Exception {
 		String input = "show";
@@ -258,7 +323,7 @@ public class TypeCheckVisitorTest {
 		ce.visit(v, null);
 		assertEquals(NONE, ce.getTypeName());
 	}
-	
+
 	@Test
 	public void testFrameOpChain1() throws Exception {
 		String input = "xloc (abc)";
@@ -271,7 +336,7 @@ public class TypeCheckVisitorTest {
 		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
 		ce.visit(v, null);
 	}
-	
+
 	@Test
 	public void testFrameOpChain2() throws Exception {
 		String input = "move (abc, screenwidth)";
@@ -286,7 +351,7 @@ public class TypeCheckVisitorTest {
 		ce.visit(v, null);
 		assertEquals(NONE, ce.getTypeName());
 	}
-	
+
 	@Test
 	public void testImageOpChain0() throws Exception {
 		String input = "width";
@@ -299,7 +364,7 @@ public class TypeCheckVisitorTest {
 		ce.visit(v, null);
 		assertEquals(INTEGER, ce.getTypeName());
 	}
-	
+
 	@Test
 	public void testImageOpChain1() throws Exception {
 		String input = "scale";
@@ -312,7 +377,7 @@ public class TypeCheckVisitorTest {
 		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
 		ce.visit(v, null);
 	}
-	
+
 	@Test
 	public void testImageOpChain2() throws Exception {
 		String input = "scale (5)";

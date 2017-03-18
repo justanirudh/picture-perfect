@@ -199,6 +199,52 @@ public class TypeCheckVisitor implements ASTVisitor {
 	@Override
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
 		// TODO Auto-generated method stub
+
+		// refer to the children
+		Chain e0 = binaryChain.getE0();
+		ChainElem e1 = binaryChain.getE1();
+
+		// decorate children
+		e0.visit(this, arg);
+		e1.visit(this, arg);
+
+		// retrieve values
+		TypeName e0Type = e0.getTypeName();
+		Token op = binaryChain.getArrow();
+		TypeName e1Type = e1.getTypeName();
+		Token e1FT = e1.firstToken;
+
+		// decorate current node
+		if (e0Type.isType(URL) && op.isKind(ARROW) && e1Type.isType(IMAGE))
+			binaryChain.setTypeName(IMAGE);
+		else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE))
+			binaryChain.setTypeName(IMAGE);
+		else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain && (e1FT.isKind(
+				KW_XLOC) || e1FT.isKind(KW_YLOC)))
+			binaryChain.setTypeName(INTEGER);
+		else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain && (e1FT.isKind(
+				KW_SHOW) || e1FT.isKind(KW_HIDE) || e1FT.isKind(KW_MOVE)))
+			binaryChain.setTypeName(FRAME);
+		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof ImageOpChain && (e1FT.isKind(
+				Kind.OP_WIDTH) || e1FT.isKind(OP_HEIGHT)))
+			binaryChain.setTypeName(IMAGE);
+		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FRAME))
+			binaryChain.setTypeName(FRAME);
+		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FILE))
+			binaryChain.setTypeName(NONE);
+		else if (e0Type.isType(IMAGE) && (op.isKind(ARROW) || op.isKind(BARARROW))
+				&& e1 instanceof FilterOpChain && (e1FT.isKind(OP_BLUR) || e1FT.isKind(Kind.OP_GRAY) || e1FT
+						.isKind(OP_CONVOLVE)))
+			binaryChain.setTypeName(IMAGE);
+		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof ImageOpChain && e1FT.isKind(
+				KW_SCALE))
+			binaryChain.setTypeName(IMAGE);
+		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof IdentChain)
+			binaryChain.setTypeName(IMAGE);
+		else
+			throw new TypeCheckException("Incompatible types for Binary Chain." + getFirstTokenInfo(
+					binaryChain.getFirstToken()));
+
 		return null;
 	}
 
@@ -263,7 +309,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 		e0.visit(this, arg);
 		e1.visit(this, arg);
 
-		// get values
+		// get required values from decorated children
 		TypeName e0Type = e0.getTypeName();
 		Token op = binaryExpression.getOp();
 		TypeName e1Type = e1.getTypeName();

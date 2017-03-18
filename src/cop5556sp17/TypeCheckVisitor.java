@@ -130,7 +130,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
 		// TODO: in grammar, ident.type a thing or just a temp variable of representing dec's type?
-		Token identToken = identChain.firstToken;
+		Token identToken = identChain.getFirstToken();
 		Dec dec = symtab.lookup(identToken.getText());
 		if (dec == null)
 			throwUndeclaredVariableException(identToken);
@@ -221,7 +221,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 		TypeName e0Type = e0.getTypeName();
 		Token op = binaryChain.getArrow();
 		TypeName e1Type = e1.getTypeName();
-		Token e1FT = e1.firstToken;
+		Token e1FT = e1.getFirstToken();
 
 		// decorate current node
 		if (e0Type.isType(URL) && op.isKind(ARROW) && e1Type.isType(IMAGE))

@@ -99,7 +99,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
-		// TODO Auto-generated method stub
+		symtab.insert(declaration.getIdent().getText(), declaration);
 		return null;
 	}
 

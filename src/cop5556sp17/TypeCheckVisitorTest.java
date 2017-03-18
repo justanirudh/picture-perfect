@@ -353,7 +353,7 @@ public class TypeCheckVisitorTest {
 		TypeCheckVisitor v = new TypeCheckVisitor();
 		v.symtab.insert("ident_bool", new Dec(scanner.new Token(KW_BOOLEAN, 0, 0), scanner.new Token(
 				IDENT, 0, 0)));
-		thrown.expect(TypeCheckVisitor.TypeCheckException.class); //expected type is integer
+		thrown.expect(TypeCheckVisitor.TypeCheckException.class); // expected type is integer
 		ss.visit(v, null);
 	}
 
@@ -435,6 +435,21 @@ public class TypeCheckVisitorTest {
 		TypeCheckVisitor v = new TypeCheckVisitor();
 		ce.visit(v, null);
 		assertEquals(IMAGE, ce.getTypeName());
+	}
+
+	@Test
+	public void testDec() throws Exception {
+		String input = "integer ident_int";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode ast = parser.dec();
+		Dec d = (Dec) ast;
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		d.visit(v, null);
+		assertEquals("ident_int", v.symtab.lookup("ident_int").getIdent().getText());
+		assertEquals(INTEGER, v.symtab.lookup("ident_int").getTypeName());
+		assertTrue(v.symtab.lookup("ident_int").getType().isKind(KW_INTEGER));
 	}
 
 	@Test

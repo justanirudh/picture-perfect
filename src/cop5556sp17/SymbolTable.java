@@ -33,10 +33,7 @@ public class SymbolTable {
 	 */
 	public void leaveScope() {
 		scopeStack.pop();
-		if (scopeStack.isEmpty())
-			currentScope = 0;
-		else
-			currentScope = scopeStack.peek();
+		currentScope = scopeStack.peek();
 	}
 
 	public boolean insert(String ident, Dec dec) {
@@ -94,6 +91,7 @@ public class SymbolTable {
 		currentScope = 0;
 		nextScope = 1;
 		scopeStack = new Stack<>();
+		scopeStack.push(currentScope);
 		table = new HashMap<>();
 	}
 

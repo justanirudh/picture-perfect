@@ -82,8 +82,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 		for (ParamDec paramdec : paramDecList)
 			paramdec.visit(this, arg);
-		bl.visit(this, arg);
-
+		bl.visit(this, arg);		
 		return null;
 	}
 
@@ -154,8 +153,6 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
-		// TODO: in grammar, ident.type a thing or just a temp variable of representing dec's
-		// type?:check with anurag
 		Token identToken = identChain.getFirstToken();
 		Dec dec = symtab.lookup(identToken.getText());
 		if (dec == null)

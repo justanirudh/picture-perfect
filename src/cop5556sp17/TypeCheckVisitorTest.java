@@ -551,5 +551,17 @@ public class TypeCheckVisitorTest {
 		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
 		program.visit(v, null);
 	}
+	
+	@Test
+	public void testProgramError1() throws Exception {
+		String input = "p {y <- 1; \ninteger x\n y <- 0; \ninteger y}";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode program = parser.parse();
+		TypeCheckVisitor v = new TypeCheckVisitor();
+//		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
+		program.visit(v, null);
+	}
 
 }

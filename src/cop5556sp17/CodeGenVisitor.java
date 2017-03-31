@@ -108,9 +108,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// pass in mv so decs can add their initialization code to the
 		// constructor.
 		ArrayList<ParamDec> params = program.getParams();
-		// TODO: right way?
-		// for (ParamDec dec : params)
-		// dec.visit(this, mv);
 		for (int i = 0; i < params.size(); ++i) {
 			params.get(i).visit(this, i);
 		}
@@ -164,7 +161,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		Label startRun = new Label();
 		mv.visitLabel(startRun);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nentering run");
-		program.getB().visit(this, null);
+		program.getB().visit(this, null); //visit block
 		mv.visitInsn(RETURN);
 		Label endRun = new Label();
 		mv.visitLabel(endRun);
@@ -181,33 +178,30 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitParamDec(ParamDec paramDec, Object arg) throws Exception {
-		// TODO Implement this
-		// For assignment 5, only needs to handle integers and booleans
+		// Note: For assignment 5, only needs to handle integers and booleans
 		String fieldName = paramDec.getIdent().getText(); // name of the field
 		String fieldType = null; // type descriptor of field in JVM notation
 		Object initValue = null; // Object containing initial value of field
 
-		// MethodVisitor mv = (MethodVisitor)arg;
 		Integer offset = (Integer) arg;
 
 		TypeName decType = paramDec.getTypeName();
 		if (decType.isType(TypeName.INTEGER)) {
 			fieldType = "I";
-//			initValue = 0; //they are null in ASM code
 		} else if (decType.isType(TypeName.BOOLEAN)) {
 			fieldType = "Z";
-//			initValue = false;
 		} else
 			assert false : "not yet implemented";
 
+		//telling asm to add this field
 		fv = cw.visitField(ACC_PUBLIC, fieldName, fieldType, null, initValue);
 		fv.visitEnd();
 
-		// TODO: this should be inside this or in visitProgram?
+		//populate the field
 		mv.visitVarInsn(ALOAD, 0); // this
 		mv.visitVarInsn(ALOAD, 1);// args
 		mv.visitIntInsn(BIPUSH, offset); // depending upon which index in args array
-		mv.visitInsn(AALOAD); //get the arg
+		mv.visitInsn(AALOAD); // get the arg
 		if (decType.isType(TypeName.INTEGER))
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I",
 					false);
@@ -220,7 +214,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		mv.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
 
 		return null;
-
 	}
 
 	@Override

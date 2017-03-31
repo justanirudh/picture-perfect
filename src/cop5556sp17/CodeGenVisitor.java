@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.objectweb.asm.ClassReader;
@@ -17,6 +18,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.Token;
+import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.ASTVisitor;
 import cop5556sp17.AST.AssignmentStatement;
 import cop5556sp17.AST.BinaryChain;
@@ -41,8 +43,9 @@ import cop5556sp17.AST.Program;
 import cop5556sp17.AST.SleepStatement;
 import cop5556sp17.AST.Statement;
 import cop5556sp17.AST.Tuple;
-import cop5556sp17.AST.Type.TypeName;
+import cop5556sp17.AST.Type;
 import cop5556sp17.AST.WhileStatement;
+import cop5556sp17.AST.Type.TypeName;
 
 import static cop5556sp17.AST.Type.TypeName.FRAME;
 import static cop5556sp17.AST.Type.TypeName.IMAGE;
@@ -50,7 +53,6 @@ import static cop5556sp17.AST.Type.TypeName.URL;
 import static cop5556sp17.Scanner.Kind.*;
 
 public class CodeGenVisitor implements ASTVisitor, Opcodes {
-
 	/**
 	 * @param DEVEL
 	 *          used as parameter to genPrint and genPrintTOS
@@ -72,6 +74,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	String sourceFileName;
 
 	MethodVisitor mv; // visitor of method currently under construction
+
+	FieldVisitor fv; // for visiting field variables
 
 	/** Indicates whether genPrint and genPrintTOS should generate code. */
 	final boolean DEVEL;
@@ -104,8 +108,12 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// pass in mv so decs can add their initialization code to the
 		// constructor.
 		ArrayList<ParamDec> params = program.getParams();
-		for (ParamDec dec : params)
-			dec.visit(this, mv);
+		// TODO: right way?
+		// for (ParamDec dec : params)
+		// dec.visit(this, mv);
+		for (int i = 0; i < params.size(); ++i) {
+			params.get(i).visit(this, i);
+		}
 		mv.visitInsn(RETURN);
 		// create label at end of code
 		Label constructorEnd = new Label();
@@ -139,7 +147,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		CodeGenUtils.genPrint(DEVEL, mv, "\nentering main");
 		mv.visitTypeInsn(NEW, className);
 		mv.visitInsn(DUP);
-		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0); // String[] args from it's slot number
 		mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", "([Ljava/lang/String;)V", false);
 		mv.visitMethodInsn(INVOKEVIRTUAL, className, "run", "()V", false);
 		mv.visitInsn(RETURN);
@@ -161,7 +169,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		Label endRun = new Label();
 		mv.visitLabel(endRun);
 		mv.visitLocalVariable("this", classDesc, null, startRun, endRun, 0);
-		// TODO visit the local variables
+		// TODO: visit the local variables
 		mv.visitMaxs(1, 1);
 		mv.visitEnd(); // end of run method
 
@@ -172,8 +180,52 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	}
 
 	@Override
+	public Object visitParamDec(ParamDec paramDec, Object arg) throws Exception {
+		// TODO Implement this
+		// For assignment 5, only needs to handle integers and booleans
+		String fieldName = paramDec.getIdent().getText(); // name of the field
+		String fieldType = null; // type descriptor of field in JVM notation
+		Object initValue = null; // Object containing initial value of field
+
+		// MethodVisitor mv = (MethodVisitor)arg;
+		Integer offset = (Integer) arg;
+
+		TypeName decType = paramDec.getTypeName();
+		if (decType.isType(TypeName.INTEGER)) {
+			fieldType = "I";
+//			initValue = 0; //they are null in ASM code
+		} else if (decType.isType(TypeName.BOOLEAN)) {
+			fieldType = "Z";
+//			initValue = false;
+		} else
+			assert false : "not yet implemented";
+
+		fv = cw.visitField(ACC_PUBLIC, fieldName, fieldType, null, initValue);
+		fv.visitEnd();
+
+		// TODO: this should be inside this or in visitProgram?
+		mv.visitVarInsn(ALOAD, 0); // this
+		mv.visitVarInsn(ALOAD, 1);// args
+		mv.visitIntInsn(BIPUSH, offset); // depending upon which index in args array
+		mv.visitInsn(AALOAD); //get the arg
+		if (decType.isType(TypeName.INTEGER))
+			mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I",
+					false);
+		else if (decType.isType(TypeName.BOOLEAN))
+			mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "parseBoolean", "(Ljava/lang/String;)Z",
+					false);
+		else
+			assert false : "not yet implemented";
+
+		mv.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
+
+		return null;
+
+	}
+
+	@Override
 	public Object visitAssignmentStatement(AssignmentStatement assignStatement, Object arg)
-			throws Exception {
+			throws Exception { // Note: Complete except my own TODO
 		assignStatement.getE().visit(this, arg);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
 		// TODO: Change all getTypeName()s to getType()s ?
@@ -269,14 +321,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			throws Exception {
 		// TODO Implement this
 		return null;
-	}
-
-	@Override
-	public Object visitParamDec(ParamDec paramDec, Object arg) throws Exception {
-		// TODO Implement this
-		// For assignment 5, only needs to handle integers and booleans
-		return null;
-
 	}
 
 	@Override

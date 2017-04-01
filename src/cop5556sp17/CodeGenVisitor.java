@@ -325,6 +325,20 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			mv.visitInsn(ICONST_0); // push 0
 		return null;
 	}
+	
+	@Override
+	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
+		Dec dec = identExpression.getDec();
+		if(dec instanceof ParamDec){ //global var
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), dec.getTypeName().getJVMTypeDesc());
+		}
+		else{ //local var
+			int slotNum = dec.getSlotNum();
+			mv.visitVarInsn(ILOAD, slotNum);
+		}
+		return null;
+	}
 
 	@Override
 	public Object visitIdentLValue(IdentLValue identX, Object arg) throws Exception {
@@ -387,12 +401,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
 		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
-		// TODO Implement this
 		return null;
 	}
 

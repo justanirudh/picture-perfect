@@ -66,6 +66,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		this.DEVEL = DEVEL;
 		this.GRADE = GRADE;
 		this.sourceFileName = sourceFileName;
+		this.slotNum = 1; //0 taken by this
 	}
 
 	ClassWriter cw;
@@ -76,6 +77,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	MethodVisitor mv; // visitor of method currently under construction
 
 	FieldVisitor fv; // for visiting field variables
+	
+	int slotNum; //for all local variables in Block
 
 	/** Indicates whether genPrint and genPrintTOS should generate code. */
 	final boolean DEVEL;
@@ -161,12 +164,12 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		Label startRun = new Label();
 		mv.visitLabel(startRun);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nentering run");
-		program.getB().visit(this, null); //visit block
+		program.getB().visit(this, null); // visit block
 		mv.visitInsn(RETURN);
 		Label endRun = new Label();
 		mv.visitLabel(endRun);
 		mv.visitLocalVariable("this", classDesc, null, startRun, endRun, 0);
-		// TODO: visit the local variables
+		// TODO: visit the local variables. From the return value of visit from program.getB.visit (0)
 		mv.visitMaxs(1, 1);
 		mv.visitEnd(); // end of run method
 
@@ -193,11 +196,11 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		} else
 			assert false : "not yet implemented";
 
-		//telling asm to add this field
+		// telling asm to add this field
 		fv = cw.visitField(ACC_PUBLIC, fieldName, fieldType, null, initValue);
 		fv.visitEnd();
 
-		//populate the field
+		// populate the field
 		mv.visitVarInsn(ALOAD, 0); // this
 		mv.visitVarInsn(ALOAD, 1);// args
 		mv.visitIntInsn(BIPUSH, offset); // depending upon which index in args array
@@ -217,8 +220,37 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	}
 
 	@Override
+	public Object visitBlock(Block block, Object arg) throws Exception {
+		// TODO Implement this
+		// TODO: get the infos: name, type, slot, startlabel and endlable for each dec and send it to
+		// the visitprogram()
+		// so that it can add it to the visitLocalVariable() calls. This will probably be finished
+		// implementing after All the rest (1)
+		ArrayList<Dec> decList = block.getDecs();
+		for (Dec dec : decList)
+			dec.visit(this, arg);
+		// for(int i = 0; i < decList.size(); ++i)
+		// decList.get(i).visit(this, i + 1); //0 is taken by this. so start giving slots from 1
+		ArrayList<Statement> stmtList = block.getStatements(); 
+		for (Statement stmt : stmtList)
+			stmt.visit(this, arg);
+		//TODO: now pass all info to visit program either by setting a field or by returning
+		return null;
+	}
+	
+	@Override
+	public Object visitDec(Dec declaration, Object arg) throws Exception {
+		// TODO Implement this
+		declaration.setSlotNum(this.slotNum);
+		slotNum++;
+		return null;
+	}
+
+	@Override
 	public Object visitAssignmentStatement(AssignmentStatement assignStatement, Object arg)
 			throws Exception { // Note: Complete except my own TODO
+		// Note: reverse traversal as that of TypeVisitor: first exp then ilv. reason:
+		// genPrintTOS(grade)
 		assignStatement.getE().visit(this, arg);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
 		// TODO: Change all getTypeName()s to getType()s ?
@@ -242,12 +274,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	}
 
 	@Override
-	public Object visitBlock(Block block, Object arg) throws Exception {
-		// TODO Implement this
-		return null;
-	}
-
-	@Override
 	public Object visitBooleanLitExpression(BooleanLitExpression booleanLitExpression, Object arg)
 			throws Exception {
 		// TODO Implement this
@@ -257,12 +283,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitConstantExpression(ConstantExpression constantExpression, Object arg) {
 		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitDec(Dec declaration, Object arg) throws Exception {
-		// TODO Implement this
 		return null;
 	}
 

@@ -318,19 +318,19 @@ public class CodeGenVisitorTest {
 	}
 
 //	@Test
-//	public void testTranslator() throws Exception {
-//		// scan, parse, and type check the program
-//		String progname = "emptyProg";
-//		String input = progname + "  {y <- 1; \ninteger x\n y <- 0; \ninteger y \n }";
-//		Scanner scanner = new Scanner(input);
-//		scanner.scan();
-//		Parser parser = new Parser(scanner);
-//		ASTNode program = parser.parse();
-//		TypeCheckVisitor v = new TypeCheckVisitor();
-//		program.visit(v, null);
-//		JavaTranslator jt = new JavaTranslator(program);
-//		show(jt.translate());
-//	}
+	public void testTranslator() throws Exception {
+		// scan, parse, and type check the program
+		String progname = "emptyProg";
+		String input = progname + "  {y <- 1; \ninteger x\n y <- 0; \ninteger y \n }";
+		Scanner scanner = new Scanner(input);
+		scanner.scan();
+		Parser parser = new Parser(scanner);
+		ASTNode program = parser.parse();
+		TypeCheckVisitor v = new TypeCheckVisitor();
+		program.visit(v, null);
+		JavaTranslator jt = new JavaTranslator(program);
+		show(jt.translate());
+	}
 	
 	
 

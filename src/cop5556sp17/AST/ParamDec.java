@@ -7,6 +7,7 @@ public class ParamDec extends Dec {
 
 	public ParamDec(Token firstToken, Token ident) throws SyntaxException {
 		super(firstToken, ident);
+		slotNum = -1;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ public class Dec extends ASTNode {
 
 	final Token ident;
 	private final TypeName typeName;
+	protected int slotNum;
 
 	public Dec(Token firstToken, Token ident) throws SyntaxException {
 		super(firstToken);
@@ -25,6 +26,14 @@ public class Dec extends ASTNode {
 
 	public TypeName getTypeName() {
 		return typeName;
+	}
+	
+	public int getSlotNum() {
+		return slotNum;
+	}
+	
+	public void setSlotNum(int slotNum) {
+		this.slotNum = slotNum;
 	}
 
 	@Override

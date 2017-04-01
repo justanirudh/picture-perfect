@@ -424,13 +424,61 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitLabel(ge);
 			}
 		} else if (e0Type.isType(BOOLEAN) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE) || op
-				.isKind(GE)) && e1Type.isType(BOOLEAN))
-			binaryExpression.setTypeName(BOOLEAN);
-
-		else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type))
-			binaryExpression.setTypeName(BOOLEAN);
-
-		else
+				.isKind(GE)) && e1Type.isType(BOOLEAN)) {
+			// BAS: false < true. The rest follow.
+			// Since false is const_0 and true is const_1, this code should be *same as
+			// the integer based comparison code above*
+			if (op.isKind(LT)) {
+				Label ge = new Label();
+				mv.visitJumpInsn(IF_ICMPGE, ge);
+				mv.visitInsn(ICONST_1);
+				Label lt = new Label();
+				mv.visitJumpInsn(GOTO, lt);
+				mv.visitLabel(ge);
+				mv.visitInsn(ICONST_0);
+				mv.visitLabel(lt);
+			} else if (op.isKind(GT)) {
+				Label le = new Label();
+				mv.visitJumpInsn(IF_ICMPLE, le);
+				mv.visitInsn(ICONST_1);
+				Label gt = new Label();
+				mv.visitJumpInsn(GOTO, gt);
+				mv.visitLabel(le);
+				mv.visitInsn(ICONST_0);
+				mv.visitLabel(gt);
+			} else if (op.isKind(LE)) {
+				Label gt = new Label();
+				mv.visitJumpInsn(IF_ICMPGT, gt);
+				mv.visitInsn(ICONST_1);
+				Label le = new Label();
+				mv.visitJumpInsn(GOTO, le);
+				mv.visitLabel(gt);
+				mv.visitInsn(ICONST_0);
+				mv.visitLabel(le);
+			} else { // GE
+				Label lt = new Label();
+				mv.visitJumpInsn(IF_ICMPLT, lt);
+				mv.visitInsn(ICONST_1);
+				Label ge = new Label();
+				mv.visitJumpInsn(GOTO, ge);
+				mv.visitLabel(lt);
+				mv.visitInsn(ICONST_0);
+				mv.visitLabel(ge);
+			}
+		} else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type)) {
+			if (op.isKind(EQUAL)) {
+				Label ne = new Label();
+				mv.visitJumpInsn(IF_ICMPNE, ne);
+				mv.visitInsn(ICONST_1);
+				Label eq = new Label();
+				mv.visitJumpInsn(GOTO, eq);
+				mv.visitLabel(ne);
+				mv.visitInsn(ICONST_0);
+				mv.visitLabel(eq);
+			} else { // NE
+				mv.visitInsn(IXOR);
+			}
+		} else
 			assert false : "not yet implemented";
 
 		return null;

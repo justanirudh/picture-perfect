@@ -18,6 +18,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.Token;
+import cop5556sp17.TypeCheckVisitor.TypeCheckException;
 import cop5556sp17.AST.ASTNode;
 import cop5556sp17.AST.ASTVisitor;
 import cop5556sp17.AST.AssignmentStatement;
@@ -47,8 +48,10 @@ import cop5556sp17.AST.Type;
 import cop5556sp17.AST.WhileStatement;
 import cop5556sp17.AST.Type.TypeName;
 
+import static cop5556sp17.AST.Type.TypeName.BOOLEAN;
 import static cop5556sp17.AST.Type.TypeName.FRAME;
 import static cop5556sp17.AST.Type.TypeName.IMAGE;
+import static cop5556sp17.AST.Type.TypeName.INTEGER;
 import static cop5556sp17.AST.Type.TypeName.URL;
 import static cop5556sp17.Scanner.Kind.*;
 
@@ -184,7 +187,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		Label startRun = new Label();
 		mv.visitLabel(startRun);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nentering run");
-		program.getB().visit(this, 1); // visit block
+		program.getB().visit(this, 1); // visit block, start with slotnum 1 as 0 taken by this
 		mv.visitInsn(RETURN);
 		Label endRun = new Label();
 		mv.visitLabel(endRun);
@@ -250,6 +253,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
 		// TODO Implement this
+		// TODO: do labels from start to end of block as suggested by BAS?
+		// (https://ufl.instructure.com/courses/335277/discussion_topics/1399099)
 
 		int startSlotNum = (Integer) arg; // every block starts with the slot number passed to it
 
@@ -300,8 +305,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		assignStatement.getE().visit(this, arg);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
-		// TODO: Change all getTypeName()s to getType()s ?
-		// CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getType());
+		// BAS: You can change assignStatement.getE().getType() to whatever works in your compiler.
 		CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName());
 		assignStatement.getVar().visit(this, arg);
 		return null;
@@ -325,18 +329,110 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			mv.visitInsn(ICONST_0); // push 0
 		return null;
 	}
-	
+
 	@Override
 	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
 		Dec dec = identExpression.getDec();
-		if(dec instanceof ParamDec){ //global var
+		if (dec instanceof ParamDec) { // global var
 			mv.visitVarInsn(ALOAD, 0);
-			mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), dec.getTypeName().getJVMTypeDesc());
-		}
-		else{ //local var
+			mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), dec.getTypeName()
+					.getJVMTypeDesc());
+		} else { // local var
 			int slotNum = dec.getSlotNum();
 			mv.visitVarInsn(ILOAD, slotNum);
 		}
+		return null;
+	}
+
+	@Override
+	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
+			throws Exception {
+		// TODO Implement this
+		// NOTE: Commented out if-else cases for next assignment
+
+		// refer children
+		Expression e0 = binaryExpression.getE0();
+		Expression e1 = binaryExpression.getE1();
+
+		// getfield/iload their values on the stack, left to right evaluation
+		e0.visit(this, arg);
+		e1.visit(this, arg);
+
+		// get types from decorated children
+		TypeName e0Type = e0.getTypeName();
+		Token op = binaryExpression.getOp();
+		TypeName e1Type = e1.getTypeName();
+
+		if (e0Type.isType(TypeName.INTEGER) && (op.isKind(PLUS) || op.isKind(MINUS)) && e1Type.isType(
+				TypeName.INTEGER)) {
+			if (op.isKind(PLUS))
+				mv.visitInsn(IADD);
+			else
+				mv.visitInsn(ISUB);
+		}
+		// else if (e0Type.isType(IMAGE) && (op.isKind(PLUS) || op.isKind(MINUS)) &&
+		// e1Type.isType(IMAGE))
+		// binaryExpression.setTypeName(IMAGE);
+		else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(TIMES) || op.isKind(DIV)) && e1Type
+				.isType(TypeName.INTEGER)) {
+			if (op.isKind(TIMES))
+				mv.visitInsn(IMUL);
+			else
+				mv.visitInsn(IDIV);
+		}
+		// else if (e0Type.isType(TypeName.INTEGER) && op.isKind(TIMES) && e1Type.isType(IMAGE))
+		// binaryExpression.setTypeName(IMAGE);
+		// else if (e0Type.isType(IMAGE) && op.isKind(TIMES) && e1Type.isType(TypeName.INTEGER))
+		// binaryExpression.setTypeName(IMAGE);
+		else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE)
+				|| op.isKind(GE)) && e1Type.isType(TypeName.INTEGER)) {
+			if (op.isKind(LT)) {
+				Label ge = new Label();
+				mv.visitJumpInsn(IF_ICMPGE, ge);
+				mv.visitInsn(ICONST_1);
+				Label lt = new Label();
+				mv.visitJumpInsn(GOTO, lt);
+				mv.visitLabel(ge);
+				mv.visitInsn(ICONST_0);
+				mv.visitLabel(lt);
+			} else if (op.isKind(GT)) {
+				Label le = new Label();
+				mv.visitJumpInsn(IF_ICMPLE, le);
+				mv.visitInsn(ICONST_1);
+				Label gt = new Label();
+				mv.visitJumpInsn(GOTO, gt);
+				mv.visitLabel(le);
+				mv.visitInsn(ICONST_0);
+				mv.visitLabel(gt);
+			} else if (op.isKind(LE)) {
+				Label gt = new Label();
+				mv.visitJumpInsn(IF_ICMPGT, gt);
+				mv.visitInsn(ICONST_1);
+				Label le = new Label();
+				mv.visitJumpInsn(GOTO, le);
+				mv.visitLabel(gt);
+				mv.visitInsn(ICONST_0);
+				mv.visitLabel(le);
+			} else { // GE
+				Label lt = new Label();
+				mv.visitJumpInsn(IF_ICMPLT, lt);
+				mv.visitInsn(ICONST_1);
+				Label ge = new Label();
+				mv.visitJumpInsn(GOTO, ge);
+				mv.visitLabel(lt);
+				mv.visitInsn(ICONST_0);
+				mv.visitLabel(ge);
+			}
+		} else if (e0Type.isType(BOOLEAN) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE) || op
+				.isKind(GE)) && e1Type.isType(BOOLEAN))
+			binaryExpression.setTypeName(BOOLEAN);
+
+		else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type))
+			binaryExpression.setTypeName(BOOLEAN);
+
+		else
+			assert false : "not yet implemented";
+
 		return null;
 	}
 
@@ -370,13 +466,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
 		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
-			throws Exception {
-		// TODO Implement this
 		return null;
 	}
 

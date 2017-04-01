@@ -66,7 +66,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		this.DEVEL = DEVEL;
 		this.GRADE = GRADE;
 		this.sourceFileName = sourceFileName;
-		this.slotNum = 1; //0 taken by this
+		this.slotNum = 1; // 0 taken by this
 	}
 
 	ClassWriter cw;
@@ -77,8 +77,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	MethodVisitor mv; // visitor of method currently under construction
 
 	FieldVisitor fv; // for visiting field variables
-	
-	int slotNum; //for all local variables in Block
+
+	int slotNum; // for all local variables in Block
 
 	/** Indicates whether genPrint and genPrintTOS should generate code. */
 	final boolean DEVEL;
@@ -222,25 +222,27 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
 		// TODO Implement this
+
 		// TODO: get the infos: name, type, slot, startlabel and endlable for each dec and send it to
 		// the visitprogram()
 		// so that it can add it to the visitLocalVariable() calls. This will probably be finished
 		// implementing after All the rest (1)
+
+		// TODO: Add labels
 		ArrayList<Dec> decList = block.getDecs();
 		for (Dec dec : decList)
 			dec.visit(this, arg);
-		// for(int i = 0; i < decList.size(); ++i)
-		// decList.get(i).visit(this, i + 1); //0 is taken by this. so start giving slots from 1
-		ArrayList<Statement> stmtList = block.getStatements(); 
+
+		ArrayList<Statement> stmtList = block.getStatements();
 		for (Statement stmt : stmtList)
 			stmt.visit(this, arg);
-		//TODO: now pass all info to visit program either by setting a field or by returning
+
+		// TODO: now pass all info to visit program either by setting a field or by returning
 		return null;
 	}
-	
+
 	@Override
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
-		// TODO Implement this
 		declaration.setSlotNum(this.slotNum);
 		slotNum++;
 		return null;
@@ -250,13 +252,60 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	public Object visitAssignmentStatement(AssignmentStatement assignStatement, Object arg)
 			throws Exception { // Note: Complete except my own TODO
 		// Note: reverse traversal as that of TypeVisitor: first exp then ilv. reason:
-		// genPrintTOS(grade)
+		// genPrintTOS(grade). Also (mainly), because need to load before store
+		
 		assignStatement.getE().visit(this, arg);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
 		// TODO: Change all getTypeName()s to getType()s ?
 		// CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getType());
 		CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName());
 		assignStatement.getVar().visit(this, arg);
+		return null;
+	}
+
+	@Override
+	public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg)
+			throws Exception {
+		int toPush = intLitExpression.getValue();
+		mv.visitIntInsn(BIPUSH, toPush);
+		return null;
+	}
+
+	@Override
+	public Object visitBooleanLitExpression(BooleanLitExpression booleanLitExpression, Object arg)
+			throws Exception {
+		Boolean toPush = booleanLitExpression.getValue();
+		if (toPush)
+			mv.visitInsn(ICONST_1); // push 1
+		else
+			mv.visitInsn(ICONST_0); // push 0
+		return null;
+	}
+
+	@Override
+	public Object visitIdentLValue(IdentLValue identX, Object arg) throws Exception {
+		/*
+		 * if (dec instanceof ParamDec) { access with GETFIELD or PUTFIELD } else { access with ILOAD or
+		 * ISTORE }
+		 */
+		Dec dec = identX.getDec();
+		if (dec instanceof ParamDec) { // field
+			String fieldName = dec.getIdent().getText();
+			String fieldType = null;
+			TypeName decType = dec.getTypeName();
+			if (decType.isType(TypeName.INTEGER)) {
+				fieldType = "I";
+			} else if (decType.isType(TypeName.BOOLEAN)) {
+				fieldType = "Z";
+			} else
+				assert false : "not yet implemented";
+			mv.visitVarInsn(ALOAD, 0); // pushing 'this'
+			mv.visitInsn(SWAP); // swapping as aload 0 needs to come before the pushed value
+			mv.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
+		} else { // local variable
+			int slotNum = dec.getSlotNum();
+			mv.visitVarInsn(ISTORE, slotNum);
+		}
 		return null;
 	}
 
@@ -268,13 +317,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
-			throws Exception {
-		// TODO Implement this
-		return null;
-	}
-
-	@Override
-	public Object visitBooleanLitExpression(BooleanLitExpression booleanLitExpression, Object arg)
 			throws Exception {
 		// TODO Implement this
 		return null;
@@ -311,13 +353,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	}
 
 	@Override
-	public Object visitIdentLValue(IdentLValue identX, Object arg) throws Exception {
-		// TODO Implement this
-		return null;
-
-	}
-
-	@Override
 	public Object visitIfStatement(IfStatement ifStatement, Object arg) throws Exception {
 		// TODO Implement this
 		return null;
@@ -326,13 +361,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitImageOpChain(ImageOpChain imageOpChain, Object arg) throws Exception {
 		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg)
-			throws Exception {
-		// TODO Implement this
 		return null;
 	}
 

@@ -20,8 +20,6 @@ public class BooleanLitExpression extends Expression {
 	public Object visit(ASTVisitor v, Object arg) throws Exception {
 		return v.visitBooleanLitExpression(this, arg);
 	}
-	
-	
 
 	@Override
 	public int hashCode() {

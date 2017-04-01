@@ -66,7 +66,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		this.DEVEL = DEVEL;
 		this.GRADE = GRADE;
 		this.sourceFileName = sourceFileName;
-		this.slotNum = 1; // 0 taken by this
+//		this.slotNum = 1; // 0 taken by this
 	}
 
 	ClassWriter cw;
@@ -78,7 +78,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	FieldVisitor fv; // for visiting field variables
 
-	int slotNum; // for all local variables in Block
+//	int slotNum; // for all 'local' variables in Block (of outer most scope that are visited in
+								// visitProgram)
 
 	/** Indicates whether genPrint and genPrintTOS should generate code. */
 	final boolean DEVEL;
@@ -164,7 +165,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		Label startRun = new Label();
 		mv.visitLabel(startRun);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nentering run");
-		program.getB().visit(this, null); // visit block
+		program.getB().visit(this, 1); // visit block
 		mv.visitInsn(RETURN);
 		Label endRun = new Label();
 		mv.visitLabel(endRun);
@@ -228,13 +229,15 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// so that it can add it to the visitLocalVariable() calls. This will probably be finished
 		// implementing after All the rest (1)
 
+		int startSlotNum = (Integer) arg; //every block starts with the slot number passed to it
+
 		// TODO: Add labels
 		ArrayList<Dec> decList = block.getDecs();
-		for (Dec dec : decList)
-			dec.visit(this, arg);
+		for(int i = 0; i < decList.size(); ++i)
+			decList.get(i).visit(this, startSlotNum + i);
 
 		ArrayList<Statement> stmtList = block.getStatements();
-		for (Statement stmt : stmtList)
+		for (Statement stmt : stmtList) //pass slotNum to if and while
 			stmt.visit(this, arg);
 
 		// TODO: now pass all info to visit program either by setting a field or by returning
@@ -243,8 +246,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
-		declaration.setSlotNum(this.slotNum);
-		slotNum++;
+		int slotNum = (Integer)arg;
+		declaration.setSlotNum(slotNum);
 		return null;
 	}
 
@@ -253,7 +256,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			throws Exception { // Note: Complete except my own TODO
 		// Note: reverse traversal as that of TypeVisitor: first exp then ilv. reason:
 		// genPrintTOS(grade). Also (mainly), because need to load before store
-		
+
 		assignStatement.getE().visit(this, arg);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
 		// TODO: Change all getTypeName()s to getType()s ?
@@ -355,6 +358,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitIfStatement(IfStatement ifStatement, Object arg) throws Exception {
 		// TODO Implement this
+		// TODO: pass slotNum to its block so that it can be its starting startNum
 		return null;
 	}
 
@@ -379,6 +383,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitWhileStatement(WhileStatement whileStatement, Object arg) throws Exception {
 		// TODO Implement this
+		// TODO: pass slotNum to its block so that it can be its starting startNum
 		return null;
 	}
 

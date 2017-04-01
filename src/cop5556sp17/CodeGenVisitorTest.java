@@ -245,7 +245,7 @@ public class CodeGenVisitorTest {
 	boolean devel = false;
 	boolean grade = true;
 
-	//@Test
+	@Test
 	public void emptyProg() throws Exception {
 		// scan, parse, and type check the program
 		String progname = "emptyProg";
@@ -280,7 +280,7 @@ public class CodeGenVisitorTest {
 		instance.run();
 	}
 	
-	//@Test
+	@Test
 	public void progWithParamDecs() throws Exception {
 		// scan, parse, and type check the program
 		String progname = "progWithParamDecs";
@@ -352,7 +352,7 @@ public class CodeGenVisitorTest {
 		instance.run();
 	}
 	
-	//@Test
+	@Test
 	public void progWithParamDecsInit() throws Exception {
 		// scan, parse, and type check the program
 		String progname = "progWithParamDecsInit ";

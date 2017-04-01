@@ -66,7 +66,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		this.DEVEL = DEVEL;
 		this.GRADE = GRADE;
 		this.sourceFileName = sourceFileName;
-//		this.slotNum = 1; // 0 taken by this
+		localVars = new HashMap<>();
 	}
 
 	ClassWriter cw;
@@ -78,8 +78,27 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	FieldVisitor fv; // for visiting field variables
 
-//	int slotNum; // for all 'local' variables in Block (of outer most scope that are visited in
-								// visitProgram)
+	class Labels {
+		private Label startLabel;
+		private Label endLabel;
+		Labels(Label startL) {
+			startLabel = startL;
+		}
+		public Label getStartLabel() {
+			return startLabel;
+		}
+		public Label getEndLabel() {
+			return endLabel;
+		}
+		public void setEndLabel(Label l) {
+			endLabel = l;
+		}
+	}
+
+	HashMap<Dec, Labels> localVars;
+
+	// int slotNum; // for all 'local' variables in Block (of outer most scope that are visited in
+	// visitProgram)
 
 	/** Indicates whether genPrint and genPrintTOS should generate code. */
 	final boolean DEVEL;
@@ -170,7 +189,15 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		Label endRun = new Label();
 		mv.visitLabel(endRun);
 		mv.visitLocalVariable("this", classDesc, null, startRun, endRun, 0);
-		// TODO: visit the local variables. From the return value of visit from program.getB.visit (0)
+		for (Dec dec : localVars.keySet()) {
+			Labels ls = localVars.get(dec);
+			// TODO: remove print
+			// System.out.println(dec.getIdent().getText() + "," + dec.getTypeName().getJVMTypeDesc()+","
+			// + dec.getSlotNum() +"->" +ls
+			// .getStartLabel() +"," + ls.getEndLabel());
+			mv.visitLocalVariable(dec.getIdent().getText(), dec.getTypeName().getJVMTypeDesc(), null, ls
+					.getStartLabel(), ls.getEndLabel(), dec.getSlotNum());
+		}
 		mv.visitMaxs(1, 1);
 		mv.visitEnd(); // end of run method
 
@@ -224,29 +251,43 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	public Object visitBlock(Block block, Object arg) throws Exception {
 		// TODO Implement this
 
-		// TODO: get the infos: name, type, slot, startlabel and endlable for each dec and send it to
-		// the visitprogram()
-		// so that it can add it to the visitLocalVariable() calls. This will probably be finished
-		// implementing after All the rest (1)
+		int startSlotNum = (Integer) arg; // every block starts with the slot number passed to it
 
-		int startSlotNum = (Integer) arg; //every block starts with the slot number passed to it
-
-		// TODO: Add labels
 		ArrayList<Dec> decList = block.getDecs();
-		for(int i = 0; i < decList.size(); ++i)
+		for (int i = 0; i < decList.size(); ++i)
 			decList.get(i).visit(this, startSlotNum + i);
 
 		ArrayList<Statement> stmtList = block.getStatements();
-		for (Statement stmt : stmtList) //pass slotNum to if and while
+		for (Statement stmt : stmtList) { // pass slotNum to if and while
 			stmt.visit(this, arg);
+			// TODO:only handling labels for assignment statement as of now
+			if (stmt instanceof AssignmentStatement) {
+				Label l = new Label();
+				Dec currDec = ((AssignmentStatement) stmt).getVar().getDec(); // putting start label
+				// if paramdec or if already in map, dont add it
+				if (!(currDec instanceof ParamDec) && !localVars.containsKey(currDec)) {
+					// put in localvars so as to visit it visitLocalVar in visitProg()
+					localVars.put(currDec, new Labels(l));
+				}
+				mv.visitLabel(l);
+			}
+		}
 
-		// TODO: now pass all info to visit program either by setting a field or by returning
+		Label endL = new Label();
+		for (Statement stmt : stmtList) { // putting end Labels
+			if (stmt instanceof AssignmentStatement) {
+				Dec currDec = ((AssignmentStatement) stmt).getVar().getDec();
+				if (!(currDec instanceof ParamDec))
+					localVars.get(currDec).setEndLabel(endL);
+			}
+		}
+		mv.visitLabel(endL);
 		return null;
 	}
 
 	@Override
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
-		int slotNum = (Integer)arg;
+		int slotNum = (Integer) arg;
 		declaration.setSlotNum(slotNum);
 		return null;
 	}

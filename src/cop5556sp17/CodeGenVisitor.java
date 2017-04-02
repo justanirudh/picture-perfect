@@ -100,9 +100,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	HashMap<Dec, Labels> localVars;
 
-	// int slotNum; // for all 'local' variables in Block (of outer most scope that are visited in
-	// visitProgram)
-
 	/** Indicates whether genPrint and genPrintTOS should generate code. */
 	final boolean DEVEL;
 	final boolean GRADE;
@@ -295,7 +292,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
 		int slotNum = (Integer) arg;
-//		System.out.println("slotNum: " + slotNum);
 		declaration.setSlotNum(slotNum);
 		return null;
 	}
@@ -350,7 +346,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
 			throws Exception {
-		// TODO Implement this
 		// NOTE: Commented out if-else cases for next assignment
 
 		// refer children

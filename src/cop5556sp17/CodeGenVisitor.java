@@ -233,7 +233,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// populate the field
 		mv.visitVarInsn(ALOAD, 0); // this
 		mv.visitVarInsn(ALOAD, 1);// args
-		mv.visitIntInsn(BIPUSH, offset); // depending upon which index in args array
+		mv.visitLdcInsn(new Integer(offset)); // depending upon which index in args array
 		mv.visitInsn(AALOAD); // get the arg
 		if (decType.isType(TypeName.INTEGER))
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I",
@@ -314,7 +314,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg)
 			throws Exception {
 		int toPush = intLitExpression.getValue();
-		mv.visitIntInsn(BIPUSH, toPush);
+		mv.visitLdcInsn(new Integer(toPush));
 		return null;
 	}
 

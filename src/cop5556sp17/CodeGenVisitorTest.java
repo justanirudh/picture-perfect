@@ -712,11 +712,11 @@ public class CodeGenVisitorTest {
 	public void progWithWhileStmt() throws Exception {
 		String progname = "progWithWhileStmt ";
 		String input = progname
-				+ " {integer local_int0\ninteger local_int1\n"
+				+ " {integer local_int0\ninteger local_int1\n boolean local_exp \n"
 				+ "local_int0 <- 40;" 
 				+ "local_int1 <- 43;"
+				+ "local_exp <-local_int0 < local_int1; "
 				+ "while(local_int0 != local_int1){integer local_int2 \n local_int2 <- 11; local_int0 <- local_int0 + 1;} "
-//				+ "if(local_int0 != local_int1){integer local_int2 \n local_int2 <- 45;}"
 				+ "while(local_int0 != local_int1 + 5){integer local_int3 \n local_int3 <- 11;"
 				+ "local_int0 <- local_int0 + 1;}"
 				+ "}";

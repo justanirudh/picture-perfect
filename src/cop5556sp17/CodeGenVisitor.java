@@ -295,6 +295,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
 		int slotNum = (Integer) arg;
+//		System.out.println("slotNum: " + slotNum);
 		declaration.setSlotNum(slotNum);
 		return null;
 	}
@@ -532,6 +533,28 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	}
 
 	@Override
+	public Object visitWhileStatement(WhileStatement whileStatement, Object arg) throws Exception {
+
+		Expression exp = whileStatement.getE();
+		Block bl = whileStatement.getB();
+
+		Label startWhile = new Label();
+		mv.visitJumpInsn(GOTO, startWhile); // for the first time while is encountered
+		Label continueWhile = new Label();
+		mv.visitLabel(continueWhile);
+		bl.visit(this, arg); // visit block
+		mv.visitLabel(startWhile);
+		exp.visit(this, arg); // loading expression to top of stack
+		// checking the expression, jump if still true (not equal to 0)
+		mv.visitJumpInsn(IFNE, continueWhile);
+		
+		Label endWhile = new Label();
+		mv.visitLabel(endWhile);
+
+		return null;
+	}
+
+	@Override
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
 		assert false : "not yet implemented";
 		return null;
@@ -576,13 +599,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitTuple(Tuple tuple, Object arg) throws Exception {
 		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitWhileStatement(WhileStatement whileStatement, Object arg) throws Exception {
-		// TODO Implement this
-		// TODO: pass slotNum to its block so that it can be its starting startNum
 		return null;
 	}
 

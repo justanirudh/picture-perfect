@@ -107,6 +107,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	final boolean DEVEL;
 	final boolean GRADE;
 
+	// TODO: remove all System.out.print statements
+
 	@Override
 	public Object visitProgram(Program program, Object arg) throws Exception {
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
@@ -263,9 +265,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			decList.get(i).visit(this, startSlotNum + i);
 
 		ArrayList<Statement> stmtList = block.getStatements();
-		for (Statement stmt : stmtList) { // pass slotNum to if and while
-			stmt.visit(this, arg);
-			// TODO:only handling labels for assignment statement as of now
+		for (Statement stmt : stmtList) {
+			// passing the startslotNum for the new stmt (if or while)
+			stmt.visit(this, startSlotNum + decList.size());
 			if (stmt instanceof AssignmentStatement) {
 				Label l = new Label();
 				Dec currDec = ((AssignmentStatement) stmt).getVar().getDec(); // putting start label
@@ -278,15 +280,15 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			}
 		}
 
-		Label endL = new Label();
+		Label endBlock = new Label();
 		for (Statement stmt : stmtList) { // putting end Labels
 			if (stmt instanceof AssignmentStatement) {
 				Dec currDec = ((AssignmentStatement) stmt).getVar().getDec();
 				if (!(currDec instanceof ParamDec))
-					localVars.get(currDec).setEndLabel(endL);
+					localVars.get(currDec).setEndLabel(endBlock);
 			}
 		}
-		mv.visitLabel(endL);
+		mv.visitLabel(endBlock);
 		return null;
 	}
 
@@ -299,7 +301,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitAssignmentStatement(AssignmentStatement assignStatement, Object arg)
-			throws Exception { // Note: Complete except my own TODO
+			throws Exception {
 		// Note: reverse traversal as that of TypeVisitor: first exp then ilv. reason:
 		// genPrintTOS(grade). Also (mainly), because need to load before store
 
@@ -512,6 +514,24 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	}
 
 	@Override
+	public Object visitIfStatement(IfStatement ifStatement, Object arg) throws Exception {
+
+		Expression exp = ifStatement.getE();
+		Block bl = ifStatement.getB();
+
+		exp.visit(this, arg); // puts it's value to the top of the stack: Either true or false
+
+		Label notTrue = new Label();
+		mv.visitJumpInsn(IFEQ, notTrue); // if top of stack equals 0 i.e. false, skip the block in if
+		Label startBlock = new Label();
+		mv.visitLabel(startBlock);
+		bl.visit(this, arg); // passing startSlotNum (arg) to the the block
+		mv.visitLabel(notTrue);
+
+		return null;
+	}
+
+	@Override
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
 		assert false : "not yet implemented";
 		return null;
@@ -538,13 +558,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
 		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitIfStatement(IfStatement ifStatement, Object arg) throws Exception {
-		// TODO Implement this
-		// TODO: pass slotNum to its block so that it can be its starting startNum
 		return null;
 	}
 

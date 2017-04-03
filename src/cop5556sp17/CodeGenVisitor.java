@@ -104,8 +104,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	final boolean DEVEL;
 	final boolean GRADE;
 
-	// TODO: remove all System.out.print statements
-
 	@Override
 	public Object visitProgram(Program program, Object arg) throws Exception {
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
@@ -193,10 +191,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		mv.visitLocalVariable("this", classDesc, null, startRun, endRun, 0);
 		for (Dec dec : localVars.keySet()) {
 			Labels ls = localVars.get(dec);
-			// TODO: remove print
-			// System.out.println(dec.getIdent().getText() + "," + dec.getTypeName().getJVMTypeDesc()+","
-			// + dec.getSlotNum() +"->" +ls
-			// .getStartLabel() +"," + ls.getEndLabel());
 			mv.visitLocalVariable(dec.getIdent().getText(), dec.getTypeName().getJVMTypeDesc(), null, ls
 					.getStartLabel(), ls.getEndLabel(), dec.getSlotNum());
 		}
@@ -251,8 +245,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitBlock(Block block, Object arg) throws Exception {
-		// TODO Implement this
-		// TODO: do labels from start to end of block as suggested by BAS?
 		// (https://ufl.instructure.com/courses/335277/discussion_topics/1399099)
 
 		int startSlotNum = (Integer) arg; // every block starts with the slot number passed to it
@@ -299,8 +291,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitAssignmentStatement(AssignmentStatement assignStatement, Object arg)
 			throws Exception {
-		// Note: reverse traversal as that of TypeVisitor: first exp then ilv. reason:
-		// genPrintTOS(grade). Also (mainly), because need to load before store
+		// Note: reverse traversal as that of TypeVisitor because need to load before store
 
 		assignStatement.getE().visit(this, arg);
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
@@ -542,7 +533,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		exp.visit(this, arg); // loading expression to top of stack
 		// checking the expression, jump if still true (not equal to 0)
 		mv.visitJumpInsn(IFNE, continueWhile);
-		
+
 		Label endWhile = new Label();
 		mv.visitLabel(endWhile);
 

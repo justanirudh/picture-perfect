@@ -71,6 +71,8 @@ public class TypeCheckVisitorTest {
 				0, 0)));
 		v.symtab.insert("ident_frame", new Dec(scanner.new Token(KW_FRAME, 0, 0), scanner.new Token(
 				IDENT, 0, 0)));
+		v.symtab.insert("ident_int", new Dec(scanner.new Token(KW_INTEGER, 0, 0), scanner.new Token(
+				IDENT, 0, 0)));
 		bc.visit(v, null);
 		return bc;
 	}
@@ -266,6 +268,9 @@ public class TypeCheckVisitorTest {
 
 		BinaryChain b10 = decorateBinaryChain("ident_img -> ident_img");
 		assertEquals(TypeName.IMAGE, b10.getTypeName());
+		
+		BinaryChain b11 = decorateBinaryChain("ident_int -> ident_int");
+		assertEquals(TypeName.INTEGER, b11.getTypeName());
 	}
 
 	@Test

@@ -82,7 +82,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 
 		for (ParamDec paramdec : paramDecList)
 			paramdec.visit(this, arg);
-		bl.visit(this, arg);		
+		bl.visit(this, arg);
 		return null;
 	}
 
@@ -280,8 +280,13 @@ public class TypeCheckVisitor implements ASTVisitor {
 				KW_SCALE))
 			binaryChain.setTypeName(IMAGE);
 
-		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof IdentChain && e1Type.isType(IMAGE))
+		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof IdentChain && e1Type.isType(
+				IMAGE))
 			binaryChain.setTypeName(IMAGE);
+
+		else if (e0Type.isType(INTEGER) && op.isKind(ARROW) && e1 instanceof IdentChain && e1Type
+				.isType(INTEGER))
+			binaryChain.setTypeName(INTEGER);
 
 		else
 			throw new TypeCheckException("Incompatible types for Binary Chain." + getFirstTokenInfo(

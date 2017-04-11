@@ -319,6 +319,16 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			mv.visitInsn(ICONST_0); // push 0
 		return null;
 	}
+	
+	@Override
+	public Object visitConstantExpression(ConstantExpression constantExpression, Object arg) {
+		//codegenvisitor will always be in the same dir as PLPRuntimeFrame. So, path shouldn't be an issue
+		if(constantExpression.getFirstToken().isKind(KW_SCREENWIDTH))
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFrame", "getScreenWidth", "()I", false);
+		else
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFrame", "getScreenHeight", "()I", false);
+		return null;
+	}
 
 	@Override
 	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
@@ -468,6 +478,14 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitInsn(IXOR);
 			}
 		} else
+		// else if (e0Type.isType(TypeName.INTEGER) && op.isKind(MOD) &&
+		// e1Type.isType(TypeName.INTEGER))
+		// binaryExpression.setTypeName(TypeName.INTEGER);
+		//
+		// else if (e0Type.isType(BOOLEAN) && (op.isKind(AND) || op.isKind(OR)) &&
+		// e1Type.isType(BOOLEAN))
+		// binaryExpression.setTypeName(BOOLEAN);
+
 			assert false : "not yet implemented";
 
 		return null;
@@ -488,7 +506,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				fieldType = "I";
 			} else if (decType.isType(TypeName.BOOLEAN)) {
 				fieldType = "Z";
-			} else
+			} else //TODO: add for image
 				assert false : "not yet implemented";
 			mv.visitVarInsn(ALOAD, 0); // pushing 'this'
 			mv.visitInsn(SWAP); // swapping as aload 0 needs to come before the pushed value
@@ -542,12 +560,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
-		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitConstantExpression(ConstantExpression constantExpression, Object arg) {
 		assert false : "not yet implemented";
 		return null;
 	}

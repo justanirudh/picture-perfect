@@ -280,7 +280,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 				KW_SCALE))
 			binaryChain.setTypeName(IMAGE);
 
-		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof IdentChain)
+		else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof IdentChain && e1Type.isType(IMAGE))
 			binaryChain.setTypeName(IMAGE);
 
 		else

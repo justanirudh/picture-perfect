@@ -264,7 +264,7 @@ public class TypeCheckVisitorTest {
 		BinaryChain b9 = decorateBinaryChain("ident_img -> scale (5)");
 		assertEquals(TypeName.IMAGE, b9.getTypeName());
 
-		BinaryChain b10 = decorateBinaryChain("ident_img -> ident_url");
+		BinaryChain b10 = decorateBinaryChain("ident_img -> ident_img");
 		assertEquals(TypeName.IMAGE, b10.getTypeName());
 	}
 

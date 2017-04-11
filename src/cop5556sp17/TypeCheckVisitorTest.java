@@ -232,6 +232,16 @@ public class TypeCheckVisitorTest {
 
 		BinaryExpression b8 = decorateBinaryExpression("ident_img * 4");
 		assertEquals(TypeName.IMAGE, b8.getTypeName());
+		
+		BinaryExpression b9 = decorateBinaryExpression("5 %  4");
+		assertEquals(TypeName.INTEGER, b9.getTypeName());
+		
+		BinaryExpression b10 = decorateBinaryExpression("true | false");
+		assertEquals(TypeName.BOOLEAN, b10.getTypeName());
+		
+		BinaryExpression b11 = decorateBinaryExpression("true & false");
+		assertEquals(TypeName.BOOLEAN, b11.getTypeName());
+		
 
 		thrown.expect(TypeCheckVisitor.TypeCheckException.class);
 		decorateBinaryExpression("false > 5");

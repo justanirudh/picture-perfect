@@ -411,6 +411,12 @@ public class TypeCheckVisitor implements ASTVisitor {
 		else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type))
 			binaryExpression.setTypeName(BOOLEAN);
 
+		else if (e0Type.isType(INTEGER) && op.isKind(MOD) && e1Type.isType(INTEGER))
+			binaryExpression.setTypeName(INTEGER);
+
+		else if (e0Type.isType(BOOLEAN) && (op.isKind(AND) || op.isKind(OR)) && e1Type.isType(BOOLEAN))
+			binaryExpression.setTypeName(BOOLEAN);
+
 		else
 			throw new TypeCheckException("Incompatible types for Binary Expression." + getFirstTokenInfo(
 					binaryExpression.getFirstToken()));

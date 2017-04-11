@@ -10,6 +10,8 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,7 +34,7 @@ import cop5556sp17.AST.Type;
 import cop5556sp17.AST.WhileStatement;
 
 public class CodeGenVisitorTest {
-	
+
 	private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
 	static final boolean doPrint = true;
@@ -45,9 +47,20 @@ public class CodeGenVisitorTest {
 	boolean devel = false;
 	boolean grade = true;
 
+//	@Before
+//	public void initLog() {
+//		if (devel || grade)
+//			PLPRuntimeLog.initLog();
+//	}
+//	@After
+//	public void printLog() {
+//		System.out.println(PLPRuntimeLog.getString());
+//	}
+
 	@Test
 	public void emptyProg() throws Exception {
 		// scan, parse, and type check the program
+		PLPRuntimeLog.initLog();
 		String progname = "emptyProg";
 		String input = progname + "  {}";
 		Scanner scanner = new Scanner(input);
@@ -79,20 +92,21 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithParamDecs() throws Exception {
 		// scan, parse, and type check the program
+		PLPRuntimeLog.initLog();
 		String progname = "progWithParamDecs";
 		String input = progname + " integer int_foo, boolean bool_bar {}";
 		Scanner scanner = new Scanner(input);
@@ -126,20 +140,21 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithLocalDecsInit() throws Exception {
 		// scan, parse, and type check the program
+		PLPRuntimeLog.initLog();
 		String progname = "progWithLocalDecs ";
 		String input = progname
 				+ "{integer local_foo0 \n local_foo0 <- 5; boolean local_bool0 \n local_bool0 <- true;}";
@@ -172,20 +187,21 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "5true";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithParamDecsInit() throws Exception {
 		// scan, parse, and type check the program
+		PLPRuntimeLog.initLog();
 		String progname = "progWithParamDecsInit ";
 		String input = progname
 				+ "integer int_foo, boolean bool_bar {int_foo <- 42;\n bool_bar <- false;}";
@@ -220,20 +236,21 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "42false";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithAllDecsInit() throws Exception {
 		// scan, parse, and type check the program
+		PLPRuntimeLog.initLog();
 		String progname = "progWithAllDecsInit ";
 		String input = progname
 				+ "integer int_foo, boolean bool_bar {int_foo <- 42;\n bool_bar <- false;integer local_foo0 \n "
@@ -269,21 +286,22 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "42false5true";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithIdentExpr() throws Exception {
 		// scan, parse, and type check the program
 		// globals by efault initialized
+		PLPRuntimeLog.initLog();
 		String progname = "progWithAllDecsInit ";
 		String input = progname
 				+ "integer glob_int0,integer glob_int1 {integer local_int0 \n integer local_int1 \n "
@@ -321,19 +339,20 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "4242555";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithBinExpr1() throws Exception {
+		PLPRuntimeLog.initLog();
 		String progname = "progWithBinExpr1 ";
 		String input = progname + " {integer local_int0 \n integer local_int1 \n integer local_int2\n"
 				+ "local_int0 <- 42; " // need to do this as we are assigning it to other vars
@@ -367,19 +386,20 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "424385";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithBinExpr2() throws Exception {
+		PLPRuntimeLog.initLog();
 		String progname = "progWithBinExpr1 ";
 		String input = progname + " {integer local_int0 \n integer local_int1 \n integer local_int2\n"
 				+ "local_int0 <- 42; " // need to do this as we are assigning it to other vars
@@ -413,19 +433,20 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "4258";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithBinExpr3() throws Exception {
+		PLPRuntimeLog.initLog();
 		String progname = "progWithBinExpr1 ";
 		String input = progname + " {integer local_int0 \n integer local_int1 \n boolean local_bool0\n"
 				+ "local_int0 <- 42; " // need to do this as we are assigning it to other vars
@@ -459,19 +480,20 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "4243false";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithBinExpr4() throws Exception {
+		PLPRuntimeLog.initLog();
 		String progname = "progWithBinExpr1 ";
 		String input = progname
 				+ " {boolean local_bool0 \n boolean local_bool1 \n boolean local_bool2\n"
@@ -506,19 +528,20 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "truefalsefalse";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithBinExpr5() throws Exception {
+		PLPRuntimeLog.initLog();
 		String progname = "progWithBinExpr1 ";
 		String input = progname
 				+ " {boolean local_bool0 \n boolean local_bool1 \n integer local_int0\ninteger local_int1\n"
@@ -555,19 +578,20 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "truefalsetrue4243true";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithIfStmt() throws Exception {
+		PLPRuntimeLog.initLog();
 		String progname = "progWithIfStmt ";
 		String input = progname + " {integer local_int0\ninteger local_int1\n" + "local_int0 <- 42;"
 				+ "local_int1 <- 43;"
@@ -575,6 +599,7 @@ public class CodeGenVisitorTest {
 				+ "if(local_int0 != local_int1){integer local_int2 \n local_int2 <- 45;}"
 				+ "if(local_int0 != local_int1){integer local_int3 \n local_int3 <- 46;integer local_int4 \n local_int4 <- 47;}"
 				+ "}";
+		PLPRuntimeLog.initLog();
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 		Parser parser = new Parser(scanner);
@@ -604,19 +629,20 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "4243454647";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 	@Test
 	public void progWithWhileStmt() throws Exception {
+		PLPRuntimeLog.initLog();
 		String progname = "progWithWhileStmt ";
 		String input = progname + " {integer local_int0\ninteger local_int1\n boolean local_exp \n"
 				+ "local_int0 <- 40;" + "local_int1 <- 43;" + "local_exp <-local_int0 < local_int1; "
@@ -652,15 +678,15 @@ public class CodeGenVisitorTest {
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "4043true11411142114311441145114611471148";
 		PrintStream oldStream = null;
-    if (expOut != null) {
-      oldStream = System.out;
-      System.setOut(new PrintStream(outContent));
-    }
-    instance.run();
-    if (expOut != null) {
-      assertEquals(expOut, outContent.toString());
-      System.setOut(oldStream);
-    }
+		if (expOut != null) {
+			oldStream = System.out;
+			System.setOut(new PrintStream(outContent));
+		}
+		instance.run();
+		if (expOut != null) {
+			assertEquals(expOut, PLPRuntimeLog.getString());
+			System.setOut(oldStream);
+		}
 	}
 
 }

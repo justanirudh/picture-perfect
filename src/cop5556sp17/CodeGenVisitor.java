@@ -221,7 +221,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		if(decType.isType(TypeName.FILE)){
 			mv.visitTypeInsn(NEW, "java/io/File");
 			mv.visitInsn(DUP);
-		}
+		} 
 		mv.visitVarInsn(ALOAD, 1);// args
 		mv.visitLdcInsn(new Integer(offset)); // depending upon which index in args array
 		mv.visitInsn(AALOAD); // get the arg

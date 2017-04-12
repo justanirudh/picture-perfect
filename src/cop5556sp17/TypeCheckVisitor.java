@@ -158,6 +158,8 @@ public class TypeCheckVisitor implements ASTVisitor {
 		if (dec == null)
 			throwUndeclaredVariableException(identToken);
 		identChain.setTypeName(dec.getTypeName());
+		identChain.setDec(dec);
+
 		return null;
 	}
 

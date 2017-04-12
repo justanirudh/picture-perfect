@@ -49,9 +49,11 @@ import cop5556sp17.AST.WhileStatement;
 import cop5556sp17.AST.Type.TypeName;
 
 import static cop5556sp17.AST.Type.TypeName.BOOLEAN;
+import static cop5556sp17.AST.Type.TypeName.FILE;
 import static cop5556sp17.AST.Type.TypeName.FRAME;
 import static cop5556sp17.AST.Type.TypeName.IMAGE;
 import static cop5556sp17.AST.Type.TypeName.INTEGER;
+import static cop5556sp17.AST.Type.TypeName.NONE;
 import static cop5556sp17.AST.Type.TypeName.URL;
 import static cop5556sp17.Scanner.Kind.*;
 
@@ -526,7 +528,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			else // Image or Frame
 				mv.visitVarInsn(ASTORE, slotNum);
 		}
-		
+
 		return null;
 	}
 
@@ -571,9 +573,99 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	}
 
 	@Override
+	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
+		// 0 means load, 1 means store
+		int ls = (int) arg;
+		TypeName icType = identChain.getTypeName();
+		String ident = identChain.firstToken.getText();
+		Dec dec = identChain.getDec();
+		if (ls == 0) { // load
+			if (icType.isType(URL)) {
+				mv.visitVarInsn(ALOAD, 0); // this
+				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/net/URL;");
+				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageIO", "readFromURL",
+						"(Ljava/net/URL;)Ljava/awt/image/BufferedImage;", false); // url can only be global var
+			}
+
+		} else { // store
+			if (icType.isType(IMAGE)) {
+				// img can only be local var
+				mv.visitVarInsn(ASTORE, dec.getSlotNum());
+			}
+		}
+
+		return null;
+	}
+
+	@Override
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
 		// can be img, frame or integer; img can be passed on to be an expression
-		assert false : "not yet implemented";
+
+		// refer to the children
+		Chain e0 = binaryChain.getE0();
+		ChainElem e1 = binaryChain.getE1();
+
+		// retrieve values
+		TypeName e0Type = e0.getTypeName();
+		Token op = binaryChain.getArrow();
+		TypeName e1Type = e1.getTypeName();
+		Token e1FT = e1.getFirstToken();
+
+		// visit children in a left associative way
+		if (e0Type.isType(URL) && op.isKind(ARROW) && e1Type.isType(IMAGE)) {
+
+			e0.visit(this, 0); // 0 means load
+			e1.visit(this, 1); // 1 means store
+
+		}
+
+		// else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE))
+		// binaryChain.setTypeName(IMAGE);
+		//
+		// else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain &&
+		// (e1FT.isKind(
+		// KW_XLOC) || e1FT.isKind(KW_YLOC)))
+		// binaryChain.setTypeName(INTEGER);
+		//
+		// else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain &&
+		// (e1FT.isKind(
+		// KW_SHOW) || e1FT.isKind(KW_HIDE) || e1FT.isKind(KW_MOVE)))
+		// binaryChain.setTypeName(FRAME);
+		//
+		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof ImageOpChain &&
+		// (e1FT.isKind(
+		// Kind.OP_WIDTH) || e1FT.isKind(OP_HEIGHT)))
+		// binaryChain.setTypeName(INTEGER);
+		//
+		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FRAME))
+		// binaryChain.setTypeName(FRAME);
+		//
+		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FILE))
+		// binaryChain.setTypeName(NONE);
+		//
+		// else if (e0Type.isType(IMAGE) && (op.isKind(ARROW) || op.isKind(BARARROW))
+		// && e1 instanceof FilterOpChain && (e1FT.isKind(OP_BLUR) || e1FT.isKind(Kind.OP_GRAY) || e1FT
+		// .isKind(OP_CONVOLVE)))
+		// binaryChain.setTypeName(IMAGE);
+		//
+		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof ImageOpChain &&
+		// e1FT.isKind(
+		// KW_SCALE))
+		// binaryChain.setTypeName(IMAGE);
+		//
+		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof IdentChain &&
+		// e1Type.isType(
+		// IMAGE))
+		// binaryChain.setTypeName(IMAGE);
+		//
+		// else if (e0Type.isType(INTEGER) && op.isKind(ARROW) && e1 instanceof IdentChain && e1Type
+		// .isType(INTEGER))
+		// binaryChain.setTypeName(INTEGER);
+		//
+		// else
+		// throw new TypeCheckException("Incompatible types for Binary Chain." + getFirstTokenInfo(
+		// binaryChain.getFirstToken()));
+
 		return null;
 	}
 
@@ -585,12 +677,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitFrameOpChain(FrameOpChain frameOpChain, Object arg) throws Exception {
-		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
 		assert false : "not yet implemented";
 		return null;
 	}

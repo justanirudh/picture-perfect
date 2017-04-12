@@ -353,8 +353,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
 			throws Exception {
-		// NOTE: Commented out if-else cases for next assignment
-
+		//can be of type: bool, int, image
 		// refer children
 		Expression e0 = binaryExpression.getE0();
 		Expression e1 = binaryExpression.getE1();
@@ -505,22 +504,19 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		 * ISTORE }
 		 */
 		Dec dec = identX.getDec();
-		if (dec instanceof ParamDec) { // field
+		if (dec instanceof ParamDec) { // field: can be of type: int, bool; cannot be img, frame; cannot be url or file
 			String fieldName = dec.getIdent().getText();
-			String fieldType = null;
 			TypeName decType = dec.getTypeName();
-			if (decType.isType(TypeName.INTEGER)) {
-				fieldType = "I";
-			} else if (decType.isType(TypeName.BOOLEAN)) {
-				fieldType = "Z";
-			} else // TODO: add for image
-				assert false : "not yet implemented";
+			String fieldType = decType.getJVMTypeDesc(); // type descriptor of field in JVM notation	
 			mv.visitVarInsn(ALOAD, 0); // pushing 'this'
 			mv.visitInsn(SWAP); // swapping as aload 0 needs to come before the pushed value
 			mv.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
-		} else { // local variable
+		} else { // local variable;  can be of type: int, bool, img, frame;
 			int slotNum = dec.getSlotNum();
-			mv.visitVarInsn(ISTORE, slotNum);
+			if(dec.getTypeName().isType(TypeName.INTEGER) || dec.getTypeName().isType(TypeName.BOOLEAN))
+				mv.visitVarInsn(ISTORE, slotNum); //int, bool
+			else //Image or Frame
+				mv.visitVarInsn(ASTORE, slotNum);
 		}
 		return null;
 	}
@@ -567,6 +563,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
+		//can be img, frame or integer; img can be passed on to be an expression
 		assert false : "not yet implemented";
 		return null;
 	}

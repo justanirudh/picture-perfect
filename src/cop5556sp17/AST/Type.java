@@ -23,7 +23,7 @@ public class Type  {
 		INTEGER("I"), 
 		BOOLEAN("Z"), 
 		IMAGE("Ljava/awt/image/BufferedImage;"), 
-		FRAME("Lcop5556sp17/MyFrame;"),
+		FRAME("Lcop5556sp17/PLPRuntimeFrame;"),
 	    URL("Ljava/net/URL;"), 
 	    FILE("Ljava/io/File;"), 
 	    NONE(null);

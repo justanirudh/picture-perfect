@@ -116,7 +116,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		// generate constructor code
 		// get a MethodVisitor
-		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "([Ljava/lang/String;)V", null, null);
+		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "([Ljava/lang/String;)V", null, new String[]{
+				"java/net/MalformedURLException"});
 		mv.visitCode();
 		// Create label at start of code
 		Label constructorStart = new Label();
@@ -158,7 +159,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// 1. instantiate an instance of the class being generated, passing the
 		// String[] with command line arguments
 		// 2. invoke the run method.
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null,
+				new String[]{"java/net/MalformedURLException"});
 		mv.visitCode();
 		Label mainStart = new Label();
 		mv.visitLabel(mainStart);
@@ -205,11 +207,11 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitParamDec(ParamDec paramDec, Object arg) throws Exception {
-		//int, bool, file, url
+		// int, bool, file, url
 		String fieldName = paramDec.getIdent().getText(); // name of the field
-		TypeName decType = paramDec.getTypeName();		
-		String fieldType = decType.getJVMTypeDesc();  // type descriptor of field in JVM notation
-		
+		TypeName decType = paramDec.getTypeName();
+		String fieldType = decType.getJVMTypeDesc(); // type descriptor of field in JVM notation
+
 		int offset = (int) arg;
 
 		// telling asm to add this field
@@ -218,10 +220,13 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		// populate the field
 		mv.visitVarInsn(ALOAD, 0); // this
-		if(decType.isType(TypeName.FILE)){
+		if (decType.isType(TypeName.FILE)) {
 			mv.visitTypeInsn(NEW, "java/io/File");
 			mv.visitInsn(DUP);
-		} 
+		} else if (decType.isType(TypeName.URL)) {
+			mv.visitTypeInsn(NEW, "java/net/URL");
+			mv.visitInsn(DUP);
+		}
 		mv.visitVarInsn(ALOAD, 1);// args
 		mv.visitLdcInsn(new Integer(offset)); // depending upon which index in args array
 		mv.visitInsn(AALOAD); // get the arg
@@ -231,10 +236,10 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		else if (decType.isType(TypeName.BOOLEAN))
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "parseBoolean", "(Ljava/lang/String;)Z",
 					false);
-		else if(decType.isType(TypeName.FILE))
+		else if (decType.isType(TypeName.FILE))
 			mv.visitMethodInsn(INVOKESPECIAL, "java/io/File", "<init>", "(Ljava/lang/String;)V", false);
-		else
-			assert false : "not yet implemented";
+		else // URL
+			mv.visitMethodInsn(INVOKESPECIAL, "java/net/URL", "<init>", "(Ljava/lang/String;)V", false);
 
 		mv.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
 
@@ -602,7 +607,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		for (Expression exp : expList)
 			exp.visit(this, arg); // visit children and load their values on top of the stack
-		
+
 		return null;
 	}
 

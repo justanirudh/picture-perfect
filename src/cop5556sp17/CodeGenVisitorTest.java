@@ -204,7 +204,8 @@ public class CodeGenVisitorTest {
 		PLPRuntimeLog.initLog();
 		String progname = "progWithParamDecsInit ";
 		String input = progname
-				+ "integer int_foo, boolean bool_bar, file f {integer loc_int0 \n loc_int0 <- 5;int_foo <- 42;\n bool_bar <- false; }";
+				+ "integer int_foo, boolean bool_bar, file f, url u "+
+				"{integer loc_int0 \n loc_int0 <- 5;int_foo <- 42;\n bool_bar <- false; }";
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 		Parser parser = new Parser(scanner);
@@ -229,11 +230,12 @@ public class CodeGenVisitorTest {
 		System.out.println("wrote classfile to " + classFileName); // prints
 
 		// directly execute bytecode
-		String[] args = new String[3]; // create command line argument array to initialize params, none
+		String[] args = new String[4]; // create command line argument array to initialize params, none
 																		// in this case
 		args[0] = "1";
 		args[1] = "true";
 		args[2] = "bin/img1.jpg";
+		args[3] = "http://hello";
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
 		String expOut = "542false";
 		PrintStream oldStream = null;

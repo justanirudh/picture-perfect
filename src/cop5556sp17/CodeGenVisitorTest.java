@@ -448,9 +448,14 @@ public class CodeGenVisitorTest {
 	public void progWithBinExpr3() throws Exception {
 		PLPRuntimeLog.initLog();
 		String progname = "progWithBinExpr1 ";
-		String input = progname + " {integer local_int0 \n integer local_int1 \n boolean local_bool0\n"
+		String input = progname + " {integer local_int0 \n integer local_int1 \n boolean local_bool0\nboolean local_bool1\n"
 				+ "local_int0 <- 42; " // need to do this as we are assigning it to other vars
-				+ "local_int1 <- 43;" + "local_bool0 <- local_int0 >= local_int1;}";
+				+ "local_int1 <- 43;"
+				+ "local_int1 <- local_int1 % local_int0;"
+				+ "local_bool0 <- local_int0 >= local_int1;"
+				+ "local_bool1 <- local_bool0 & false;"
+				+ "local_bool1 <- local_bool1 | true;"
+				+ "}";
 		Scanner scanner = new Scanner(input);
 		scanner.scan();
 		Parser parser = new Parser(scanner);
@@ -478,7 +483,7 @@ public class CodeGenVisitorTest {
 		String[] args = new String[0]; // create command line argument array to initialize params, none
 																		// in this case
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
-		String expOut = "4243false";
+		String expOut = "42431truefalsetrue";
 		PrintStream oldStream = null;
 		if (expOut != null) {
 			oldStream = System.out;

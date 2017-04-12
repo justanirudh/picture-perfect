@@ -14,10 +14,15 @@ public class Name implements Runnable {
 	public void run() {	
 		// declarations and statements from block
 		int loc_int0, loc_int1;//, loc_int2;
-		boolean loc_bool0;// , loc_bool1, loc_bool2;
+		boolean loc_bool0, loc_bool1;//, loc_bool2;
 //		int sh;
 		loc_int0 = 100000;
-		glob_int1 = 43;
+		glob_int0 = 43;
+		loc_int1 = loc_int0 % glob_int0;
+		loc_bool0 = true;
+		loc_bool1 = false;
+		loc_bool0 = loc_bool0 | loc_bool1;
+		
 //		sw = PLPRuntimeFrame.getScreenWidth();
 //		sh = PLPRuntimeFrame.getScreenHeight();
 //		System.out.println(sw + "," + sh);

@@ -58,7 +58,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 		}
 	}
 
-	private String getFirstTokenInfo(Token firstToken) {
+	public static String getFirstTokenInfo(Token firstToken) {
 		LinePos lp = firstToken.getLinePos();
 		return " Location: Starts with '" + firstToken.getText() + "' at line number " + lp.line
 				+ " and pos number " + lp.posInLine;

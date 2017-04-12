@@ -71,7 +71,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		this.sourceFileName = sourceFileName;
 		localVars = new HashMap<>();
 	}
- //TODO: Remove Name.java from cop5556pkg
+	// TODO: Remove Name.java from cop5556pkg
 	ClassWriter cw;
 	String className;
 	String classDesc;
@@ -205,27 +205,23 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitParamDec(ParamDec paramDec, Object arg) throws Exception {
-		// Note: For assignment 5, only needs to handle integers and booleans
+		//int, bool, file, url
 		String fieldName = paramDec.getIdent().getText(); // name of the field
-		String fieldType = null; // type descriptor of field in JVM notation
-		Object initValue = null; // Object containing initial value of field
-
-		Integer offset = (Integer) arg;
-
-		TypeName decType = paramDec.getTypeName();
-		if (decType.isType(TypeName.INTEGER)) {
-			fieldType = "I";
-		} else if (decType.isType(TypeName.BOOLEAN)) {
-			fieldType = "Z";
-		} else
-			assert false : "not yet implemented";
+		TypeName decType = paramDec.getTypeName();		
+		String fieldType = decType.getJVMTypeDesc();  // type descriptor of field in JVM notation
+		
+		int offset = (int) arg;
 
 		// telling asm to add this field
-		fv = cw.visitField(ACC_PUBLIC, fieldName, fieldType, null, initValue);
+		fv = cw.visitField(ACC_PUBLIC, fieldName, fieldType, null, null);
 		fv.visitEnd();
 
 		// populate the field
 		mv.visitVarInsn(ALOAD, 0); // this
+		if(decType.isType(TypeName.FILE)){
+			mv.visitTypeInsn(NEW, "java/io/File");
+			mv.visitInsn(DUP);
+		}
 		mv.visitVarInsn(ALOAD, 1);// args
 		mv.visitLdcInsn(new Integer(offset)); // depending upon which index in args array
 		mv.visitInsn(AALOAD); // get the arg
@@ -235,6 +231,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		else if (decType.isType(TypeName.BOOLEAN))
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "parseBoolean", "(Ljava/lang/String;)Z",
 					false);
+		else if(decType.isType(TypeName.FILE))
+			mv.visitMethodInsn(INVOKESPECIAL, "java/io/File", "<init>", "(Ljava/lang/String;)V", false);
 		else
 			assert false : "not yet implemented";
 
@@ -488,7 +486,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitInsn(IAND);
 			else
 				mv.visitInsn(IOR);
-		} else //if we already have type-visited, this will never be thrown
+		} else // if we already have type-visited, this will never be thrown
 			throw new TypeCheckException("Incompatible types for Binary Expression in Code generation"
 					+ TypeCheckVisitor.getFirstTokenInfo(binaryExpression.getFirstToken()));;
 
@@ -600,7 +598,11 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitTuple(Tuple tuple, Object arg) throws Exception {
-		assert false : "not yet implemented";
+		List<Expression> expList = tuple.getExprList();
+
+		for (Expression exp : expList)
+			exp.visit(this, arg); // visit children and load their values on top of the stack
+		
 		return null;
 	}
 

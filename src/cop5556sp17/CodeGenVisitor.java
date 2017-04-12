@@ -71,7 +71,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		this.sourceFileName = sourceFileName;
 		localVars = new HashMap<>();
 	}
-	// TODO: Remove Name.java from cop5556pkg
+	// TODO: Remove Name.java from cop5556pkg before submitting
 	ClassWriter cw;
 	String className;
 	String classDesc;
@@ -296,11 +296,17 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			throws Exception {
 		// Note: reverse traversal as that of TypeVisitor because need to load before store
 
-		assignStatement.getE().visit(this, arg);
+		Expression exp = assignStatement.getE();
+		exp.visit(this, arg); // load
+
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
-		// BAS: You can change assignStatement.getE().getType() to whatever works in your compiler.
 		CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName());
-		assignStatement.getVar().visit(this, arg);
+
+		if (exp.getTypeName().isType(IMAGE)) // if image, copy and store? TODO
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "copyImage",
+					"(Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;", false);
+		assignStatement.getVar().visit(this, arg); // store
+
 		return null;
 	}
 
@@ -353,7 +359,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitBinaryExpression(BinaryExpression binaryExpression, Object arg)
 			throws Exception {
-		//can be of type: bool, int, image
+		// can be of type: bool, int, image
 		// refer children
 		Expression e0 = binaryExpression.getE0();
 		Expression e1 = binaryExpression.getE1();
@@ -504,20 +510,23 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		 * ISTORE }
 		 */
 		Dec dec = identX.getDec();
-		if (dec instanceof ParamDec) { // field: can be of type: int, bool; cannot be img, frame; cannot be url or file
+		// field: can be of type: int, bool; cannot be img, frame; cannot be url or file
+		if (dec instanceof ParamDec) {
 			String fieldName = dec.getIdent().getText();
 			TypeName decType = dec.getTypeName();
-			String fieldType = decType.getJVMTypeDesc(); // type descriptor of field in JVM notation	
+			String fieldType = decType.getJVMTypeDesc(); // type descriptor of field in JVM notation
 			mv.visitVarInsn(ALOAD, 0); // pushing 'this'
 			mv.visitInsn(SWAP); // swapping as aload 0 needs to come before the pushed value
 			mv.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
-		} else { // local variable;  can be of type: int, bool, img, frame;
+		} else { // local variable; can be of type: int, bool, img, frame;
 			int slotNum = dec.getSlotNum();
-			if(dec.getTypeName().isType(TypeName.INTEGER) || dec.getTypeName().isType(TypeName.BOOLEAN))
-				mv.visitVarInsn(ISTORE, slotNum); //int, bool
-			else //Image or Frame
+			TypeName decType = dec.getTypeName();
+			if (decType.isType(TypeName.INTEGER) || decType.isType(TypeName.BOOLEAN))
+				mv.visitVarInsn(ISTORE, slotNum); // int, bool
+			else // Image or Frame
 				mv.visitVarInsn(ASTORE, slotNum);
 		}
+		
 		return null;
 	}
 
@@ -563,7 +572,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
-		//can be img, frame or integer; img can be passed on to be an expression
+		// can be img, frame or integer; img can be passed on to be an expression
 		assert false : "not yet implemented";
 		return null;
 	}

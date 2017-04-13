@@ -605,7 +605,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			}
 
 		} else { // right
-			mv.visitInsn(DUP); // so that if chain after this, it can be used by next elem
+			mv.visitInsn(DUP); // DUP, always. So that if chain after this, it can be used by next elem
 			if (icType.isType(IMAGE)) {
 				// img can only be local var
 				mv.visitVarInsn(ASTORE, dec.getSlotNum());
@@ -615,6 +615,13 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 						"(Ljava/awt/image/BufferedImage;Lcop5556sp17/PLPRuntimeFrame;)Lcop5556sp17/PLPRuntimeFrame;",
 						false);
 				mv.visitVarInsn(ASTORE, dec.getSlotNum());
+			} else if (icType.isType(FILE)) {
+				mv.visitVarInsn(ALOAD, 0); // this
+				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/io/File;");
+				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageIO", "write",
+						"(Ljava/awt/image/BufferedImage;Ljava/io/File;)Ljava/awt/image/BufferedImage;", false);
+				mv.visitInsn(POP); // popping as write returns the same image (unaltered). So, no need of
+														// the returned value
 			}
 		}
 

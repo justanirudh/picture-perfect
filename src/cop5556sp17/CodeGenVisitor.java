@@ -611,6 +611,25 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	}
 
 	@Override
+	public Object visitImageOpChain(ImageOpChain imageOpChain, Object arg) throws Exception {
+
+		Tuple tup = imageOpChain.getArg();
+
+		tup.visit(this, arg);
+
+		if (imageOpChain.isKind(OP_WIDTH)) {
+			mv.visitMethodInsn(INVOKEVIRTUAL, "java/awt/image/BufferedImage", "getWidth", "()I", false);
+		} else if (imageOpChain.isKind(OP_HEIGHT)) {
+			mv.visitMethodInsn(INVOKEVIRTUAL, "java/awt/image/BufferedImage", "getHeight", "()I", false);
+		} else {
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "scale",
+					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
+		}
+
+		return null;
+	}
+
+	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
 		// 0 means left, 1 means right (for ident expression, left is load and right is store)
 		int side = (int) arg;
@@ -745,12 +764,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitFilterOpChain(FilterOpChain filterOpChain, Object arg) throws Exception {
-		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitImageOpChain(ImageOpChain imageOpChain, Object arg) throws Exception {
 		assert false : "not yet implemented";
 		return null;
 	}

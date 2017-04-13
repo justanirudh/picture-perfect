@@ -29,7 +29,6 @@ public class PLPRuntimeImageOps {
 
 	public final static String scaleSig = "(" + PLPRuntimeImageIO.BufferedImageDesc + "I)"
 			+ PLPRuntimeImageIO.BufferedImageDesc;
-	
 	public static BufferedImage scale(BufferedImage image, int factor) {
 		PLPRuntimeLog.globalLogAddEntry("scale");
 		int w = image.getWidth();
@@ -44,7 +43,6 @@ public class PLPRuntimeImageOps {
 
 	public static final String addSig = "(" + PLPRuntimeImageIO.BufferedImageDesc
 			+ PLPRuntimeImageIO.BufferedImageDesc + ")" + PLPRuntimeImageIO.BufferedImageDesc;
-
 	public static BufferedImage add(BufferedImage i0, BufferedImage i1) {
 		PLPRuntimeLog.globalLogAddEntry("add");
 		int w0 = i0.getWidth();
@@ -74,7 +72,6 @@ public class PLPRuntimeImageOps {
 
 	public static final String subSig = "(" + PLPRuntimeImageIO.BufferedImageDesc
 			+ PLPRuntimeImageIO.BufferedImageDesc + ")" + PLPRuntimeImageIO.BufferedImageDesc;
-	
 	public static BufferedImage sub(BufferedImage i0, BufferedImage i1) {
 		PLPRuntimeLog.globalLogAddEntry("sub");
 		int w0 = i0.getWidth();
@@ -104,7 +101,6 @@ public class PLPRuntimeImageOps {
 
 	public static final String mulSig = "(" + PLPRuntimeImageIO.BufferedImageDesc + "I" + ")"
 			+ PLPRuntimeImageIO.BufferedImageDesc;
-	
 	public static BufferedImage mul(BufferedImage i0, int factor) {
 		PLPRuntimeLog.globalLogAddEntry("mul");
 		int w = i0.getWidth();
@@ -129,7 +125,6 @@ public class PLPRuntimeImageOps {
 
 	public static final String divSig = "(" + PLPRuntimeImageIO.BufferedImageDesc + "I" + ")"
 			+ PLPRuntimeImageIO.BufferedImageDesc;
-	
 	public static BufferedImage div(BufferedImage i0, int divisor) {
 		PLPRuntimeLog.globalLogAddEntry("div");
 		int w = i0.getWidth();
@@ -153,8 +148,7 @@ public class PLPRuntimeImageOps {
 	}
 
 	public static final String modSig = "(" + PLPRuntimeImageIO.BufferedImageDesc + "I" + ")"
-			+ PLPRuntimeImageIO.BufferedImageDesc;
-	
+			+ PLPRuntimeImageIO.BufferedImageDesc;	
 	public static BufferedImage mod(BufferedImage i0, int divisor) {
 		PLPRuntimeLog.globalLogAddEntry("mod");
 		int w = i0.getWidth();
@@ -179,7 +173,6 @@ public class PLPRuntimeImageOps {
 
 	public static final String copyImageSig = "(" + PLPRuntimeImageIO.BufferedImageDesc + ")"
 			+ PLPRuntimeImageIO.BufferedImageDesc;
-	
 	public static BufferedImage copyImage(BufferedImage source) {
 		PLPRuntimeLog.globalLogAddEntry("copyImage");
 		BufferedImage b = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());

@@ -165,6 +165,26 @@ public class CodeGenVisitorTest {
 		+ "write(" + ms_file + ")";
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
+	
+	@Test
+	public void progWithChainOps3() throws Exception {
+
+		String progname = "progWithChainOps3 ";
+		String input = progname + "file f"
+				+ "{image img\n image img2\n" 
+				+ "f -> img->width;"
+				+ "img -> height;"
+				+ "f -> img -> scale(5);"
+//				+ "img -> f;"
+				+ "}";
+		String[] args = new String[1]; // create command line argument array to initialize params, none
+		args[0] = ms_file;
+
+		String expOut = "readFromFile("+ms_file+")" 
+		+ "readFromFile("+ms_file+")"
+		+ "scale";
+		createByteCodeAndCompare(progname, input, args, expOut);
+	}
 
 	@Test
 	public void emptyProg() throws Exception {

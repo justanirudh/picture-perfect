@@ -130,6 +130,7 @@ public class CodeGenVisitorTest {
 				 	+"fr -> yloc;"
 				 	+"u ->img ->fr -> show;"
 				 	+ "fr -> hide -> show;"
+				 	+"fr -> move(i, 24);"
 				+ "}";
 		String[] args = new String[1]; // create command line argument array to initialize params, none
 		args[0] = ms_url;
@@ -140,6 +141,7 @@ public class CodeGenVisitorTest {
 				+"getXgetXgetY"
 		+ "readFromURL(" + ms_url + ")createOrSetFrameshowImage"
 		+ "hideImageshowImage"
+		+"moveFrame"
 				;
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}

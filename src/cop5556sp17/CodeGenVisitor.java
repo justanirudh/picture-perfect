@@ -588,7 +588,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// right side, always
 		Tuple tup = frameOpChain.getArg();
 
-		tup.visit(this, arg);
+		tup.visit(this, arg); // will load parameters of move
 
 		if (frameOpChain.isKind(KW_SHOW)) {
 			mv.visitMethodInsn(INVOKEVIRTUAL, "cop5556sp17/PLPRuntimeFrame", "showImage",
@@ -603,7 +603,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			// put Y on TOS
 			mv.visitMethodInsn(INVOKEVIRTUAL, "cop5556sp17/PLPRuntimeFrame", "getYVal", "()I", false);
 		} else { // KW_MOVE
-
+			mv.visitMethodInsn(INVOKEVIRTUAL, "cop5556sp17/PLPRuntimeFrame", "moveFrame",
+					"(II)Lcop5556sp17/PLPRuntimeFrame;", false);
 		}
 
 		return null;

@@ -98,7 +98,6 @@ public class PLPRuntimeFrame extends JFrame {
 	}
 
 	public static String showImageDesc = "()" + JVMDesc;
-
 	public PLPRuntimeFrame showImage() {
 		PLPRuntimeLog.globalLogAddEntry("showImage");
 		setVisible(true);
@@ -106,7 +105,6 @@ public class PLPRuntimeFrame extends JFrame {
 	}
 
 	public static String hideImageDesc = "()" + JVMDesc;
-
 	public PLPRuntimeFrame hideImage() {
 		PLPRuntimeLog.globalLogAddEntry("hideImage");
 		setVisible(false);

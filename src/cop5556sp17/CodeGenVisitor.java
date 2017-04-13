@@ -582,6 +582,31 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		return null;
 	}
 
+	// Don't DUP for operations. DUP only when storing (IdentChain)
+	@Override
+	public Object visitFrameOpChain(FrameOpChain frameOpChain, Object arg) throws Exception {
+		// right side, always
+		Tuple tup = frameOpChain.getArg();
+
+		tup.visit(this, arg);
+
+		if (frameOpChain.isKind(KW_SHOW)) {
+			mv.visitMethodInsn(INVOKEVIRTUAL, "cop5556sp17/PLPRuntimeFrame", "showImage",
+					"()Lcop5556sp17/PLPRuntimeFrame;", false);
+		} else if (frameOpChain.isKind(KW_HIDE)) {
+		} else if (frameOpChain.isKind(KW_XLOC)) {
+			// put x on TOS
+			mv.visitMethodInsn(INVOKEVIRTUAL, "cop5556sp17/PLPRuntimeFrame", "getXVal", "()I", false);
+		} else if (frameOpChain.isKind(KW_YLOC)) {
+			// put Y on TOS
+			mv.visitMethodInsn(INVOKEVIRTUAL, "cop5556sp17/PLPRuntimeFrame", "getYVal", "()I", false);
+		} else { // KW_MOVE
+
+		}
+
+		return null;
+	}
+
 	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
 		// 0 means left, 1 means right (for ident expression, left is load and right is store)
@@ -600,22 +625,25 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/io/File;");
 				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageIO", "readFromFile",
 						"(Ljava/io/File;)Ljava/awt/image/BufferedImage;", false);
-			} else if (icType.isType(IMAGE)) {
+			} else if (icType.isType(IMAGE) || icType.isType(FRAME)) {
 				mv.visitVarInsn(ALOAD, dec.getSlotNum());
 			}
 
 		} else { // right
-			mv.visitInsn(DUP); // DUP, always. So that if chain after this, it can be used by next elem
+			// DUP, always. So that if chain after this, it can be used by next elem
 			if (icType.isType(IMAGE)) {
 				// img can only be local var
+				mv.visitInsn(DUP);
 				mv.visitVarInsn(ASTORE, dec.getSlotNum());
 			} else if (icType.isType(FRAME)) {
 				mv.visitInsn(ACONST_NULL);
 				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFrame", "createOrSetFrame",
 						"(Ljava/awt/image/BufferedImage;Lcop5556sp17/PLPRuntimeFrame;)Lcop5556sp17/PLPRuntimeFrame;",
 						false);
+				mv.visitInsn(DUP);
 				mv.visitVarInsn(ASTORE, dec.getSlotNum());
 			} else if (icType.isType(FILE)) {
+				mv.visitInsn(DUP);
 				mv.visitVarInsn(ALOAD, 0); // this
 				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/io/File;");
 				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageIO", "write",
@@ -714,12 +742,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitFilterOpChain(FilterOpChain filterOpChain, Object arg) throws Exception {
-		assert false : "not yet implemented";
-		return null;
-	}
-
-	@Override
-	public Object visitFrameOpChain(FrameOpChain frameOpChain, Object arg) throws Exception {
 		assert false : "not yet implemented";
 		return null;
 	}

@@ -302,7 +302,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		exp.visit(this, arg); // load
 
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
-		CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName()); //is NOP if TOS has image
+		CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName()); // is NOP if TOS has
+																																								// image
 
 		if (exp.getTypeName().isType(IMAGE)) // if image, copy and store? TODO
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "copyImage",
@@ -592,6 +593,11 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/net/URL;");
 				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageIO", "readFromURL",
 						"(Ljava/net/URL;)Ljava/awt/image/BufferedImage;", false); // url can only be global var
+			} else if (icType.isType(FILE)) {
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/io/File;");
+				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageIO", "readFromFile",
+						"(Ljava/io/File;)Ljava/awt/image/BufferedImage;", false);
 			}
 
 		} else { // store
@@ -626,11 +632,11 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		}
 
-//		 else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE)){
-//			 	e0.visit(this, 0); // 0 means load
-//				e1.visit(this, 1); // 1 means store
-//		 }
-		
+		else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE)) {
+			e0.visit(this, 0); // 0 means load
+			e1.visit(this, 1); // 1 means store
+		}
+
 		// else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain &&
 		// (e1FT.isKind(
 		// KW_XLOC) || e1FT.isKind(KW_YLOC)))

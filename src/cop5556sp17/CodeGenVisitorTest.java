@@ -47,7 +47,8 @@ public class CodeGenVisitorTest {
 	boolean devel = false;
 	boolean grade = true;
 
-	String ms = "http://cdn.postgradproblems.com/wp-content/uploads/2013/11/da1ff1205cd2fb13cb84d10e07bd246a.jpg";
+	String ms_url = "http://cdn.postgradproblems.com/wp-content/uploads/2013/11/da1ff1205cd2fb13cb84d10e07bd246a.jpg";
+	String ms_file = "bin/ms.jpg";
 
 	// @Before
 	// public void initLog() {
@@ -114,7 +115,7 @@ public class CodeGenVisitorTest {
 	}
 
 	@Test
-	public void progWithImageIdentChainAndOps() throws Exception {
+	public void progWithImageIdentChainAndURLOps() throws Exception {
 
 		String progname = "progWithImageIdentChain ";
 		String input = progname + "url u{integer i \nimage img\n" + "i <- 42;" + "u -> img;"
@@ -124,9 +125,24 @@ public class CodeGenVisitorTest {
 				 + "img <- img - img;"
 				+ "}";
 		String[] args = new String[1]; // create command line argument array to initialize params, none
-		args[0] = ms;
+		args[0] = ms_url;
 
-		String expOut = "42readFromURL(" + ms + ")addcopyImagemulcopyImagemulcopyImagesubcopyImage";
+		String expOut = "42readFromURL(" + ms_url + ")addcopyImagemulcopyImagemulcopyImagesubcopyImage";
+		createByteCodeAndCompare(progname, input, args, expOut);
+	}
+	
+	@Test
+	public void progWithImageIdentChainAndFileOps() throws Exception {
+
+		String progname = "progWithImageIdentChain ";
+		String input = progname + "file f"
+				+ "{image img\n" 
+				+ "f -> img;"
+				+ "}";
+		String[] args = new String[1]; // create command line argument array to initialize params, none
+		args[0] = ms_file;
+
+		String expOut = "readFromFile("+ms_file+")";
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
 

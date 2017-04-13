@@ -302,7 +302,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		exp.visit(this, arg); // load
 
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
-		CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName());
+		CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName()); //is NOP if TOS has image
 
 		if (exp.getTypeName().isType(IMAGE)) // if image, copy and store? TODO
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "copyImage",
@@ -347,13 +347,16 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
 		Dec dec = identExpression.getDec();
-		if (dec instanceof ParamDec) { // global var
+		if (dec instanceof ParamDec) { // global var: can only be int/boolean
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), dec.getTypeName()
 					.getJVMTypeDesc());
-		} else { // local var
+		} else { // local var: can only be int/boolean/image
 			int slotNum = dec.getSlotNum();
-			mv.visitVarInsn(ILOAD, slotNum);
+			if (dec.getTypeName().isType(IMAGE))
+				mv.visitVarInsn(ALOAD, slotNum);
+			else // int or bool
+				mv.visitVarInsn(ILOAD, slotNum);
 		}
 		return null;
 	}
@@ -381,22 +384,30 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitInsn(IADD);
 			else
 				mv.visitInsn(ISUB);
-		}
-		// else if (e0Type.isType(IMAGE) && (op.isKind(PLUS) || op.isKind(MINUS)) &&
-		// e1Type.isType(IMAGE))
-		// binaryExpression.setTypeName(IMAGE);
-		else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(TIMES) || op.isKind(DIV)) && e1Type
+		} else if (e0Type.isType(IMAGE) && (op.isKind(PLUS) || op.isKind(MINUS)) && e1Type.isType(
+				IMAGE)) {
+			if (op.isKind(PLUS))
+				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "add",
+						"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
+						false);
+			else
+				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "sub",
+						"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
+						false);
+		} else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(TIMES) || op.isKind(DIV)) && e1Type
 				.isType(TypeName.INTEGER)) {
 			if (op.isKind(TIMES))
 				mv.visitInsn(IMUL);
 			else
 				mv.visitInsn(IDIV);
-		}
-		// else if (e0Type.isType(TypeName.INTEGER) && op.isKind(TIMES) && e1Type.isType(IMAGE))
-		// binaryExpression.setTypeName(IMAGE);
-		// else if (e0Type.isType(IMAGE) && op.isKind(TIMES) && e1Type.isType(TypeName.INTEGER))
-		// binaryExpression.setTypeName(IMAGE);
-		else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE)
+		} else if (e0Type.isType(TypeName.INTEGER) && op.isKind(TIMES) && e1Type.isType(IMAGE)) {
+			mv.visitInsn(SWAP); // swapping as mul method needs image below int in stack
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "mul",
+					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
+		} else if (e0Type.isType(IMAGE) && op.isKind(TIMES) && e1Type.isType(TypeName.INTEGER)) {
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "mul",
+					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
+		} else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE)
 				|| op.isKind(GE)) && e1Type.isType(TypeName.INTEGER)) {
 			if (op.isKind(LT)) {
 				Label ge = new Label();
@@ -507,10 +518,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitIdentLValue(IdentLValue identX, Object arg) throws Exception {
-		/*
-		 * if (dec instanceof ParamDec) { access with GETFIELD or PUTFIELD } else { access with ILOAD or
-		 * ISTORE }
-		 */
 		Dec dec = identX.getDec();
 		// field: can be of type: int, bool; cannot be img, frame; cannot be url or file
 		if (dec instanceof ParamDec) {
@@ -619,9 +626,11 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		}
 
-		// else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE))
-		// binaryChain.setTypeName(IMAGE);
-		//
+//		 else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE)){
+//			 	e0.visit(this, 0); // 0 means load
+//				e1.visit(this, 1); // 1 means store
+//		 }
+		
 		// else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain &&
 		// (e1FT.isKind(
 		// KW_XLOC) || e1FT.isKind(KW_YLOC)))

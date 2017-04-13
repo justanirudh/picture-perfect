@@ -271,7 +271,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 					localVars.put(currDec, new Labels(l));
 				}
 				mv.visitLabel(l);
-			}
+			} else if (stmt instanceof BinaryChain)
+				// always duping on the right side, so pop after all of the chain has been traversed
+				mv.visitInsn(POP);
 		}
 
 		Label endBlock = new Label();
@@ -582,12 +584,12 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitIdentChain(IdentChain identChain, Object arg) throws Exception {
-		// 0 means load, 1 means store
-		int ls = (int) arg;
+		// 0 means left, 1 means right (for ident expression, left is load and right is store)
+		int side = (int) arg;
 		TypeName icType = identChain.getTypeName();
 		String ident = identChain.firstToken.getText();
 		Dec dec = identChain.getDec();
-		if (ls == 0) { // load
+		if (side == 0) { // left
 			if (icType.isType(URL)) {
 				mv.visitVarInsn(ALOAD, 0); // this
 				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/net/URL;");
@@ -598,11 +600,20 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/io/File;");
 				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageIO", "readFromFile",
 						"(Ljava/io/File;)Ljava/awt/image/BufferedImage;", false);
+			} else if (icType.isType(IMAGE)) {
+				mv.visitVarInsn(ALOAD, dec.getSlotNum());
 			}
 
-		} else { // store
+		} else { // right
+			mv.visitInsn(DUP); // so that if chain after this, it can be used by next elem
 			if (icType.isType(IMAGE)) {
 				// img can only be local var
+				mv.visitVarInsn(ASTORE, dec.getSlotNum());
+			} else if (icType.isType(FRAME)) {
+				mv.visitInsn(ACONST_NULL);
+				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFrame", "createOrSetFrame",
+						"(Ljava/awt/image/BufferedImage;Lcop5556sp17/PLPRuntimeFrame;)Lcop5556sp17/PLPRuntimeFrame;",
+						false);
 				mv.visitVarInsn(ASTORE, dec.getSlotNum());
 			}
 		}
@@ -614,6 +625,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
 		// can be img, frame or integer; img can be passed on to be an expression
 
+		int side = (int) arg;
 		// refer to the children
 		Chain e0 = binaryChain.getE0();
 		ChainElem e1 = binaryChain.getE1();
@@ -624,19 +636,22 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		TypeName e1Type = e1.getTypeName();
 		Token e1FT = e1.getFirstToken();
 
+		e0.visit(this, 0); // 0 means left
+		e1.visit(this, 1); // 1 means right
+
 		// visit children in a left associative way
-		if (e0Type.isType(URL) && op.isKind(ARROW) && e1Type.isType(IMAGE)) {
-
-			e0.visit(this, 0); // 0 means load
-			e1.visit(this, 1); // 1 means store
-
-		}
-
-		else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE)) {
-			e0.visit(this, 0); // 0 means load
-			e1.visit(this, 1); // 1 means store
-		}
-
+		// if (e0Type.isType(URL) && op.isKind(ARROW) && e1Type.isType(IMAGE)) {
+		//
+		// e0.visit(this, 0); // 0 means load
+		// e1.visit(this, 1); // 1 means store
+		//
+		// }
+		//
+		// else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE)) {
+		// e0.visit(this, 0); // 0 means load
+		// e1.visit(this, 1); // 1 means store
+		// }
+		//
 		// else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain &&
 		// (e1FT.isKind(
 		// KW_XLOC) || e1FT.isKind(KW_YLOC)))
@@ -652,8 +667,14 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// Kind.OP_WIDTH) || e1FT.isKind(OP_HEIGHT)))
 		// binaryChain.setTypeName(INTEGER);
 		//
-		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FRAME))
-		// binaryChain.setTypeName(FRAME);
+		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FRAME)) {
+		// e0.visit(this, 0); // 0 means load
+		//
+		// e1.visit(this, 1); // 1 means store
+		//
+		// // binaryChain.setTypeName(FRAME);
+		// }
+
 		//
 		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FILE))
 		// binaryChain.setTypeName(NONE);

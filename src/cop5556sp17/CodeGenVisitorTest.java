@@ -115,10 +115,12 @@ public class CodeGenVisitorTest {
 	}
 
 	@Test
-	public void progWithImageIdentChainAndURLOps() throws Exception {
+	public void progWithImageURLOps() throws Exception {
 
 		String progname = "progWithImageIdentChain ";
-		String input = progname + "url u{integer i \nimage img\n" + "i <- 42;" + "u -> img;"
+		String input = progname + "url u{integer i \nimage img\n" 
+				+ "i <- 42;" 
+				+ "u -> img;"
 				+ "img <- img + img;"
 				 + "img <- i * img;"
 				 + "img <- img * i;"
@@ -132,17 +134,19 @@ public class CodeGenVisitorTest {
 	}
 	
 	@Test
-	public void progWithImageIdentChainAndFileOps() throws Exception {
+	public void progWithImageAndFileFrameOps() throws Exception {
 
 		String progname = "progWithImageIdentChain ";
 		String input = progname + "file f"
-				+ "{image img\n" 
+				+ "{image img\n frame fr\n" 
 				+ "f -> img;"
+				+ "img -> fr;"
+				+ "f -> img -> fr;"
 				+ "}";
 		String[] args = new String[1]; // create command line argument array to initialize params, none
 		args[0] = ms_file;
 
-		String expOut = "readFromFile("+ms_file+")";
+		String expOut = "readFromFile("+ms_file+")createOrSetFrame" + "readFromFile("+ms_file+")createOrSetFrame";
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
 

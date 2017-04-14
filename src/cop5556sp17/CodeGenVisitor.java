@@ -272,9 +272,11 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 					localVars.put(currDec, new Labels(l));
 				}
 				mv.visitLabel(l);
-			} else if (stmt instanceof BinaryChain)
-				// always duping on the right side, so pop after all of the chain has been traversed
+			} else if (stmt instanceof BinaryChain) {
+				// if storing, always duping on the right side, so pop after all of the chain has been
+				// traversed
 				mv.visitInsn(POP);
+			}
 		}
 
 		Label endBlock = new Label();
@@ -536,7 +538,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			TypeName decType = dec.getTypeName();
 			if (decType.isType(TypeName.INTEGER) || decType.isType(TypeName.BOOLEAN))
 				mv.visitVarInsn(ISTORE, slotNum); // int, bool
-			else // Image or Frame
+			else // Image or Frame (IdentLValue will never be a frame as Exp will never be a frame)
 				mv.visitVarInsn(ASTORE, slotNum);
 		}
 
@@ -664,7 +666,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		TypeName icType = identChain.getTypeName();
 		String ident = identChain.firstToken.getText();
 		Dec dec = identChain.getDec();
-		if (side == 0) { // left: url, file, image, frame
+		if (side == 0) { // left: url, file, image, frame, integer
 			if (icType.isType(URL)) {
 				mv.visitVarInsn(ALOAD, 0); // this
 				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/net/URL;");
@@ -677,8 +679,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 						"(Ljava/io/File;)Ljava/awt/image/BufferedImage;", false);
 			} else if (icType.isType(IMAGE) || icType.isType(FRAME)) {
 				mv.visitVarInsn(ALOAD, dec.getSlotNum());
+			} else if (icType.isType(TypeName.INTEGER)) {
+				mv.visitVarInsn(ILOAD, dec.getSlotNum());
 			}
-
 		} else { // right: image, frame, file
 			// DUP before storing, always. So that if chain after this, it can be used by next elem
 			if (icType.isType(IMAGE)) {
@@ -700,6 +703,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 						"(Ljava/awt/image/BufferedImage;Ljava/io/File;)Ljava/awt/image/BufferedImage;", false);
 				mv.visitInsn(POP); // popping as write returns the same image (unaltered). So, no need of
 														// the returned value
+			} else if (icType.isType(TypeName.INTEGER)) {
+				mv.visitInsn(DUP);
+				mv.visitVarInsn(ISTORE, dec.getSlotNum());
 			}
 		}
 

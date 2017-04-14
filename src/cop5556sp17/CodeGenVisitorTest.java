@@ -171,10 +171,11 @@ public class CodeGenVisitorTest {
 
 		String progname = "progWithChainOps3 ";
 		String input = progname + "file f"
-				+ "{image img\n image img2\n" 
-				+ "f -> img->width;"
-				+ "img -> height;"
+				+ "{image img\n image img2\n integer w \n integer h \n integer w2 \n" 
+				+ "f -> img->width -> w;"
+				+ "img -> height -> h;"
 				+ "f -> img -> scale(5);"
+				+ "w -> w2;"
 //				+ "img -> f;"
 				+ "}";
 		String[] args = new String[1]; // create command line argument array to initialize params, none

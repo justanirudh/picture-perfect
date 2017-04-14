@@ -317,6 +317,20 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		return null;
 	}
+	
+	@Override
+	public Object visitSleepStatement(SleepStatement sleepStatement, Object arg) throws Exception {
+		//TODO: generate code for try-catch?
+		
+		Expression exp = sleepStatement.getE();
+		exp.visit(this, arg);		
+		 //exp now on top of stack
+		mv.visitInsn(I2L); //change int to long
+		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "sleep", "(J)V", false);
+		
+		return null;
+	}
+
 
 	@Override
 	public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg)
@@ -723,12 +737,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		e0.visit(this, 0); // 0 means left
 		e1.visit(this, 1); // 1 means right
 
-		return null;
-	}
-
-	@Override
-	public Object visitSleepStatement(SleepStatement sleepStatement, Object arg) throws Exception {
-		assert false : "not yet implemented";
 		return null;
 	}
 

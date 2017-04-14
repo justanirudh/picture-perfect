@@ -129,6 +129,7 @@ public class CodeGenVisitorTest {
 				 	+"fr -> xloc;"
 				 	+"fr -> yloc;"
 				 	+"u ->img ->fr -> show;"
+				 	+"sleep 5;"
 				 	+ "fr -> hide -> show;"
 				 	+"fr -> move(i, 24);"
 				+ "}";
@@ -176,14 +177,16 @@ public class CodeGenVisitorTest {
 				+ "img -> height -> h;"
 				+ "f -> img -> scale(5);"
 				+ "w -> w2;"
-//				+ "img -> f;"
+				+ "sleep w + w2;"
+				+ "img -> f;"
 				+ "}";
 		String[] args = new String[1]; // create command line argument array to initialize params, none
 		args[0] = ms_file;
 
 		String expOut = "readFromFile("+ms_file+")" 
 		+ "readFromFile("+ms_file+")"
-		+ "scale";
+		+ "scale"
+		+ "write(" + ms_file + ")";
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
 	

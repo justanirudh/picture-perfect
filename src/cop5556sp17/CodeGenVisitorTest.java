@@ -190,10 +190,11 @@ public class CodeGenVisitorTest {
 	public void progWithChainOps4() throws Exception {
 
 		String progname = "progWithChainOps4 ";
-		String input = progname + "url u{integer i \nimage img\n" 
+		String input = progname + "url u{integer i \nimage img\n image img2 \n" 
 				+ "u -> img -> blur;"
 				+ "img <- img + img;"
 				 + "img -> gray -> convolve;"
+				+ "img -> img2;"
 				+ "}";
 		String[] args = new String[1]; // create command line argument array to initialize params, none
 		args[0] = ms_url;

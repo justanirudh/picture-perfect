@@ -74,6 +74,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		localVars = new HashMap<>();
 	}
 	// TODO: Remove Name.java from cop5556pkg before submitting
+	// TODO: look at forums/discussions: diff functionality for Bararrow, etc
 	ClassWriter cw;
 	String className;
 	String classDesc;
@@ -663,7 +664,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		TypeName icType = identChain.getTypeName();
 		String ident = identChain.firstToken.getText();
 		Dec dec = identChain.getDec();
-		if (side == 0) { // left
+		if (side == 0) { // left: url, file, image, frame
 			if (icType.isType(URL)) {
 				mv.visitVarInsn(ALOAD, 0); // this
 				mv.visitFieldInsn(GETFIELD, className, ident, "Ljava/net/URL;");
@@ -678,8 +679,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitVarInsn(ALOAD, dec.getSlotNum());
 			}
 
-		} else { // right
-			// DUP, always. So that if chain after this, it can be used by next elem
+		} else { // right: image, frame, file
+			// DUP before storing, always. So that if chain after this, it can be used by next elem
 			if (icType.isType(IMAGE)) {
 				// img can only be local var
 				mv.visitInsn(DUP);

@@ -624,7 +624,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/awt/image/BufferedImage", "getWidth", "()I", false);
 		} else if (imageOpChain.isKind(OP_HEIGHT)) {
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/awt/image/BufferedImage", "getHeight", "()I", false);
-		} else {
+		} else { //scale
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "scale",
 					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
 		}
@@ -682,7 +682,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			} else if (icType.isType(TypeName.INTEGER)) {
 				mv.visitVarInsn(ILOAD, dec.getSlotNum());
 			}
-		} else { // right: image, frame, file
+		} else { // right: image, frame, file, integer
 			// DUP before storing, always. So that if chain after this, it can be used by next elem
 			if (icType.isType(IMAGE)) {
 				// img can only be local var

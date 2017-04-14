@@ -716,82 +716,12 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	public Object visitBinaryChain(BinaryChain binaryChain, Object arg) throws Exception {
 		// can be img, frame or integer; img can be passed on to be an expression
 
-		int side = (int) arg;
 		// refer to the children
 		Chain e0 = binaryChain.getE0();
 		ChainElem e1 = binaryChain.getE1();
 
-		// retrieve values
-		TypeName e0Type = e0.getTypeName();
-		Token op = binaryChain.getArrow();
-		TypeName e1Type = e1.getTypeName();
-		Token e1FT = e1.getFirstToken();
-
 		e0.visit(this, 0); // 0 means left
 		e1.visit(this, 1); // 1 means right
-
-		// visit children in a left associative way
-		// if (e0Type.isType(URL) && op.isKind(ARROW) && e1Type.isType(IMAGE)) {
-		//
-		// e0.visit(this, 0); // 0 means load
-		// e1.visit(this, 1); // 1 means store
-		//
-		// }
-		//
-		// else if (e0Type.isType(FILE) && op.isKind(ARROW) && e1Type.isType(IMAGE)) {
-		// e0.visit(this, 0); // 0 means load
-		// e1.visit(this, 1); // 1 means store
-		// }
-		//
-		// else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain &&
-		// (e1FT.isKind(
-		// KW_XLOC) || e1FT.isKind(KW_YLOC)))
-		// binaryChain.setTypeName(INTEGER);
-		//
-		// else if (e0Type.isType(FRAME) && op.isKind(ARROW) && e1 instanceof FrameOpChain &&
-		// (e1FT.isKind(
-		// KW_SHOW) || e1FT.isKind(KW_HIDE) || e1FT.isKind(KW_MOVE)))
-		// binaryChain.setTypeName(FRAME);
-		//
-		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof ImageOpChain &&
-		// (e1FT.isKind(
-		// Kind.OP_WIDTH) || e1FT.isKind(OP_HEIGHT)))
-		// binaryChain.setTypeName(INTEGER);
-		//
-		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FRAME)) {
-		// e0.visit(this, 0); // 0 means load
-		//
-		// e1.visit(this, 1); // 1 means store
-		//
-		// // binaryChain.setTypeName(FRAME);
-		// }
-
-		//
-		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1Type.isType(FILE))
-		// binaryChain.setTypeName(NONE);
-		//
-		// else if (e0Type.isType(IMAGE) && (op.isKind(ARROW) || op.isKind(BARARROW))
-		// && e1 instanceof FilterOpChain && (e1FT.isKind(OP_BLUR) || e1FT.isKind(Kind.OP_GRAY) || e1FT
-		// .isKind(OP_CONVOLVE)))
-		// binaryChain.setTypeName(IMAGE);
-		//
-		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof ImageOpChain &&
-		// e1FT.isKind(
-		// KW_SCALE))
-		// binaryChain.setTypeName(IMAGE);
-		//
-		// else if (e0Type.isType(IMAGE) && op.isKind(ARROW) && e1 instanceof IdentChain &&
-		// e1Type.isType(
-		// IMAGE))
-		// binaryChain.setTypeName(IMAGE);
-		//
-		// else if (e0Type.isType(INTEGER) && op.isKind(ARROW) && e1 instanceof IdentChain && e1Type
-		// .isType(INTEGER))
-		// binaryChain.setTypeName(INTEGER);
-		//
-		// else
-		// throw new TypeCheckException("Incompatible types for Binary Chain." + getFirstTokenInfo(
-		// binaryChain.getFirstToken()));
 
 		return null;
 	}

@@ -615,7 +615,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		Tuple tup = imageOpChain.getArg();
 
-		tup.visit(this, arg);
+		tup.visit(this, arg); // 1 child of scale
 
 		if (imageOpChain.isKind(OP_WIDTH)) {
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/awt/image/BufferedImage", "getWidth", "()I", false);
@@ -626,6 +626,33 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
 		}
 
+		return null;
+	}
+
+	@Override
+	public Object visitFilterOpChain(FilterOpChain filterOpChain, Object arg) throws Exception {
+		// refer to children
+		Tuple tup = filterOpChain.getArg();
+
+		// decorate children
+		tup.visit(this, arg); // 0 children
+
+		if (filterOpChain.isKind(OP_GRAY)) {
+			mv.visitInsn(ACONST_NULL);
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "grayOp",
+					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
+					false);
+		} else if (filterOpChain.isKind(OP_BLUR)) {
+			mv.visitInsn(ACONST_NULL);
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "blurOp",
+					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
+					false);
+		} else { // convolve
+			mv.visitInsn(ACONST_NULL);
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "convolveOp",
+					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
+					false);
+		}
 		return null;
 	}
 
@@ -759,12 +786,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// throw new TypeCheckException("Incompatible types for Binary Chain." + getFirstTokenInfo(
 		// binaryChain.getFirstToken()));
 
-		return null;
-	}
-
-	@Override
-	public Object visitFilterOpChain(FilterOpChain filterOpChain, Object arg) throws Exception {
-		assert false : "not yet implemented";
 		return null;
 	}
 

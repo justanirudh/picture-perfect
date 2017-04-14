@@ -185,6 +185,28 @@ public class CodeGenVisitorTest {
 		+ "scale";
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
+	
+	@Test
+	public void progWithChainOps4() throws Exception {
+
+		String progname = "progWithChainOps4 ";
+		String input = progname + "url u{integer i \nimage img\n" 
+				+ "u -> img -> blur;"
+				+ "img <- img + img;"
+				 + "img -> gray -> convolve;"
+				+ "}";
+		String[] args = new String[1]; // create command line argument array to initialize params, none
+		args[0] = ms_url;
+
+		String expOut = 
+		"readFromURL(" + ms_url + ")" 
+		+ "blurOp"
+				+"addcopyImage"
+		+ "grayOp"
+		+ "convolve"
+				;
+		createByteCodeAndCompare(progname, input, args, expOut);
+	}
 
 	@Test
 	public void emptyProg() throws Exception {

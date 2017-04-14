@@ -1,18 +1,25 @@
 package cop5556sp17.AST;
 
+import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.Token;
 
 public class FilterOpChain extends ChainElem {
 
 	final Tuple tuple;
+	final Kind kind;
 
 	public FilterOpChain(Token firstToken,  Tuple arg) {
 		super(firstToken);
 		this.tuple = arg;
+		this.kind = firstToken.kind;
 	}
 
 	public Tuple getArg() {
 		return tuple;
+	}
+	
+	public boolean isKind(Kind kind) {
+		return this.kind == kind;
 	}
 	
 	@Override

@@ -202,11 +202,21 @@ public class CodeGenVisitorTest {
 	public void progWithChainOps4() throws Exception {
 
 		String progname = "progWithChainOps4 ";
-		String input = progname + "url u{integer i \nimage img\n image img2 \n" 
+		String input = progname + "url u{integer i \nimage img\n image img2 \n frame fr " 
 				+ "u -> img -> blur;"
 				+ "img <- img + img;"
 				 + "img -> gray -> convolve;"
 				+ "img -> img2;"
+				 + "img2 -> fr -> show;"
+				 + " sleep 2000;"
+				 +"img2 |-> blur -> fr -> show;"
+				+ " sleep 2000;"
+				+ "img2 |-> gray -> fr -> show;"
+				+ " sleep 2000;"
+				 + "img2 |-> convolve -> fr -> show;"
+				 + " sleep 2000;"
+				 + "img2 |-> blur |-> gray |-> convolve -> fr -> show;"
+				 + " sleep 2000;"
 				+ "}";
 		String[] args = new String[1]; // create command line argument array to initialize params, none
 		args[0] = ms_url;
@@ -218,7 +228,16 @@ public class CodeGenVisitorTest {
 				+"addcopyImage"
 		+ "grayOp"
 		+ "convolve"
-				;
+		+"createOrSetFrameshowImagecopyImage"
+		+ "blurOpcreateOrSetFrame"
+		+ "showImage"
+		+ "showImage"
+		+ "copyImage"
+		+ "grayOpcreateOrSetFrameshowImageshowImage"
+		+ "copyImage"
+		+ "convolvecreateOrSetFrameshowImageshowImage"
+		+ "copyImageblurOpcopyImagegrayOpcopyImageconvolvecreateOrSetFrameshowImageshowImage"
+		;
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
 

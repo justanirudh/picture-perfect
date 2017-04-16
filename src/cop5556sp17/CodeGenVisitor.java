@@ -74,8 +74,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		localVars = new HashMap<>();
 	}
 	// TODO: Remove Name.java and others' testcases from cop5556pkg before submitting
-	// TODO: look at forums/discussions: frame create and set diff functionality,
-	// diff functionality for Bararrow, etc
+	// TODO: look at forums/discussions.
 
 	ClassWriter cw;
 	String className;
@@ -298,7 +297,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
 		int slotNum = (Integer) arg;
 		declaration.setSlotNum(slotNum);
-		if(declaration.getTypeName().isType(FRAME)){ //if frame, initialize to null
+		if (declaration.getTypeName().isType(FRAME)) { // if frame, initialize to null
 			mv.visitInsn(ACONST_NULL);
 			mv.visitVarInsn(ASTORE, slotNum);
 		}
@@ -439,8 +438,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		} else if (e0Type.isType(IMAGE) && op.isKind(MOD) && e1Type.isType(TypeName.INTEGER)) {
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "mod",
 					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
-		}
-		else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE)
+		} else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE)
 				|| op.isKind(GE)) && e1Type.isType(TypeName.INTEGER)) {
 			if (op.isKind(LT)) {
 				Label ge = new Label();
@@ -667,18 +665,16 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// decorate children
 		tup.visit(this, arg); // 0 children
 
+		// already loaded const_null or image in visitBinaryChain
 		if (filterOpChain.isKind(OP_GRAY)) {
-			mv.visitInsn(ACONST_NULL);
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "grayOp",
 					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
 					false);
 		} else if (filterOpChain.isKind(OP_BLUR)) {
-			mv.visitInsn(ACONST_NULL);
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "blurOp",
 					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
 					false);
 		} else { // convolve
-			mv.visitInsn(ACONST_NULL);
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "convolveOp",
 					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
 					false);
@@ -746,8 +742,20 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// refer to the children
 		Chain e0 = binaryChain.getE0();
 		ChainElem e1 = binaryChain.getE1();
-
+		
 		e0.visit(this, 0); // 0 means left
+
+		if (e1 instanceof FilterOpChain) {
+			Token arrow = binaryChain.getArrow();
+			if (arrow.isKind(BARARROW)) { // in e0, would have loaded an image, load that image again
+				mv.visitInsn(DUP);
+				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "copyImage",
+						"(Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;", false);
+				mv.visitInsn(SWAP);
+			} else
+				mv.visitInsn(ACONST_NULL);
+		}
+
 		e1.visit(this, 1); // 1 means right
 
 		return null;

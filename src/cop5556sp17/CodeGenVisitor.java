@@ -520,18 +520,42 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitLabel(ge);
 			}
 		} else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type)) {
-			if (op.isKind(EQUAL)) {
-				Label ne = new Label();
-				mv.visitJumpInsn(IF_ICMPNE, ne);
-				mv.visitInsn(ICONST_1);
-				Label eq = new Label();
-				mv.visitJumpInsn(GOTO, eq);
-				mv.visitLabel(ne);
-				mv.visitInsn(ICONST_0);
-				mv.visitLabel(eq);
-			} else { // NE
-				mv.visitInsn(IXOR);
+			if (e0Type.isType(IMAGE)) {
+				if(op.isKind(EQUAL)){
+					Label ne = new Label();
+					mv.visitJumpInsn(IF_ACMPNE, ne);
+					mv.visitInsn(ICONST_1);
+					Label eq = new Label();
+					mv.visitJumpInsn(GOTO, eq);
+					mv.visitLabel(ne);
+					mv.visitInsn(ICONST_0);
+					mv.visitLabel(eq);
+				}
+				else{ //???
+					Label eq = new Label();
+					mv.visitJumpInsn(IF_ACMPEQ, eq);
+					mv.visitInsn(ICONST_1);
+					Label ne = new Label();
+					mv.visitJumpInsn(GOTO, ne);
+					mv.visitLabel(eq);
+					mv.visitInsn(ICONST_0);
+					mv.visitLabel(ne);
+				}
+			} else { //integer and boolean
+				if (op.isKind(EQUAL)) {
+					Label ne = new Label();
+					mv.visitJumpInsn(IF_ICMPNE, ne);
+					mv.visitInsn(ICONST_1);
+					Label eq = new Label();
+					mv.visitJumpInsn(GOTO, eq);
+					mv.visitLabel(ne);
+					mv.visitInsn(ICONST_0);
+					mv.visitLabel(eq);
+				} else { // NE
+					mv.visitInsn(IXOR);
+				}
 			}
+
 		} else if (e0Type.isType(TypeName.INTEGER) && op.isKind(MOD) && e1Type.isType(TypeName.INTEGER))
 			mv.visitInsn(IREM);
 		else if (e0Type.isType(BOOLEAN) && (op.isKind(AND) || op.isKind(OR)) && e1Type.isType(
@@ -542,7 +566,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitInsn(IOR);
 		} else // if we already have type-visited, this will never be thrown
 			throw new TypeCheckException("Incompatible types for Binary Expression in Code generation"
-					+ TypeCheckVisitor.getFirstTokenInfo(binaryExpression.getFirstToken()));;
+					+ TypeCheckVisitor.getFirstTokenInfo(binaryExpression.getFirstToken()));
 
 		return null;
 	}
@@ -742,9 +766,10 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// refer to the children
 		Chain e0 = binaryChain.getE0();
 		ChainElem e1 = binaryChain.getE1();
-		
+
 		e0.visit(this, 0); // 0 means left
 
+		//TODO: visit copyImage will print on console. Might mess up grading??
 		if (e1 instanceof FilterOpChain) {
 			Token arrow = binaryChain.getArrow();
 			if (arrow.isKind(BARARROW)) { // in e0, would have loaded an image, load that image again

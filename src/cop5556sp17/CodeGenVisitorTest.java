@@ -180,13 +180,15 @@ public class CodeGenVisitorTest {
 
 		String progname = "progWithChainOps3 ";
 		String input = progname + "file f"
-				+ "{image img\n image img2\n integer w \n integer h \n integer w2 \n" 
+				+ "{image img\n image img2\n integer w \n integer h \n integer w2 \n boolean b " 
 				+ "f -> img->width -> w;"
 				+ "img -> height -> h;"
-				+ "f -> img -> scale(5);"
+				+ "f -> img2 -> scale(5);"
 				+ "w -> w2;"
 				+ "sleep w + w2;"
 				+ "img -> f;"
+				+ "b <- (img == img2);"
+				+ "b <- (img != img2);"
 				+ "}";
 		String[] args = new String[1]; // create command line argument array to initialize params, none
 		args[0] = ms_file;
@@ -194,7 +196,8 @@ public class CodeGenVisitorTest {
 		String expOut = "readFromFile("+ms_file+")" 
 		+ "readFromFile("+ms_file+")"
 		+ "scale"
-		+ "write(" + ms_file + ")";
+		+ "write(" + ms_file + ")"
+		+ "falsetrue";
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
 	

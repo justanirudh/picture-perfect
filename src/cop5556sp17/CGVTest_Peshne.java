@@ -100,7 +100,7 @@ public class CGVTest_Peshne {
     String input = genProg("integer x, integer y, file f, url u, boolean b",
                            genBlock(""));
     String[] args = {"1", "2", "file", "http://abc.com", "true"};
-      test(input, args);
+    test(input, args);
   }
 
   @Test
@@ -465,8 +465,12 @@ public class CGVTest_Peshne {
                            genBlock("image i",
                                     "u -> i;"));
     String[] args = {"1", imgUrl()};
-    String expOut = urlRead(args[1]);
+    String expOut = getUrl(args[1]) + urlRead(args[1]);
     test(input, args, expOut);
+  }
+
+  private String getUrl(String url) {
+    return "getURL(" + url + ")";
   }
 
   private String urlRead(String url) {
@@ -507,7 +511,7 @@ public class CGVTest_Peshne {
                                     "frame f",
                                     "u -> i -> f -> show;"));
     String[] args = {"1", imgUrl()};
-    String expOut = urlRead(args[1]) + frameStr() + showImg();
+    String expOut = getUrl(args[1]) + urlRead(args[1]) + frameStr() + showImg();
     test(input, args, expOut);
   }
 
@@ -527,7 +531,7 @@ public class CGVTest_Peshne {
                            genBlock("image i",
                                     "u -> i -> out;"));
     String[] args = {filePath(), imgUrl()};
-    String expOut = urlRead(args[1]) + fileWrite(args[0]);
+    String expOut = getUrl(args[1]) + urlRead(args[1]) + fileWrite(args[0]);
     test(input, args, expOut);
   }
 
@@ -595,8 +599,8 @@ public class CGVTest_Peshne {
                                     "sleep sleepCount / 2;",
                                     "f -> show;"));
     String[] args = {imgUrl()};
-    String expOut = ("4000" + urlRead(args[0]) + "grayOp" + frameStr() + showImg() +
-                     "hideImage" + showImg());
+    String expOut = (getUrl(args[0]) + "4000" + urlRead(args[0]) + "grayOp" +
+                     frameStr() + showImg() + "hideImage" + showImg());
     test(input, args, expOut);
   }
 
@@ -616,8 +620,8 @@ public class CGVTest_Peshne {
                                     "i -> f -> show;",
                                     "sleep sleepCount;"));
     String[] args = {imgUrl()};
-    String expOut = ("4000" + urlRead(args[0]) + "copyImage" + "grayOp" + "false" +
-                     frameStr() + showImg());
+    String expOut = (getUrl(args[0]) + "4000" + urlRead(args[0]) + "copyImage" +
+                     "grayOp" + "false" + frameStr() + showImg());
     test(input, args, expOut);
   }
 
@@ -673,8 +677,8 @@ public class CGVTest_Peshne {
                                     "sleep sleepCount / 2;",
                                     "f -> show;"));
     String[] args = {imgUrl()};
-    String expOut = ("4000" + urlRead(args[0]) + "scale" + frameStr() + showImg() +
-                     "hideImage" + showImg());
+    String expOut = (getUrl(args[0]) + "4000" + urlRead(args[0]) + "scale" +
+                     frameStr() + showImg() + "hideImage" + showImg());
     test(input, args, expOut);
   }
 
@@ -716,7 +720,7 @@ public class CGVTest_Peshne {
                                     "result <- ht;",
                                     "result <- w;"));
     String[] args = {"http://anuragpeshne.github.io/assets/emacsSpeed/initTime.png"};
-    String expOut = (urlRead(args[0]) + "64" + "189");
+    String expOut = (getUrl(args[0]) + urlRead(args[0]) + "64" + "189");
     test(input, args, expOut);
   }
 

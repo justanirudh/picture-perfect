@@ -136,8 +136,10 @@ public class CodeGenVisitorTest {
 		String[] args = new String[1]; // create command line argument array to initialize params, none
 		args[0] = ms_url;
 
-		String expOut = "42"+
-		"readFromURL(" + ms_url + ")addcopyImagemulcopyImagemulcopyImagesubcopyImage" 
+		String expOut = 
+				"getURL("+ms_url+")"
+			+	"42"
+		+"readFromURL(" + ms_url + ")addcopyImagemulcopyImagemulcopyImagesubcopyImage" 
 		+ "createOrSetFrame"
 				+"getXgetXgetY"
 		+ "readFromURL(" + ms_url + ")createOrSetFrameshowImage"
@@ -204,7 +206,8 @@ public class CodeGenVisitorTest {
 		args[0] = ms_url;
 
 		String expOut = 
-		"readFromURL(" + ms_url + ")" 
+				"getURL("+ms_url+")"
+		+"readFromURL(" + ms_url + ")" 
 		+ "blurOp"
 				+"addcopyImage"
 		+ "grayOp"
@@ -392,7 +395,7 @@ public class CodeGenVisitorTest {
 		args[2] = "bin/img1.jpg";
 		args[3] = "http://hello";
 		Runnable instance = CodeGenUtils.getInstance(name, bytecode, args);
-		String expOut = "542false";
+		String expOut = "getURL("+args[3]+")" + "542false";
 		PrintStream oldStream = null;
 		if (expOut != null) {
 			oldStream = System.out;

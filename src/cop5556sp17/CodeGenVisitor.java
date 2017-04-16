@@ -74,7 +74,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		localVars = new HashMap<>();
 	}
 	// TODO: Remove Name.java from cop5556pkg before submitting
-	// TODO: look at forums/discussions: diff functionality for Bararrow, etc
+	// TODO: look at forums/discussions: frame create and set diff functionality,
+	// mod and div for images, getURL instead of new URL, diff functionality for Bararrow, etc
+
 	ClassWriter cw;
 	String className;
 	String classDesc;
@@ -119,8 +121,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		// generate constructor code
 		// get a MethodVisitor
-		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "([Ljava/lang/String;)V", null, new String[]{
-				"java/net/MalformedURLException"});
+		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "([Ljava/lang/String;)V", null, null);
 		mv.visitCode();
 		// Create label at start of code
 		Label constructorStart = new Label();
@@ -162,8 +163,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// 1. instantiate an instance of the class being generated, passing the
 		// String[] with command line arguments
 		// 2. invoke the run method.
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null,
-				new String[]{"java/net/MalformedURLException"});
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
 		mv.visitCode();
 		Label mainStart = new Label();
 		mv.visitLabel(mainStart);
@@ -223,16 +223,18 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		// populate the field
 		mv.visitVarInsn(ALOAD, 0); // this
+
 		if (decType.isType(TypeName.FILE)) {
 			mv.visitTypeInsn(NEW, "java/io/File");
 			mv.visitInsn(DUP);
-		} else if (decType.isType(TypeName.URL)) {
-			mv.visitTypeInsn(NEW, "java/net/URL");
-			mv.visitInsn(DUP);
 		}
+
 		mv.visitVarInsn(ALOAD, 1);// args
 		mv.visitLdcInsn(new Integer(offset)); // depending upon which index in args array
-		mv.visitInsn(AALOAD); // get the arg
+
+		if (!decType.isType(TypeName.URL))
+			mv.visitInsn(AALOAD); // get the arg
+
 		if (decType.isType(TypeName.INTEGER))
 			mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "parseInt", "(Ljava/lang/String;)I",
 					false);
@@ -242,7 +244,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		else if (decType.isType(TypeName.FILE))
 			mv.visitMethodInsn(INVOKESPECIAL, "java/io/File", "<init>", "(Ljava/lang/String;)V", false);
 		else // URL
-			mv.visitMethodInsn(INVOKESPECIAL, "java/net/URL", "<init>", "(Ljava/lang/String;)V", false);
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageIO", "getURL",
+					"([Ljava/lang/String;I)Ljava/net/URL;", false);
 
 		mv.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
 
@@ -317,20 +320,19 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		return null;
 	}
-	
+
 	@Override
 	public Object visitSleepStatement(SleepStatement sleepStatement, Object arg) throws Exception {
-		//TODO: generate code for try-catch?
-		
+		// TODO: generate code for try-catch?
+
 		Expression exp = sleepStatement.getE();
-		exp.visit(this, arg);		
-		 //exp now on top of stack
-		mv.visitInsn(I2L); //change int to long
+		exp.visit(this, arg);
+		// exp now on top of stack
+		mv.visitInsn(I2L); // change int to long
 		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "sleep", "(J)V", false);
-		
+
 		return null;
 	}
-
 
 	@Override
 	public Object visitIntLitExpression(IntLitExpression intLitExpression, Object arg)
@@ -638,7 +640,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/awt/image/BufferedImage", "getWidth", "()I", false);
 		} else if (imageOpChain.isKind(OP_HEIGHT)) {
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/awt/image/BufferedImage", "getHeight", "()I", false);
-		} else { //scale
+		} else { // scale
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "scale",
 					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
 		}

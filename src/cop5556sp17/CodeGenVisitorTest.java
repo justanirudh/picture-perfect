@@ -146,7 +146,8 @@ public class CodeGenVisitorTest {
 			+"subcopyImage" 
 		+ "createOrSetFrame"
 				+"getXgetXgetY"
-		+ "readFromURL(" + ms_url + ")createOrSetFrameshowImage"
+		+ "readFromURL(" + ms_url + ")createOrSetFrame"
+		+"showImageshowImage"
 		+ "hideImageshowImage"
 		+"moveFrame"
 				;
@@ -168,7 +169,8 @@ public class CodeGenVisitorTest {
 		args[0] = ms_file;
 
 		String expOut = "readFromFile("+ms_file+")createOrSetFrame" 
-		+ "readFromFile("+ms_file+")createOrSetFrame"
+		+ "readFromFile("+ms_file+")"
+		+"createOrSetFrameshowImage"
 		+ "write(" + ms_file + ")";
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}

@@ -73,7 +73,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		this.sourceFileName = sourceFileName;
 		localVars = new HashMap<>();
 	}
-	// TODO: Remove Name.java and other's testcases from cop5556pkg before submitting
+	// TODO: Remove Name.java and others' testcases from cop5556pkg before submitting
 	// TODO: look at forums/discussions: frame create and set diff functionality,
 	// diff functionality for Bararrow, etc
 
@@ -298,6 +298,10 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
 		int slotNum = (Integer) arg;
 		declaration.setSlotNum(slotNum);
+		if(declaration.getTypeName().isType(FRAME)){ //if frame, initialize to null
+			mv.visitInsn(ACONST_NULL);
+			mv.visitVarInsn(ASTORE, slotNum);
+		}
 		return null;
 	}
 
@@ -323,7 +327,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 	@Override
 	public Object visitSleepStatement(SleepStatement sleepStatement, Object arg) throws Exception {
-		// TODO: generate code for try-catch?
 
 		Expression exp = sleepStatement.getE();
 		exp.visit(this, arg);
@@ -713,7 +716,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitInsn(DUP);
 				mv.visitVarInsn(ASTORE, dec.getSlotNum());
 			} else if (icType.isType(FRAME)) {
-				mv.visitInsn(ACONST_NULL);
+				mv.visitVarInsn(ALOAD, dec.getSlotNum());
 				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFrame", "createOrSetFrame",
 						"(Ljava/awt/image/BufferedImage;Lcop5556sp17/PLPRuntimeFrame;)Lcop5556sp17/PLPRuntimeFrame;",
 						false);

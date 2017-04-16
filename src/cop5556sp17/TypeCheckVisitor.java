@@ -36,17 +36,6 @@ import cop5556sp17.Scanner.Kind;
 import cop5556sp17.Scanner.LinePos;
 import cop5556sp17.Scanner.Token;
 import static cop5556sp17.AST.Type.TypeName.*;
-import static cop5556sp17.Scanner.Kind.ARROW;
-import static cop5556sp17.Scanner.Kind.KW_HIDE;
-import static cop5556sp17.Scanner.Kind.KW_MOVE;
-import static cop5556sp17.Scanner.Kind.KW_SHOW;
-import static cop5556sp17.Scanner.Kind.KW_XLOC;
-import static cop5556sp17.Scanner.Kind.KW_YLOC;
-import static cop5556sp17.Scanner.Kind.OP_BLUR;
-import static cop5556sp17.Scanner.Kind.OP_CONVOLVE;
-import static cop5556sp17.Scanner.Kind.OP_GRAY;
-import static cop5556sp17.Scanner.Kind.OP_HEIGHT;
-import static cop5556sp17.Scanner.Kind.OP_WIDTH;
 import static cop5556sp17.Scanner.Kind.*;
 
 public class TypeCheckVisitor implements ASTVisitor {
@@ -400,6 +389,13 @@ public class TypeCheckVisitor implements ASTVisitor {
 			binaryExpression.setTypeName(IMAGE);
 
 		else if (e0Type.isType(IMAGE) && op.isKind(TIMES) && e1Type.isType(INTEGER))
+			binaryExpression.setTypeName(IMAGE);
+
+		// new rules for DIV and MOD
+		else if (e0Type.isType(IMAGE) && op.isKind(DIV) && e1Type.isType(TypeName.INTEGER))
+			binaryExpression.setTypeName(IMAGE);
+
+		else if (e0Type.isType(IMAGE) && op.isKind(MOD) && e1Type.isType(TypeName.INTEGER))
 			binaryExpression.setTypeName(IMAGE);
 
 		else if (e0Type.isType(INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE) || op

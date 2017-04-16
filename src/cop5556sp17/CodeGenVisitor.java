@@ -73,9 +73,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		this.sourceFileName = sourceFileName;
 		localVars = new HashMap<>();
 	}
-	// TODO: Remove Name.java from cop5556pkg before submitting
+	// TODO: Remove Name.java and other's testcases from cop5556pkg before submitting
 	// TODO: look at forums/discussions: frame create and set diff functionality,
-	// mod and div for images, getURL instead of new URL, diff functionality for Bararrow, etc
+	// diff functionality for Bararrow, etc
 
 	ClassWriter cw;
 	String className;
@@ -429,7 +429,15 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		} else if (e0Type.isType(IMAGE) && op.isKind(TIMES) && e1Type.isType(TypeName.INTEGER)) {
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "mul",
 					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
-		} else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE)
+		} // new rules for DIV and MOD
+		else if (e0Type.isType(IMAGE) && op.isKind(DIV) && e1Type.isType(TypeName.INTEGER)) {
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "div",
+					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
+		} else if (e0Type.isType(IMAGE) && op.isKind(MOD) && e1Type.isType(TypeName.INTEGER)) {
+			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "mod",
+					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
+		}
+		else if (e0Type.isType(TypeName.INTEGER) && (op.isKind(LT) || op.isKind(GT) || op.isKind(LE)
 				|| op.isKind(GE)) && e1Type.isType(TypeName.INTEGER)) {
 			if (op.isKind(LT)) {
 				Label ge = new Label();

@@ -297,7 +297,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
 		int slotNum = (Integer) arg;
 		declaration.setSlotNum(slotNum);
-		TypeName decType = declaration.getTypeName(); 
+		TypeName decType = declaration.getTypeName();
 		if (decType.isType(FRAME) || decType.isType(IMAGE)) { // if frame, initialize to null
 			mv.visitInsn(ACONST_NULL);
 			mv.visitVarInsn(ASTORE, slotNum);
@@ -522,7 +522,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			}
 		} else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type)) {
 			if (e0Type.isType(IMAGE)) {
-				if(op.isKind(EQUAL)){
+				if (op.isKind(EQUAL)) {
 					Label ne = new Label();
 					mv.visitJumpInsn(IF_ACMPNE, ne);
 					mv.visitInsn(ICONST_1);
@@ -531,8 +531,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 					mv.visitLabel(ne);
 					mv.visitInsn(ICONST_0);
 					mv.visitLabel(eq);
-				}
-				else{ //???
+				} else {
 					Label eq = new Label();
 					mv.visitJumpInsn(IF_ACMPEQ, eq);
 					mv.visitInsn(ICONST_1);
@@ -542,7 +541,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 					mv.visitInsn(ICONST_0);
 					mv.visitLabel(ne);
 				}
-			} else { //integer and boolean
+			} else { // integer and boolean
 				if (op.isKind(EQUAL)) {
 					Label ne = new Label();
 					mv.visitJumpInsn(IF_ICMPNE, ne);
@@ -690,16 +689,24 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		// decorate children
 		tup.visit(this, arg); // 0 children
 
-		// already loaded const_null or image in visitBinaryChain
-		if (filterOpChain.isKind(OP_GRAY)) {
+		Token arrow = (Token) arg;
+
+		// already loaded image in visitBinaryChain
+		if (filterOpChain.isKind(OP_GRAY)) { // for bararrow, dup instead of pushing cont_null
+			if (arrow.isKind(ARROW))
+				mv.visitInsn(ACONST_NULL);
+			else //bararrow
+				mv.visitInsn(DUP);
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "grayOp",
 					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
 					false);
 		} else if (filterOpChain.isKind(OP_BLUR)) {
+			mv.visitInsn(ACONST_NULL);
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "blurOp",
 					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
 					false);
 		} else { // convolve
+			mv.visitInsn(ACONST_NULL);
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "convolveOp",
 					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
 					false);
@@ -770,19 +777,11 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 
 		e0.visit(this, 0); // 0 means left
 
-		//TODO: visit copyImage will print on console. Might mess up grading??
 		if (e1 instanceof FilterOpChain) {
 			Token arrow = binaryChain.getArrow();
-			if (arrow.isKind(BARARROW)) { // in e0, would have loaded an image, load that image again
-				mv.visitInsn(DUP);
-				mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "copyImage",
-						"(Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;", false);
-				mv.visitInsn(SWAP);
-			} else
-				mv.visitInsn(ACONST_NULL);
-		}
-
-		e1.visit(this, 1); // 1 means right
+			e1.visit(this, arrow);
+		} else
+			e1.visit(this, 1); // 1 means right
 
 		return null;
 	}

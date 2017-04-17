@@ -231,15 +231,13 @@ public class CodeGenVisitorTest {
 				+"addcopyImage"
 		+ "grayOp"
 		+ "convolve"
-		+"createOrSetFrameshowImagecopyImage"
+		+"createOrSetFrameshowImage"
 		+ "blurOpcreateOrSetFrame"
 		+ "showImage"
 		+ "showImage"
-		+ "copyImage"
 		+ "grayOpcreateOrSetFrameshowImageshowImage"
-		+ "copyImage"
 		+ "convolvecreateOrSetFrameshowImageshowImage"
-		+ "copyImageblurOpcopyImagegrayOpcopyImageconvolvecreateOrSetFrameshowImageshowImage"
+		+ "blurOpgrayOpconvolvecreateOrSetFrameshowImageshowImage"
 		;
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}

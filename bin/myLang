@@ -1,5 +1,0 @@
-myLang integer glob_int0 {
-	integer local_int0
-	local_int0 <- screenwidth;
-	glob_int0 <- screenheight;
-}

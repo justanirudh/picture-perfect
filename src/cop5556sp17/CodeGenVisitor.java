@@ -74,7 +74,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		localVars = new HashMap<>();
 	}
 	// TODO: Remove Name.java and others' testcases from cop5556pkg before submitting
-	// TODO: look at forums/discussions.
+	// TODO: look at ALL forums/discussions.
 
 	ClassWriter cw;
 	String className;
@@ -297,7 +297,8 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	public Object visitDec(Dec declaration, Object arg) throws Exception {
 		int slotNum = (Integer) arg;
 		declaration.setSlotNum(slotNum);
-		if (declaration.getTypeName().isType(FRAME)) { // if frame, initialize to null
+		TypeName decType = declaration.getTypeName(); 
+		if (decType.isType(FRAME) || decType.isType(IMAGE)) { // if frame, initialize to null
 			mv.visitInsn(ACONST_NULL);
 			mv.visitVarInsn(ASTORE, slotNum);
 		}
@@ -431,7 +432,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		} else if (e0Type.isType(IMAGE) && op.isKind(TIMES) && e1Type.isType(TypeName.INTEGER)) {
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "mul",
 					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);
-		} // new rules for DIV and MOD
+		} // new rules for DIV and MOD for image
 		else if (e0Type.isType(IMAGE) && op.isKind(DIV) && e1Type.isType(TypeName.INTEGER)) {
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "div",
 					"(Ljava/awt/image/BufferedImage;I)Ljava/awt/image/BufferedImage;", false);

@@ -1476,7 +1476,6 @@ public class CGVTest_YMD
     }
 
     @Ignore("infinite loop")
-//    @Test
     public void testBest() throws Exception
     {
         long t = new Date().getTime();

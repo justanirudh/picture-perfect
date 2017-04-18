@@ -145,18 +145,21 @@ public class CodeGenUtils{
 //			mv.visitInsn(Opcodes.SWAP);
 			switch (type) {
 			case INTEGER: {
+
 				mv.visitInsn(Opcodes.DUP);
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer","toString","(I)Ljava/lang/String;", false);
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "cop5556sp17/PLPRuntimeLog", "globalLogAddEntry", "(Ljava/lang/String;)V", false);
 			}
 				break;
 			case BOOLEAN: {
+
 				mv.visitInsn(Opcodes.DUP);
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean","toString","(Z)Ljava/lang/String;", false);
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "cop5556sp17/PLPRuntimeLog", "globalLogAddEntry", "(Ljava/lang/String;)V", false);
 			}
 				break;
-			case IMAGE: {
+			case IMAGE: 
+			case FRAME:{
 					/* ignore */
 				} break;
 			default: {

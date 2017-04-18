@@ -1459,13 +1459,10 @@ public class CGVTest_YMD
             "readFromURL(" + args[0] + ")" +
             "createOrSetFrame" +
             "showImage" +
-            "copyImage" +
             "grayOp" +
             "createOrSetFrame" + "showImage" +
-            "copyImage" +
             "blurOp" +
             "createOrSetFrame" + "showImage" +
-            "copyImage" +
             "convolve" +
             "createOrSetFrame" + "showImage";
 

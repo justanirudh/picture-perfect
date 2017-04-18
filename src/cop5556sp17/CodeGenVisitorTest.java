@@ -189,6 +189,33 @@ public class CodeGenVisitorTest {
 	}
 	
 	@Test
+	public void progWithChainOps6() throws Exception {
+
+		String progname = "assignImageAndFrame";
+		String input = progname + " url u, url u2{image i image i1 frame f frame f1 boolean b\n"
+				+ "u -> i -> f -> show; "
+				+ "frame f2  \n"
+				+ "i -> scale (3) -> f2 -> show; \n "
+				+ "i1 <- i; \n "
+				+ "f2 <- f;\n"
+//				+ "u2 <- u;\n"
+				+ "b <- (u == u2);"
+				+ "}";
+		
+		String[] args = new String[2]; // create command line argument array to initialize params, none
+		args[0] = ms_url;
+		args[1] = ms_url;
+
+		String expOut = "getURL("+ms_url+")"
+				+ "getURL("+ms_url+")"
+				+ "readFromURL("+ms_url+")"
+						+ "createOrSetFrameshowImagescalecreateOrSetFrameshowImagecopyImage"
+				+"false"
+						;
+		createByteCodeAndCompare(progname, input, args, expOut);
+	}
+	
+	@Test
 	public void progWithChainOps3() throws Exception {
 
 		String progname = "progWithChainOps3 ";

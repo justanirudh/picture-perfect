@@ -73,8 +73,6 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		this.sourceFileName = sourceFileName;
 		localVars = new HashMap<>();
 	}
-	// TODO: Remove Name.java and others' testcases from cop5556pkg before submitting
-	// TODO: look at ALL forums/discussions.
 
 	ClassWriter cw;
 	String className;
@@ -298,7 +296,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		int slotNum = (Integer) arg;
 		declaration.setSlotNum(slotNum);
 		TypeName decType = declaration.getTypeName();
-		if (decType.isType(FRAME) || decType.isType(IMAGE)) { // if frame, initialize to null
+		if (decType.isType(FRAME) || decType.isType(IMAGE)) { // if frame or image, initialize to null
 			mv.visitInsn(ACONST_NULL);
 			mv.visitVarInsn(ASTORE, slotNum);
 		}
@@ -314,10 +312,10 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		exp.visit(this, arg); // load
 
 		CodeGenUtils.genPrint(DEVEL, mv, "\nassignment: " + assignStatement.var.getText() + "=");
-		CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName()); // is NOP if TOS has
-																																								// image
+		// below print is NOP if TOS is image or frame
+		CodeGenUtils.genPrintTOS(GRADE, mv, assignStatement.getE().getTypeName());
 
-		if (exp.getTypeName().isType(IMAGE)) // if image, copy and store? TODO
+		if (exp.getTypeName().isType(IMAGE))
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeImageOps", "copyImage",
 					"(Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;", false);
 		assignStatement.getVar().visit(this, arg); // store
@@ -372,16 +370,16 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitIdentExpression(IdentExpression identExpression, Object arg) throws Exception {
 		Dec dec = identExpression.getDec();
-		if (dec instanceof ParamDec) { // global var: can only be int/boolean
+		if (dec instanceof ParamDec) { // global var: can only be int,boolean, file, url
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), dec.getTypeName()
 					.getJVMTypeDesc());
-		} else { // local var: can only be int/boolean/image
+		} else { // local var: can be integer, boolean, image, frame
 			int slotNum = dec.getSlotNum();
-			if (dec.getTypeName().isType(IMAGE))
-				mv.visitVarInsn(ALOAD, slotNum);
-			else // int or bool
+			if (dec.getTypeName().isType(TypeName.INTEGER) || dec.getTypeName().isType(BOOLEAN))
 				mv.visitVarInsn(ILOAD, slotNum);
+			else //image or frame
+				mv.visitVarInsn(ALOAD, slotNum);
 		}
 		return null;
 	}
@@ -521,7 +519,20 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 				mv.visitLabel(ge);
 			}
 		} else if ((op.isKind(EQUAL) || op.isKind(NOTEQUAL)) && e0Type.isType(e1Type)) {
-			if (e0Type.isType(IMAGE)) {
+			if (e0Type.isType(TypeName.INTEGER) || e0Type.isType(BOOLEAN)) {
+				if (op.isKind(EQUAL)) {
+					Label ne = new Label();
+					mv.visitJumpInsn(IF_ICMPNE, ne);
+					mv.visitInsn(ICONST_1);
+					Label eq = new Label();
+					mv.visitJumpInsn(GOTO, eq);
+					mv.visitLabel(ne);
+					mv.visitInsn(ICONST_0);
+					mv.visitLabel(eq);
+				} else { // NE
+					mv.visitInsn(IXOR);
+				}
+			} else { //image, frame, url, file
 				if (op.isKind(EQUAL)) {
 					Label ne = new Label();
 					mv.visitJumpInsn(IF_ACMPNE, ne);
@@ -541,21 +552,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 					mv.visitInsn(ICONST_0);
 					mv.visitLabel(ne);
 				}
-			} else { // integer and boolean
-				if (op.isKind(EQUAL)) {
-					Label ne = new Label();
-					mv.visitJumpInsn(IF_ICMPNE, ne);
-					mv.visitInsn(ICONST_1);
-					Label eq = new Label();
-					mv.visitJumpInsn(GOTO, eq);
-					mv.visitLabel(ne);
-					mv.visitInsn(ICONST_0);
-					mv.visitLabel(eq);
-				} else { // NE
-					mv.visitInsn(IXOR);
-				}
 			}
-
 		} else if (e0Type.isType(TypeName.INTEGER) && op.isKind(MOD) && e1Type.isType(TypeName.INTEGER))
 			mv.visitInsn(IREM);
 		else if (e0Type.isType(BOOLEAN) && (op.isKind(AND) || op.isKind(OR)) && e1Type.isType(
@@ -574,7 +571,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 	@Override
 	public Object visitIdentLValue(IdentLValue identX, Object arg) throws Exception {
 		Dec dec = identX.getDec();
-		// field: can be of type: int, bool; cannot be img, frame; cannot be url or file
+		// field: can be of type: int, bool, url or file
 		if (dec instanceof ParamDec) {
 			String fieldName = dec.getIdent().getText();
 			TypeName decType = dec.getTypeName();
@@ -587,7 +584,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			TypeName decType = dec.getTypeName();
 			if (decType.isType(TypeName.INTEGER) || decType.isType(TypeName.BOOLEAN))
 				mv.visitVarInsn(ISTORE, slotNum); // int, bool
-			else // Image or Frame (IdentLValue will never be a frame as Exp will never be a frame)
+			else // Image or Frame
 				mv.visitVarInsn(ASTORE, slotNum);
 		}
 
@@ -734,12 +731,12 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 						"(Ljava/io/File;)Ljava/awt/image/BufferedImage;", false);
 			} else if (icType.isType(IMAGE) || icType.isType(FRAME)) {
 				mv.visitVarInsn(ALOAD, dec.getSlotNum());
-			} else if (icType.isType(TypeName.INTEGER)) {
-				if (dec instanceof ParamDec) { // global var: can only be int/boolean
+			} else if (icType.isType(TypeName.INTEGER)) { // can be a dec or paramdec
+				if (dec instanceof ParamDec) { // global var
 					mv.visitVarInsn(ALOAD, 0);
 					mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), dec.getTypeName()
 							.getJVMTypeDesc());
-				} else { // local var: can only be int/boolean/image
+				} else { // local var
 					mv.visitVarInsn(ILOAD, dec.getSlotNum());
 				}
 			}
@@ -764,17 +761,17 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 						"(Ljava/awt/image/BufferedImage;Ljava/io/File;)Ljava/awt/image/BufferedImage;", false);
 				mv.visitInsn(POP); // popping as write returns the same image (unaltered). So, no need of
 														// the returned value
-			} else if (icType.isType(TypeName.INTEGER)) { //can be dec or paramdec
+			} else if (icType.isType(TypeName.INTEGER)) { // can be dec or paramdec
 				mv.visitInsn(DUP);
-				if (dec instanceof ParamDec) {
+				if (dec instanceof ParamDec) { // global var
 					String fieldName = dec.getIdent().getText();
 					TypeName decType = dec.getTypeName();
 					String fieldType = decType.getJVMTypeDesc(); // type descriptor of field in JVM notation
 					mv.visitVarInsn(ALOAD, 0); // pushing 'this'
 					mv.visitInsn(SWAP); // swapping as aload 0 needs to come before the pushed value
 					mv.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
-				} else { // local variable; can be of type: int, bool, img, frame;
-					mv.visitVarInsn(ISTORE, dec.getSlotNum()); // int, bool
+				} else { // local variable
+					mv.visitVarInsn(ISTORE, dec.getSlotNum());
 				}
 			}
 		}

@@ -113,19 +113,7 @@ public class CodeGenVisitorTest {
 		String expOut = "4043true11411142114311441145114611471148";
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
-	@Test
-	public void progWithChainOps5() throws Exception {
 
-		String progname = "progWithChainOps5 ";
-
-		String input = progname + " integer f1, integer f2 {\n integer i f1->i; i->f2;}"; 
-		String[] args = new String[2]; // create command line argument array to initialize params, none
-		args[0] = "42";
-		args[1] = "43";
-
-		String expOut ="";
-		createByteCodeAndCompare(progname, input, args, expOut);
-	}
 	@Test
 	public void progWithChainOps1() throws Exception {
 
@@ -147,7 +135,6 @@ public class CodeGenVisitorTest {
 				 	+ "fr -> hide -> show;"
 				 	+"fr -> move(i, 24);"
 				+ "}";
-		
 		String[] args = new String[1]; // create command line argument array to initialize params, none
 		args[0] = ms_url;
 

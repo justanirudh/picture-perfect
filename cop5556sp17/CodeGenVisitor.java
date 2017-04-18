@@ -695,7 +695,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 		if (filterOpChain.isKind(OP_GRAY)) { // for bararrow, dup instead of pushing cont_null
 			if (arrow.isKind(ARROW))
 				mv.visitInsn(ACONST_NULL);
-			else // bararrow
+			else //bararrow
 				mv.visitInsn(DUP);
 			mv.visitMethodInsn(INVOKESTATIC, "cop5556sp17/PLPRuntimeFilterOps", "grayOp",
 					"(Ljava/awt/image/BufferedImage;Ljava/awt/image/BufferedImage;)Ljava/awt/image/BufferedImage;",
@@ -735,13 +735,7 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 			} else if (icType.isType(IMAGE) || icType.isType(FRAME)) {
 				mv.visitVarInsn(ALOAD, dec.getSlotNum());
 			} else if (icType.isType(TypeName.INTEGER)) {
-				if (dec instanceof ParamDec) { // global var: can only be int/boolean
-					mv.visitVarInsn(ALOAD, 0);
-					mv.visitFieldInsn(GETFIELD, className, dec.getIdent().getText(), dec.getTypeName()
-							.getJVMTypeDesc());
-				} else { // local var: can only be int/boolean/image
-					mv.visitVarInsn(ILOAD, dec.getSlotNum());
-				}
+				mv.visitVarInsn(ILOAD, dec.getSlotNum());
 			}
 		} else { // right: image, frame, file, integer
 			// DUP before storing, always. So that if chain after this, it can be used by next elem
@@ -764,18 +758,9 @@ public class CodeGenVisitor implements ASTVisitor, Opcodes {
 						"(Ljava/awt/image/BufferedImage;Ljava/io/File;)Ljava/awt/image/BufferedImage;", false);
 				mv.visitInsn(POP); // popping as write returns the same image (unaltered). So, no need of
 														// the returned value
-			} else if (icType.isType(TypeName.INTEGER)) { //can be dec or paramdec
+			} else if (icType.isType(TypeName.INTEGER)) {
 				mv.visitInsn(DUP);
-				if (dec instanceof ParamDec) {
-					String fieldName = dec.getIdent().getText();
-					TypeName decType = dec.getTypeName();
-					String fieldType = decType.getJVMTypeDesc(); // type descriptor of field in JVM notation
-					mv.visitVarInsn(ALOAD, 0); // pushing 'this'
-					mv.visitInsn(SWAP); // swapping as aload 0 needs to come before the pushed value
-					mv.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
-				} else { // local variable; can be of type: int, bool, img, frame;
-					mv.visitVarInsn(ISTORE, dec.getSlotNum()); // int, bool
-				}
+				mv.visitVarInsn(ISTORE, dec.getSlotNum());
 			}
 		}
 

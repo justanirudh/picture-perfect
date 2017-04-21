@@ -113,7 +113,19 @@ public class CodeGenVisitorTest {
 		String expOut = "4043true11411142114311441145114611471148";
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
+	@Test
+	public void progWithChainOps5() throws Exception {
 
+		String progname = "progWithChainOps5 ";
+
+		String input = progname + " integer f1, integer f2 {\n integer i f1->i; i->f2;}"; 
+		String[] args = new String[2]; // create command line argument array to initialize params, none
+		args[0] = "42";
+		args[1] = "43";
+
+		String expOut ="";
+		createByteCodeAndCompare(progname, input, args, expOut);
+	}
 	@Test
 	public void progWithChainOps1() throws Exception {
 
@@ -135,6 +147,7 @@ public class CodeGenVisitorTest {
 				 	+ "fr -> hide -> show;"
 				 	+"fr -> move(i, 24);"
 				+ "}";
+		
 		String[] args = new String[1]; // create command line argument array to initialize params, none
 		args[0] = ms_url;
 
@@ -172,6 +185,33 @@ public class CodeGenVisitorTest {
 		+ "readFromFile("+ms_file+")"
 		+"createOrSetFrameshowImage"
 		+ "write(" + ms_file + ")";
+		createByteCodeAndCompare(progname, input, args, expOut);
+	}
+	
+	@Test
+	public void progWithChainOps6() throws Exception {
+
+		String progname = "assignImageAndFrame";
+		String input = progname + " url u, url u2{image i image i1 frame f frame f1 boolean b\n"
+				+ "u -> i -> f -> show; "
+				+ "frame f2  \n"
+				+ "i -> scale (3) -> f2 -> show; \n "
+				+ "i1 <- i; \n "
+				+ "f2 <- f;\n"
+//				+ "u2 <- u;\n"
+				+ "b <- (u == u2);"
+				+ "}";
+		
+		String[] args = new String[2]; // create command line argument array to initialize params, none
+		args[0] = ms_url;
+		args[1] = ms_url;
+
+		String expOut = "getURL("+ms_url+")"
+				+ "getURL("+ms_url+")"
+				+ "readFromURL("+ms_url+")"
+						+ "createOrSetFrameshowImagescalecreateOrSetFrameshowImagecopyImage"
+				+"false"
+						;
 		createByteCodeAndCompare(progname, input, args, expOut);
 	}
 	

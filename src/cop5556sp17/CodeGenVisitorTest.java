@@ -219,19 +219,22 @@ public class CodeGenVisitorTest {
 	public void progWithChainOps3() throws Exception {
 
 		String progname = "progWithChainOps3 ";
-		String input = progname + "file f"
-				+ "{image img\n image img2\n integer w \n integer h \n integer w2 \n boolean b " 
-				+ "f -> img->width -> w;"
-				+ "img -> height -> h;"
-				+ "f -> img2 -> scale(5);"
-				+ "w -> w2;"
-				+ "sleep w + w2;"
-				+ "img -> f;"
-				+ "b <- (img == img2);"
-				+ "b <- (img != img2);"
+		String input = progname + "file f, file f2"
+				+ "{image img\n image img2\n integer w \n integer h \n integer w2 \n boolean b frame fr \n" 
+//				+ "f -> img->width -> w;"
+//				+ "img -> height -> h;"
+//				+ "f -> img2 -> scale(5);"
+//				+ "w -> w2;"
+//				+ "sleep w + w2;"
+//				+ "img -> f;"
+//				+ "b <- (img == img2);"
+//				+ "b <- (img != img2);"
+				+ "f -> img |-> gray -> fr -> show;"
+				+ "img -> f2;"
 				+ "}";
-		String[] args = new String[1]; // create command line argument array to initialize params, none
+		String[] args = new String[2]; // create command line argument array to initialize params, none
 		args[0] = ms_file;
+		args[1] = "bin/ms2.jpg";
 
 		String expOut = "readFromFile("+ms_file+")" 
 		+ "readFromFile("+ms_file+")"
